@@ -46,10 +46,45 @@
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+ and npm (for local development)
+- OR Docker and Docker Compose (recommended for team development)
 
 ### Installation
+
+#### Option 1: Using Docker (Recommended for Team Development)
+
+This ensures all developers have the same environment.
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/XenchinRyu7/GaneshLab-Meetly.git
+   ```
+   
+2. **Navigate into the project**
+   ```bash
+   cd GaneshLab-Meetly
+   ```
+
+3. **Start with Docker Compose**
+   ```bash
+   docker-compose up
+   ```
+
+4. **Or build and run in detached mode**
+   ```bash
+   docker-compose up -d --build
+   ```
+
+Your app will be running at [http://localhost:3000](http://localhost:3000)
+
+**Docker Commands:**
+- `docker-compose up` - Start development server
+- `docker-compose up -d` - Start in detached mode (background)
+- `docker-compose down` - Stop containers
+- `docker-compose logs -f` - View logs
+- `docker-compose exec app npm run lint` - Run commands inside container
+
+#### Option 2: Local Development
 
 1. **Clone the repository**
    ```bash
@@ -80,6 +115,36 @@ Your app will be running at [http://localhost:3000](http://localhost:3000)
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 - `npm run format` - Format code with Prettier
+- `npm run generate:presets` - Generate theme presets TypeScript definitions
+
+## Docker
+
+### Development
+
+The project includes Docker setup for consistent development environments across the team.
+
+**Files:**
+- `Dockerfile.dev` - Development Docker image
+- `docker-compose.yml` - Docker Compose configuration for development
+- `Dockerfile` - Production Docker image (standalone output)
+
+**Features:**
+- Hot reload enabled (volume mounting)
+- Consistent Node.js version (20-alpine)
+- Automatic theme preset generation
+- Isolated dependencies
+
+### Production Build
+
+To build and run production Docker image:
+
+```bash
+# Build production image
+docker build -t ganeshlab-meetly:latest .
+
+# Run production container
+docker run -p 3000:3000 ganeshlab-meetly:latest
+```
 
 ## Project Structure
 
