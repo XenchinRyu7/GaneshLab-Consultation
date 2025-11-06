@@ -1,11 +1,11 @@
-name: ganeshlab-meetly-dashboard
+name: ganeshlab-consultation-dashboard
 
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: ganeshlab-meetly-dashboard
+    container_name: ganeshlab-consultation-dashboard
     ports:
       - "3000:3000"
     volumes:
@@ -21,9 +21,8 @@ services:
     tty: true
     restart: unless-stopped
     networks:
-      - meetly-network
-
+      - ganeshlab-consultation-network
 networks:
-  meetly-network:
+  ganeshlab-consultation-network:
     driver: bridge
 

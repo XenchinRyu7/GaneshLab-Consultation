@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 export const THEME_MODE_OPTIONS = [
   {
     label: "Light",
@@ -20,8 +21,8 @@ export const THEME_PRESET_OPTIONS = [
     label: "Default",
     value: "default",
     primary: {
-      light: "oklch(0.205 0 0)",
-      dark: "oklch(0.922 0 0)",
+      light: "",
+      dark: "",
     },
   },
   {

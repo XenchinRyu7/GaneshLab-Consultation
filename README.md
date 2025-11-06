@@ -172,10 +172,6 @@ The project includes 42 theme presets including:
 
 You can switch themes dynamically in the application settings.
 
-## License
-
-Copyright (c) 2024 GaneshLab. All rights reserved.
-
 ---
 
 **Built with ❤️ by GaneshLab**
