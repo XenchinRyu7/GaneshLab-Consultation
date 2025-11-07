@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { getPreference } from "@/server/server-actions";
 import { PreferencesStoreProvider } from "@/stores/preferences/preferences-provider";
+import { UserStoreProvider } from "@/stores/user/user-provider";
 import { THEME_MODE_VALUES, THEME_PRESET_VALUES, type ThemePreset, type ThemeMode } from "@/types/preferences/theme";
 
 import { ThemeScript } from "./_components/theme-script";
@@ -16,8 +17,10 @@ export default async function MainLayout({ children }: Readonly<{ children: Reac
     <>
       <ThemeScript themeMode={themeMode} themePreset={themePreset} />
       <PreferencesStoreProvider themeMode={themeMode} themePreset={themePreset}>
-        {children}
-        <Toaster />
+        <UserStoreProvider>
+          {children}
+          <Toaster />
+        </UserStoreProvider>
       </PreferencesStoreProvider>
     </>
   );
