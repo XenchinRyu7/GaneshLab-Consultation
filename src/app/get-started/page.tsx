@@ -24,7 +24,7 @@ export default function WaitlistPage() {
     setSubmitStatus("idle");
 
     try {
-      const response = await fetch("/api/consultation", {
+      const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
