@@ -1,7 +1,6 @@
 import { createStore } from "zustand/vanilla";
 
-import type { UserRole, Permission } from "@/types/rbac";
-import { rolePermissions } from "@/types/rbac";
+import { rolePermissions, type UserRole, type Permission } from "@/types/rbac";
 
 export type User = {
   id: string;
@@ -19,42 +18,61 @@ export type UserState = {
   hasAnyPermission: (permissions: Permission[]) => boolean;
   hasAllPermissions: (permissions: Permission[]) => boolean;
   isAdmin: () => boolean;
-  isPM: () => boolean;
+  isPIC: () => boolean;
   isClient: () => boolean;
+  // Development only - untuk role switcher
+  isDevelopmentMode: boolean;
+  setDevelopmentMode: (enabled: boolean) => void;
 };
 
-// Mock users untuk development
+// Mock users untuk development (hanya digunakan jika development mode aktif)
 const mockUsers: Record<UserRole, User> = {
   admin: {
     id: "admin-1",
     name: "Admin System",
     email: "admin@ganeshlab.com",
     role: "admin",
-    avatar: "/avatars/admin.png",
+    avatar: "#3b82f6", // Blue color
   },
-  pm: {
-    id: "pm-1",
-    name: "John PM",
-    email: "pm@ganeshlab.com",
-    role: "pm",
-    avatar: "/avatars/pm.png",
+  pic: {
+    id: "pic-1",
+    name: "John PIC",
+    email: "pic@ganeshlab.com",
+    role: "pic",
+    avatar: "#10b981", // Green color
   },
   client: {
     id: "client-1",
     name: "Client ABC",
     email: "client@example.com",
     role: "client",
-    avatar: "/avatars/client.png",
+    avatar: "#f59e0b", // Orange color
   },
 };
 
 export const createUserStore = (init?: Partial<UserState>) =>
   createStore<UserState>()((set, get) => ({
-    currentUser: init?.currentUser ?? mockUsers.client,
+    currentUser: init?.currentUser ?? null,
+    isDevelopmentMode: init?.isDevelopmentMode ?? false,
 
     setCurrentUser: (user) => set({ currentUser: user }),
 
-    switchRole: (role) => set({ currentUser: mockUsers[role] }),
+    setDevelopmentMode: (enabled) => set({ isDevelopmentMode: enabled }),
+
+    switchRole: (role) => {
+      // Hanya bisa switch role di development mode
+      if (get().isDevelopmentMode && get().currentUser) {
+        set({
+          currentUser: {
+            ...get().currentUser!,
+            role,
+          },
+        });
+      } else if (get().isDevelopmentMode) {
+        // Jika belum ada user, gunakan mock user
+        set({ currentUser: mockUsers[role] });
+      }
+    },
 
     hasPermission: (permission) => {
       const user = get().currentUser;
@@ -72,7 +90,7 @@ export const createUserStore = (init?: Partial<UserState>) =>
     },
 
     isAdmin: () => get().currentUser?.role === "admin",
-    isPM: () => get().currentUser?.role === "pm",
+    isPIC: () => get().currentUser?.role === "pic",
     isClient: () => get().currentUser?.role === "client",
   }));
 
