@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "pm" | "client";
+export type UserRole = "admin" | "pic" | "client";
 
 export type Permission =
   | "calendar.view"
@@ -11,8 +11,8 @@ export type Permission =
   | "appointment.edit"
   | "appointment.delete"
   | "appointment.confirm"
-  | "pm.availability.manage"
-  | "pm.availability.view"
+  | "pic.availability.manage"
+  | "pic.availability.view"
   | "project.view"
   | "project.create"
   | "project.edit"
@@ -34,21 +34,21 @@ export const rolePermissions: RolePermissions = {
     "appointment.edit",
     "appointment.delete",
     "appointment.confirm",
-    "pm.availability.manage",
-    "pm.availability.view",
+    "pic.availability.manage",
+    "pic.availability.view",
     "project.view",
     "project.create",
     "project.edit",
     "users.manage",
     "settings.manage",
   ],
-  pm: [
+  pic: [
     "calendar.view",
     "appointment.view",
     "appointment.confirm",
     "appointment.edit",
-    "pm.availability.manage",
-    "pm.availability.view",
+    "pic.availability.manage",
+    "pic.availability.view",
     "project.view",
     "project.edit",
   ],
@@ -58,7 +58,7 @@ export const rolePermissions: RolePermissions = {
     "appointment.create",
     "appointment.edit",
     "appointment.delete",
-    "pm.availability.view",
+    "pic.availability.view",
     "project.view",
   ],
 };

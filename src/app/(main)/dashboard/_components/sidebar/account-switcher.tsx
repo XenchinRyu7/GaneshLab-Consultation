@@ -14,6 +14,7 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { cn, getInitials } from "@/lib/utils";
+import { signOut } from "@/app/actions/auth";
 
 export function AccountSwitcher({
   users,
@@ -26,7 +27,15 @@ export function AccountSwitcher({
     readonly role: string;
   }>;
 }) {
-  const [activeUser, setActiveUser] = useState(users[0]);
+  const [activeUser, setActiveUser] = useState(() => users[0] ?? users.find(() => true));
+
+  if (!users.length) {
+    return null;
+  }
+
+  if (!activeUser) {
+    return null;
+  }
 
   return (
     <DropdownMenu>
@@ -71,7 +80,12 @@ export function AccountSwitcher({
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={async () => {
+            await signOut();
+          }}
+          className="text-destructive focus:text-destructive cursor-pointer"
+        >
           <LogOut />
           Log out
         </DropdownMenuItem>
