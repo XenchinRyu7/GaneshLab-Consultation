@@ -10,7 +10,7 @@ import { Navigation } from "@/components/nav";
 
 export default function WaitlistPage() {
   const [formData, setFormData] = useState({
-    name: "",
+    fullname: "",
     email: "",
     type: "personal", // personal or company
     company: "",
@@ -36,7 +36,7 @@ export default function WaitlistPage() {
       if (response.ok) {
         setSubmitStatus("success");
         setFormData({
-          name: "",
+          fullname: "",
           email: "",
           type: "personal",
           company: "",
@@ -82,16 +82,16 @@ export default function WaitlistPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300">
+                  <label htmlFor="fullname" className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300">
                     <User size={16} />
-                    Name
+                    Full Name
                   </label>
                   <input
                     type="text"
-                    id="name"
+                    id="fullname"
                     required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={formData.fullname}
+                    onChange={(e) => setFormData({ ...formData, fullname: e.target.value })}
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
                     placeholder="Your full name"
                   />
