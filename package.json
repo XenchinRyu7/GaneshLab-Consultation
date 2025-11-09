@@ -12,7 +12,9 @@
     "prepare": "husky",
     "postinstall": "prisma generate",
     "generate:presets": "tsx src/scripts/generate-theme-presets.ts",
-    "create:dummy-user": "tsx scripts/create-dummy-user.ts"
+    "db:push": "prisma db push --accept-data-loss",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
@@ -38,6 +40,7 @@
     "date-fns": "^3.6.0",
     "dotenv": "^17.2.3",
     "embla-carousel-react": "^8.6.0",
+    "emoji-picker-react": "^4.15.0",
     "eslint-plugin-unicorn": "^56.0.1",
     "framer-motion": "^12.23.24",
     "input-otp": "^1.4.2",

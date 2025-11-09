@@ -101,9 +101,8 @@ export const sidebarItems: NavGroup[] = [
       },
       {
         title: "Chat",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/chat",
         icon: MessageSquare,
-        comingSoon: true,
       },
       {
         title: "Calendar",
