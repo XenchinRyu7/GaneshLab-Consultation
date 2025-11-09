@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
+    "postinstall": "prisma generate",
     "generate:presets": "tsx src/scripts/generate-theme-presets.ts",
     "create:dummy-user": "tsx scripts/create-dummy-user.ts"
   },

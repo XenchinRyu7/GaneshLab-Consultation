@@ -9,6 +9,12 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
+
+# Copy Prisma files first (needed for postinstall script)
+COPY prisma.config.ts ./
+COPY prisma ./prisma
+
+# Install dependencies (postinstall will run prisma generate)
 RUN npm ci
 
 # Rebuild the source code only when needed
