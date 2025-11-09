@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
-import { Mail, Building2, User, MessageSquare } from "lucide-react";
+import { Mail, Building2, User, MessageSquare, LogIn } from "lucide-react";
 
 import { Card } from "@/components/card";
 import { Navigation } from "@/components/nav";
@@ -58,6 +59,17 @@ export default function WaitlistPage() {
         <div className="mx-auto w-full max-w-2xl">
           <Card>
             <div className="p-8 md:p-16">
+              {/* Login Now Link */}
+              <div className="mb-6 text-center">
+                <Link
+                  href="/auth/login"
+                  className="inline-flex items-center gap-2 text-sm text-zinc-400 transition-colors duration-200 hover:text-zinc-100"
+                >
+                  <LogIn size={16} />
+                  Already have an account? Login Now
+                </Link>
+              </div>
+
               <div className="mb-8 text-center">
                 <h1 className="font-display text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">
                   Schedule a Consultation

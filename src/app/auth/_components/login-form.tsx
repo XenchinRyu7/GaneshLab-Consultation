@@ -2,9 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { signIn } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -17,6 +20,9 @@ const FormSchema = z.object({
 });
 
 export function LoginForm() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -27,13 +33,51 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    setIsLoading(true);
+    console.log("[LoginForm] Starting login for:", data.email);
+
+    try {
+      const result = await signIn(data.email, data.password, data.remember ?? false);
+
+      console.log("[LoginForm] SignIn result:", result);
+
+      if (result?.error) {
+        console.error("[LoginForm] Login error:", result.error);
+        toast.error("Login failed", {
+          description: result.error,
+          duration: 5000,
+        });
+        setIsLoading(false);
+      } else {
+        // If no error, login was successful and redirect should happen
+        console.log("[LoginForm] Login successful, redirecting...");
+        toast.success("Login successful", {
+          description: data.remember ? "You will stay logged in for 30 days" : "Welcome back!",
+        });
+        // Don't set isLoading to false here as we're redirecting
+        router.refresh();
+        // Redirect will happen from server action
+      }
+    } catch (error) {
+      // This catch block handles unexpected errors
+      console.error("[LoginForm] Unexpected error:", error);
+
+      // Check if it's a redirect error (Next.js throws this for redirects)
+      if (error && typeof error === "object" && "digest" in error) {
+        // This is a Next.js redirect, which is expected
+        console.log("[LoginForm] Redirect error (expected):", error);
+        return; // Don't show error for redirect
+      }
+
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("[LoginForm] Actual error:", errorMessage);
+
+      toast.error("An error occurred", {
+        description: errorMessage,
+        duration: 5000,
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -90,8 +134,8 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full" type="submit">
-          Login
+        <Button className="w-full" type="submit" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
         </Button>
       </form>
     </Form>

@@ -107,15 +107,13 @@ export const sidebarItems: NavGroup[] = [
       },
       {
         title: "Calendar",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/calendar",
         icon: Calendar,
-        comingSoon: true,
       },
       {
         title: "Kanban",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/kanban",
         icon: Kanban,
-        comingSoon: true,
       },
       {
         title: "Invoice",
@@ -140,10 +138,8 @@ export const sidebarItems: NavGroup[] = [
         url: "/auth",
         icon: Fingerprint,
         subItems: [
-          { title: "Login v1", url: "/auth/v1/login", newTab: true },
-          { title: "Login v2", url: "/auth/v2/login", newTab: true },
-          { title: "Register v1", url: "/auth/v1/register", newTab: true },
-          { title: "Register v2", url: "/auth/v2/register", newTab: true },
+          { title: "Login", url: "/auth/login", newTab: true },
+          { title: "Register", url: "/auth/register", newTab: true },
         ],
       },
     ],
