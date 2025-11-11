@@ -15,6 +15,8 @@ import {
   Banknote,
   Gauge,
   GraduationCap,
+  FolderKanban,
+  Clock,
   type LucideIcon,
 } from "lucide-react";
 
@@ -35,6 +37,7 @@ export interface NavMainItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: ("admin" | "pic" | "client")[]; // Optional: filter by role
 }
 
 export interface NavGroup {
@@ -105,9 +108,20 @@ export const sidebarItems: NavGroup[] = [
         icon: MessageSquare,
       },
       {
-        title: "Calendar",
-        url: "/dashboard/calendar",
+        title: "Projects",
+        url: "/dashboard/projects",
+        icon: FolderKanban,
+      },
+      {
+        title: "Appointment",
+        url: "/dashboard/appointment",
         icon: Calendar,
+      },
+      {
+        title: "Availability",
+        url: "/dashboard/availability",
+        icon: Clock,
+        roles: ["pic", "admin"], // Only visible for PIC and Admin
       },
       {
         title: "Kanban",

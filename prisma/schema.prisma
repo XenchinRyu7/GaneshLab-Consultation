@@ -18,6 +18,36 @@ enum UserRole {
   client
 }
 
+// Project type enum
+enum ProjectType {
+  WEB_APPLICATION
+  MOBILE_APPLICATION
+  IOT
+  WEB_BANKING
+  E_COMMERCE
+  ENTERPRISE_SOFTWARE
+  CUSTOM_SOFTWARE
+  CONSULTATION
+  MAINTENANCE
+  OTHER
+}
+
+// Project complexity enum
+enum ProjectComplexity {
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+// Project priority enum
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 // User profiles table (stores users with password)
 model UserProfile {
   id          String   @id @default(uuid())
@@ -32,11 +62,16 @@ model UserProfile {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  projectsAsClient Project[] @relation("ClientProjects")
-  projectsAsPIC    Project[] @relation("PICProjects")
-  conversationsAsClient Conversation[] @relation("ClientConversations")
-  conversationsAsPIC    Conversation[] @relation("PICConversations")
-  messages            Message[]
+  company               Company?          @relation("UserCompany") // One-to-one: client has one company
+  projectsAsClient      Project[]         @relation("ClientProjects")
+  projectsAsPIC         Project[]         @relation("PICProjects")
+  conversationsAsClient Conversation[]    @relation("ClientConversations")
+  conversationsAsPIC    Conversation[]    @relation("PICConversations")
+  messages              Message[]
+  picAvailabilities     PICAvailability[] @relation("PICAvailabilities")
+  picBlockedSlots       PICBlockedSlot[]  @relation("PICBlockedSlots")
+  appointmentsAsClient  Appointment[]     @relation("ClientAppointments")
+  appointmentsAsPIC     Appointment[]     @relation("PICAppointments")
 
   @@index([email])
   @@index([role])
@@ -44,45 +79,119 @@ model UserProfile {
   @@map("user_profiles")
 }
 
-// Project table (links client and PIC)
-model Project {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  clientId    String   @map("client_id")
-  picId       String   @map("pic_id")
-  status      String   @default("active") // active, completed, cancelled
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+// Company table (company information for clients)
+model Company {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id") // One company per user (client)
+  name          String
+  website       String?  @db.Text
+  description   String?  @db.Text
+  industry      String? // Industry sector
+  address       String?  @db.Text
+  city          String?
+  province      String?
+  postalCode    String?  @map("postal_code")
+  country       String?  @default("Indonesia")
+  phone         String?
+  email         String?
+  taxId         String?  @map("tax_id") // NPWP
+  logo          String?  @db.Text // URL or path to logo
+  contactPerson String?  @map("contact_person")
+  contactPhone  String?  @map("contact_phone")
+  contactEmail  String?  @map("contact_email")
+  isVerified    Boolean  @default(false) @map("is_verified")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relations
-  client       UserProfile @relation("ClientProjects", fields: [clientId], references: [id], onDelete: Cascade)
-  pic          UserProfile @relation("PICProjects", fields: [picId], references: [id], onDelete: Cascade)
+  user     UserProfile @relation("UserCompany", fields: [userId], references: [id], onDelete: Cascade)
+  projects Project[]   @relation("CompanyProjects")
+
+  @@index([userId])
+  @@index([isVerified])
+  @@map("companies")
+}
+
+// Project table (links client and PIC)
+model Project {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  clientId    String  @map("client_id")
+  picId       String  @map("pic_id")
+  status      String  @default("active") // active, completed, cancelled, pending, on_hold
+
+  // Project Type & Category
+  type     ProjectType @default(OTHER)
+  category String? // Custom category if type is OTHER
+
+  // Budget & Pricing
+  budgetMin     Decimal? @map("budget_min") @db.Decimal(15, 2) // Minimum budget in IDR
+  budgetMax     Decimal? @map("budget_max") @db.Decimal(15, 2) // Maximum budget in IDR
+  estimatedCost Decimal? @map("estimated_cost") @db.Decimal(15, 2) // Estimated cost from PIC
+
+  // Project Details
+  complexity ProjectComplexity @default(MEDIUM)
+  priority   ProjectPriority   @default(MEDIUM)
+  timeline   Int? // Estimated duration in days
+  startDate  DateTime?         @map("start_date")
+  endDate    DateTime?         @map("end_date")
+
+  // Technology & Requirements
+  technologyStack String? @map("technology_stack") // JSON array of technologies
+  requirements    String? @db.Text // Detailed requirements (markdown supported)
+  features        String? @db.Text // List of features/functionalities
+  deliverables    String? @db.Text // List of deliverables
+
+  // Company Relation (optional - project can be associated with company)
+  companyId String? @map("company_id")
+
+  // Project Status Details
+  progress    Int     @default(0) // Progress percentage (0-100)
+  notes       String? @db.Text // Internal notes
+  clientNotes String? @map("client_notes") @db.Text // Notes visible to client
+
+  // Metadata
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at") // Soft delete
+
+  // Relations
+  client        UserProfile    @relation("ClientProjects", fields: [clientId], references: [id], onDelete: Cascade)
+  pic           UserProfile    @relation("PICProjects", fields: [picId], references: [id], onDelete: Cascade)
+  company       Company?       @relation("CompanyProjects", fields: [companyId], references: [id], onDelete: SetNull)
   conversations Conversation[]
+  appointments  Appointment[]
 
   @@index([clientId])
   @@index([picId])
+  @@index([companyId])
   @@index([status])
+  @@index([type])
+  @@index([complexity])
+  @@index([priority])
+  @@index([createdAt])
+  @@index([deletedAt])
   @@map("projects")
 }
 
 // Conversation table (chat threads)
 model Conversation {
-  id          String   @id @default(uuid())
-  clientId    String   @map("client_id")
-  picId       String   @map("pic_id")
-  projectId   String?  @map("project_id") // Optional: null for pre-project chats
-  lastMessageAt DateTime? @map("last_message_at")
+  id                String    @id @default(uuid())
+  clientId          String    @map("client_id")
+  picId             String    @map("pic_id")
+  projectId         String?   @map("project_id") // Optional: null for pre-project chats
+  lastMessageAt     DateTime? @map("last_message_at")
   clearedByClientAt DateTime? @map("cleared_by_client_at") // When client cleared this conversation
-  clearedByPICAt DateTime? @map("cleared_by_pic_at") // When PIC cleared this conversation
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  clearedByPICAt    DateTime? @map("cleared_by_pic_at") // When PIC cleared this conversation
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  client    UserProfile @relation("ClientConversations", fields: [clientId], references: [id], onDelete: Cascade)
-  pic       UserProfile @relation("PICConversations", fields: [picId], references: [id], onDelete: Cascade)
-  project   Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  messages  Message[]
+  client   UserProfile @relation("ClientConversations", fields: [clientId], references: [id], onDelete: Cascade)
+  pic      UserProfile @relation("PICConversations", fields: [picId], references: [id], onDelete: Cascade)
+  project  Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  messages Message[]
 
   // Note: Unique constraint is handled by database indexes (see migration SQL)
   // One conversation per client-PIC pair when projectId is null
@@ -96,15 +205,15 @@ model Conversation {
 
 // Message table (individual chat messages)
 model Message {
-  id             String   @id @default(uuid())
-  conversationId String   @map("conversation_id")
-  senderId       String   @map("sender_id")
+  id             String    @id @default(uuid())
+  conversationId String    @map("conversation_id")
+  senderId       String    @map("sender_id")
   content        String
-  isDeleted      Boolean  @default(false) @map("is_deleted")
+  isDeleted      Boolean   @default(false) @map("is_deleted")
   editedAt       DateTime? @map("edited_at")
   readAt         DateTime? @map("read_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
 
   // Relations
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
@@ -115,4 +224,103 @@ model Message {
   @@index([createdAt])
   @@index([isDeleted])
   @@map("messages")
+}
+
+// Appointment status enum
+enum AppointmentStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+// Meeting type enum
+enum MeetingType {
+  online
+  offline
+}
+
+// Day of week enum for availability
+enum DayOfWeek {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
+// PIC Availability table (PIC working hours and availability)
+// Multiple slots per day are supported (e.g., morning offline, afternoon online)
+model PICAvailability {
+  id          String      @id @default(uuid())
+  picId       String      @map("pic_id")
+  dayOfWeek   DayOfWeek   @map("day_of_week")
+  startTime   String      @map("start_time") // "09:00" format
+  endTime     String      @map("end_time") // "17:00" format
+  meetingType MeetingType @default(online) @map("meeting_type") // online or offline
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  pic UserProfile @relation("PICAvailabilities", fields: [picId], references: [id], onDelete: Cascade)
+
+  @@index([picId])
+  @@index([dayOfWeek])
+  @@index([picId, dayOfWeek])
+  @@map("pic_availabilities")
+}
+
+// PIC Blocked Slot table (specific dates/times when PIC is unavailable)
+model PICBlockedSlot {
+  id        String   @id @default(uuid())
+  picId     String   @map("pic_id")
+  date      DateTime @db.Date
+  startTime String   @map("start_time") // "09:00" format
+  endTime   String   @map("end_time") // "10:00" format
+  reason    String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  pic UserProfile @relation("PICBlockedSlots", fields: [picId], references: [id], onDelete: Cascade)
+
+  @@index([picId])
+  @@index([date])
+  @@map("pic_blocked_slots")
+}
+
+// Appointment table (scheduled meetings between client and PIC)
+model Appointment {
+  id          String            @id @default(uuid())
+  title       String
+  description String?           @db.Text
+  clientId    String            @map("client_id")
+  picId       String            @map("pic_id")
+  projectId   String?           @map("project_id") // Optional: can book before project exists
+  date        DateTime          @db.Date
+  startTime   String            @map("start_time") // "09:00" format
+  endTime     String            @map("end_time") // "10:00" format
+  duration    Int // Duration in minutes
+  type        MeetingType       @default(online)
+  meetingLink String?           @map("meeting_link") @db.Text // For online meetings
+  location    String?           @db.Text // For offline meetings
+  status      AppointmentStatus @default(pending)
+  notes       String?           @db.Text // Meeting notes/outcomes
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  client  UserProfile @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: Cascade)
+  pic     UserProfile @relation("PICAppointments", fields: [picId], references: [id], onDelete: Cascade)
+  project Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([picId])
+  @@index([projectId])
+  @@index([date])
+  @@index([status])
+  @@index([date, startTime])
+  @@map("appointments")
 }

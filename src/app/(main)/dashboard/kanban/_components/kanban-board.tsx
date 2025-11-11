@@ -29,7 +29,11 @@ import {
   type TaskStatus,
 } from "./kanban-config";
 
-export function KanbanBoard() {
+interface KanbanBoardProps {
+  projectId?: string;
+}
+
+export function KanbanBoard({ projectId }: KanbanBoardProps) {
   const [columns, setColumns] = useState<KanbanColumnType[]>(defaultKanbanColumns);
   const [tasks, setTasks] = useState<KanbanTask[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<KanbanTask | null>(null);
