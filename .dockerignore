@@ -22,7 +22,9 @@ dist
 # Misc
 .DS_Store
 *.pem
+# Keep docker-entrypoint.sh for Docker builds
 *.sh
+!docker-entrypoint.sh
 
 # Debug
 npm-debug.log*
