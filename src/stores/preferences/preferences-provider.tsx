@@ -21,7 +21,11 @@ export const PreferencesStoreProvider = ({
 
   storeRef.current ??= createPreferencesStore({ themeMode, themePreset });
 
-  return <PreferencesStoreContext.Provider value={storeRef.current}>{children}</PreferencesStoreContext.Provider>;
+  return (
+    <PreferencesStoreContext.Provider value={storeRef.current}>
+      {children}
+    </PreferencesStoreContext.Provider>
+  );
 };
 
 export const usePreferencesStore = <T,>(selector: (state: PreferencesState) => T): T => {

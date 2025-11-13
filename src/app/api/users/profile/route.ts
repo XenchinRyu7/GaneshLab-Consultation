@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+
 import { getCurrentUser } from "@/app/actions/auth";
+import { prisma } from "@/lib/prisma";
 
 // GET /api/users/profile - Get current user profile
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const sessionUser = await getCurrentUser();
     if (!sessionUser) {
@@ -31,9 +32,10 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ user }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[GET /api/users/profile] Error fetching user profile:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -51,10 +53,7 @@ export async function PUT(req: NextRequest) {
 
     // Validate input
     if (!fullname || typeof fullname !== "string" || fullname.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Full name is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Full name is required" }, { status: 400 });
     }
 
     // Verify user exists
@@ -93,9 +92,9 @@ export async function PUT(req: NextRequest) {
     });
 
     return NextResponse.json({ user: updatedUser }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[PUT /api/users/profile] Error updating user profile:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
-

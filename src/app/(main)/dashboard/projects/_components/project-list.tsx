@@ -1,11 +1,19 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Plus } from "lucide-react";
-import type { Project, ProjectStatus } from "@/stores/project/project-store";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useProjectStore } from "@/stores/project/project-provider";
+import type { Project, ProjectStatus } from "@/stores/project/project-store";
 
 interface ProjectListProps {
   projects: Project[];
@@ -25,19 +33,19 @@ const statusColors: Record<ProjectStatus, string> = {
 function formatStatus(status: ProjectStatus): string {
   return status
     .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
 
 export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: ProjectListProps) {
-  const activeProject = useProjectStore((state) => state.activeProject);
-  const setActiveProject = useProjectStore((state) => state.setActiveProject);
+  const activeProject = useProjectStore(state => state.activeProject);
+  const setActiveProject = useProjectStore(state => state.setActiveProject);
 
   if (projects.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <div className="text-center space-y-4">
+          <div className="space-y-4 text-center">
             <h3 className="text-lg font-semibold">No projects yet</h3>
             <p className="text-muted-foreground">Get started by creating your first project</p>
             <Button onClick={onCreateNew}>
@@ -52,21 +60,21 @@ export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: Project
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {projects.map((project) => {
+      {projects.map(project => {
         const isActive = activeProject?.id === project.id;
 
         return (
           <Card
             key={project.id}
-            className={`cursor-pointer transition-all hover:shadow-md ${
-              isActive ? "ring-2 ring-primary" : ""
-            }`}
+            className={`cursor-pointer transition-all hover:shadow-md ${isActive ? "ring-primary ring-2" : ""}`}
             onClick={() => setActiveProject(project)}
           >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <CardTitle className="text-lg">{project.name}</CardTitle>
-                <Badge className={statusColors[project.status]}>{formatStatus(project.status)}</Badge>
+                <Badge className={statusColors[project.status]}>
+                  {formatStatus(project.status)}
+                </Badge>
               </div>
               {project.description && (
                 <CardDescription className="line-clamp-2">{project.description}</CardDescription>
@@ -76,11 +84,11 @@ export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: Project
               <div className="space-y-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">PIC:</span>{" "}
-                  <span className="font-medium">{project.pic?.fullname || "N/A"}</span>
+                  <span className="font-medium">{project.pic?.fullname ?? "N/A"}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Client:</span>{" "}
-                  <span className="font-medium">{project.client?.fullname || "N/A"}</span>
+                  <span className="font-medium">{project.client?.fullname ?? "N/A"}</span>
                 </div>
               </div>
               {isActive && (
@@ -93,7 +101,7 @@ export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: Project
               <Button
                 variant="outline"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onEdit(project);
                 }}
@@ -103,7 +111,7 @@ export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: Project
               <Button
                 variant="outline"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onDelete(project.id);
                 }}
@@ -117,4 +125,3 @@ export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: Project
     </div>
   );
 }
-

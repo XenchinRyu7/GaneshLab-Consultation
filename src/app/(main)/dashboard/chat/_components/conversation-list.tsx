@@ -1,11 +1,12 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
+
+import type { ConversationWithParticipants } from "@/app/actions/chat";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, getInitials } from "@/lib/utils";
-import type { ConversationWithParticipants } from "@/app/actions/chat";
 
 interface ConversationListProps {
   conversations: ConversationWithParticipants[];
@@ -22,7 +23,7 @@ export function ConversationList({
 }: ConversationListProps) {
   if (conversations.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center p-4 text-center text-muted-foreground">
+      <div className="text-muted-foreground flex flex-1 items-center justify-center p-4 text-center">
         <p>No conversations yet</p>
       </div>
     );
@@ -31,7 +32,7 @@ export function ConversationList({
   return (
     <ScrollArea className="flex-1">
       <div className="divide-y">
-        {conversations.map((conversation) => {
+        {conversations.map(conversation => {
           const otherParticipant =
             currentUserId === conversation.clientId
               ? { name: conversation.picName, avatar: conversation.picAvatar }
@@ -45,7 +46,7 @@ export function ConversationList({
               key={conversation.id}
               onClick={() => onSelectConversation(conversation)}
               className={cn(
-                "w-full p-4 text-left hover:bg-accent transition-colors",
+                "hover:bg-accent w-full p-4 text-left transition-colors",
                 isSelected && "bg-accent"
               )}
             >
@@ -53,25 +54,20 @@ export function ConversationList({
                 <Avatar
                   className="h-10 w-10"
                   style={{
-                    backgroundColor: otherParticipant.avatar || "#3b82f6",
+                    backgroundColor: otherParticipant.avatar ?? "#3b82f6",
                   }}
                 >
-                  <AvatarFallback className="text-white text-sm">
+                  <AvatarFallback className="text-sm text-white">
                     {getInitials(otherParticipant.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <p
-                      className={cn(
-                        "font-medium truncate",
-                        hasUnread && "font-semibold"
-                      )}
-                    >
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <p className={cn("truncate font-medium", hasUnread && "font-semibold")}>
                       {otherParticipant.name}
                     </p>
                     {conversation.lastMessageAt && (
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      <span className="text-muted-foreground text-xs whitespace-nowrap">
                         {formatDistanceToNow(new Date(conversation.lastMessageAt), {
                           addSuffix: true,
                         })}
@@ -80,14 +76,14 @@ export function ConversationList({
                   </div>
                   <div className="flex items-center gap-2">
                     {conversation.projectName && (
-                      <span className="text-xs text-muted-foreground truncate">
+                      <span className="text-muted-foreground truncate text-xs">
                         {conversation.projectName}
                       </span>
                     )}
                     {conversation.lastMessage && (
                       <p
                         className={cn(
-                          "text-sm text-muted-foreground truncate flex-1",
+                          "text-muted-foreground flex-1 truncate text-sm",
                           hasUnread && "text-foreground font-medium"
                         )}
                       >

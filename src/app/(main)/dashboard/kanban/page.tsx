@@ -1,11 +1,12 @@
 "use client";
 
-import { useProjectStore } from "@/stores/project/project-provider";
 import { Badge } from "@/components/ui/badge";
+import { useProjectStore } from "@/stores/project/project-provider";
+
 import { KanbanBoard } from "./_components/kanban-board";
 
 export default function KanbanPage() {
-  const activeProject = useProjectStore((state) => state.activeProject);
+  const activeProject = useProjectStore(state => state.activeProject);
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
@@ -29,11 +30,12 @@ export default function KanbanPage() {
       {!activeProject && (
         <div className="rounded-lg border border-dashed p-8 text-center">
           <p className="text-muted-foreground">
-            No active project selected. Please select a project from the Projects page to view its kanban board.
+            No active project selected. Please select a project from the Projects page to view its
+            kanban board.
           </p>
         </div>
       )}
-      {activeProject && <KanbanBoard projectId={activeProject.id} />}
+      {activeProject && <KanbanBoard />}
     </div>
   );
 }

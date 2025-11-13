@@ -8,8 +8,8 @@ import { setValueToCookie } from "@/server/server-actions";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 export function ThemeSwitcher() {
-  const themeMode = usePreferencesStore((s) => s.themeMode);
-  const setThemeMode = usePreferencesStore((s) => s.setThemeMode);
+  const themeMode = usePreferencesStore(s => s.themeMode);
+  const setThemeMode = usePreferencesStore(s => s.setThemeMode);
 
   const handleValueChange = async () => {
     const newTheme = themeMode === "dark" ? "light" : "dark";

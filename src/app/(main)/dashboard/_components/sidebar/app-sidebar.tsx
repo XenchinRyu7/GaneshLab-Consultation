@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Settings, CircleHelp, Search, Database, ClipboardList, File, Command } from "lucide-react";
+import { Command } from "lucide-react";
 
 import {
   Sidebar,
@@ -20,52 +20,15 @@ import { useUserStore } from "@/stores/user/user-provider";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 
-const data = {
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: CircleHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: Search,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: Database,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: ClipboardList,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: File,
-    },
-  ],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const currentUser = useUserStore((state) => state.currentUser);
+  const currentUser = useUserStore(state => state.currentUser);
 
   // Convert user store format to NavUser format
   const userForNav = currentUser
     ? {
         name: currentUser.name,
         email: currentUser.email,
-        avatar: currentUser.avatar || "",
+        avatar: currentUser.avatar ?? "",
       }
     : null;
 
@@ -88,9 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavDocuments items={data.documents} /> */}
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
-      <SidebarFooter>
-        {userForNav && <NavUser user={userForNav} />}
-      </SidebarFooter>
+      <SidebarFooter>{userForNav && <NavUser user={userForNav} />}</SidebarFooter>
     </Sidebar>
   );
 }

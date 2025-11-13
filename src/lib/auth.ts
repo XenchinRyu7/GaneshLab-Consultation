@@ -1,6 +1,7 @@
+import { cookies } from "next/headers";
+
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import { cookies } from "next/headers";
 
 import { prisma } from "@/lib/prisma";
 import type { UserRole } from "@/types/rbac";
@@ -53,7 +54,7 @@ export async function createSession(user: User, rememberMe: boolean = false): Pr
   // If rememberMe is true, session expires in 30 days, otherwise 7 days
   const expiresInDays = rememberMe ? 30 : 7;
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
-  
+
   // Update JWT expiration to match cookie expiration
   const session = await encryptWithExpiration(user, expiresInDays);
 
@@ -81,12 +82,12 @@ export async function deleteSession(): Promise<void> {
 
 async function handleLoginError(error: unknown): Promise<{ error: string }> {
   console.error("[login] Error during login:", error);
-  
+
   if (error instanceof Error) {
     console.error("[login] Error name:", error.name);
     console.error("[login] Error message:", error.message);
     console.error("[login] Error stack:", error.stack);
-    
+
     // Check for specific error types
     if (error.message.includes("Prisma")) {
       return { error: "Database connection error. Please try again later." };
@@ -97,10 +98,10 @@ async function handleLoginError(error: unknown): Promise<{ error: string }> {
     if (error.message.includes("JWT") || error.message.includes("jose")) {
       return { error: "Session creation error. Please try again." };
     }
-    
+
     return { error: `Login error: ${error.message}` };
   }
-  
+
   return { error: "An unexpected error occurred during login" };
 }
 
@@ -118,7 +119,7 @@ async function verifyUserCredentials(email: string, password: string) {
   // Type assertion to access password field (exists in database but Prisma types may be stale)
   const userWithPassword = user as typeof user & { password: string; fullname: string };
   const isValidPassword = await verifyPassword(password, userWithPassword.password);
-  
+
   if (!isValidPassword) {
     console.log("[login] Invalid password for email:", email);
     return null;
@@ -134,7 +135,7 @@ export async function login(
 ): Promise<{ user: User } | { error: string }> {
   try {
     console.log("[login] Attempting login for email:", email);
-    
+
     const userWithPassword = await verifyUserCredentials(email, password);
     if (!userWithPassword) {
       return { error: "Invalid email or password" };
@@ -165,4 +166,3 @@ export async function logout(): Promise<void> {
 export async function getCurrentUser(): Promise<User | null> {
   return await getSession();
 }
-

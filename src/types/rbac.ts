@@ -62,4 +62,3 @@ export const rolePermissions: RolePermissions = {
     "project.view",
   ],
 };
-

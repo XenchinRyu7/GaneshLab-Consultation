@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+
 import { prisma } from "@/lib/prisma";
 
 // GET /api/projects/pics - Get all PICs (for project creation)
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const pics = await prisma.userProfile.findMany({
       where: {
@@ -20,9 +21,11 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ pics }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching PICs:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }
-

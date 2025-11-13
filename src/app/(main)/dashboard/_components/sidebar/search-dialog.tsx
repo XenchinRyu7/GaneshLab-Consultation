@@ -1,7 +1,15 @@
 "use client";
 import * as React from "react";
 
-import { LayoutDashboard, ChartBar, Gauge, ShoppingBag, GraduationCap, Forklift, Search } from "lucide-react";
+import {
+  LayoutDashboard,
+  ChartBar,
+  Gauge,
+  ShoppingBag,
+  GraduationCap,
+  Forklift,
+  Search,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +41,7 @@ export function SearchDialog() {
     const down = (e: KeyboardEvent) => {
       if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setOpen((open) => !open);
+        setOpen(open => !open);
       }
     };
     document.addEventListener("keydown", down);
@@ -57,14 +65,18 @@ export function SearchDialog() {
         <CommandInput placeholder="Search dashboards, users, and more…" />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          {[...new Set(searchItems.map((item) => item.group))].map((group, i) => (
+          {[...new Set(searchItems.map(item => item.group))].map((group, i) => (
             <React.Fragment key={group}>
               {i !== 0 && <CommandSeparator />}
               <CommandGroup heading={group} key={group}>
                 {searchItems
-                  .filter((item) => item.group === group)
-                  .map((item) => (
-                    <CommandItem className="!py-1.5" key={item.label} onSelect={() => setOpen(false)}>
+                  .filter(item => item.group === group)
+                  .map(item => (
+                    <CommandItem
+                      className="!py-1.5"
+                      key={item.label}
+                      onSelect={() => setOpen(false)}
+                    >
                       {item.icon && <item.icon />}
                       <span>{item.label}</span>
                     </CommandItem>

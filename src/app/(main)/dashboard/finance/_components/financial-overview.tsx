@@ -3,9 +3,27 @@
 import { ArrowDownLeft, ArrowUpRight, CalendarCheck } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/utils";
 
@@ -47,7 +65,9 @@ export function FinancialOverview() {
     <Card className="shadow-xs">
       <CardHeader>
         <CardTitle>Financial Overview</CardTitle>
-        <CardDescription>Track your income, expenses, and scheduled amounts at a glance.</CardDescription>
+        <CardDescription>
+          Track your income, expenses, and scheduled amounts at a glance.
+        </CardDescription>
         <CardAction>
           <Select defaultValue="last-year">
             <SelectTrigger>
@@ -70,7 +90,9 @@ export function FinancialOverview() {
             </div>
             <div>
               <p className="text-muted-foreground text-xs uppercase">Income</p>
-              <p className="font-medium tabular-nums">{formatCurrency(totalIncome, { noDecimals: true })}</p>
+              <p className="font-medium tabular-nums">
+                {formatCurrency(totalIncome, { noDecimals: true })}
+              </p>
             </div>
           </div>
           <Separator orientation="vertical" className="!h-auto" />
@@ -80,7 +102,9 @@ export function FinancialOverview() {
             </div>
             <div>
               <p className="text-muted-foreground text-xs uppercase">Expenses</p>
-              <p className="font-medium tabular-nums">{formatCurrency(totalExpenses, { noDecimals: true })}</p>
+              <p className="font-medium tabular-nums">
+                {formatCurrency(totalExpenses, { noDecimals: true })}
+              </p>
             </div>
           </div>
           <Separator orientation="vertical" className="!h-auto" />
@@ -90,20 +114,26 @@ export function FinancialOverview() {
             </div>
             <div>
               <p className="text-muted-foreground text-xs uppercase">Scheduled</p>
-              <p className="font-medium tabular-nums">{formatCurrency(totalScheduled, { noDecimals: true })}</p>
+              <p className="font-medium tabular-nums">
+                {formatCurrency(totalScheduled, { noDecimals: true })}
+              </p>
             </div>
           </div>
         </div>
         <Separator />
         <ChartContainer className="max-h-72 w-full" config={chartConfig}>
-          <BarChart margin={{ left: -25, right: 0, top: 25, bottom: 0 }} accessibilityLayer data={chartData}>
+          <BarChart
+            margin={{ left: -25, right: 0, top: 25, bottom: 0 }}
+            accessibilityLayer
+            data={chartData}
+          >
             <CartesianGrid vertical={false} />
             <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
             <YAxis
               axisLine={false}
               tickLine={false}
               tickMargin={8}
-              tickFormatter={(value) => `${value >= 1000 ? value / 1000 + "k" : value}`}
+              tickFormatter={value => `${value >= 1000 ? value / 1000 + "k" : value}`}
               domain={[0, 20000]}
             />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />

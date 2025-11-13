@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useRef } from "react";
+
 import { useStore, type StoreApi } from "zustand";
 
 import { createUserStore, type UserState } from "./user-store";
@@ -17,9 +18,7 @@ export const UserStoreProvider = ({
   const storeRef = useRef<StoreApi<UserState> | null>(null);
   storeRef.current ??= createUserStore({ currentUser: initialUser });
 
-  return (
-    <UserStoreContext.Provider value={storeRef.current}>{children}</UserStoreContext.Provider>
-  );
+  return <UserStoreContext.Provider value={storeRef.current}>{children}</UserStoreContext.Provider>;
 };
 
 export const useUserStore = <T,>(selector: (state: UserState) => T): T => {
@@ -27,4 +26,3 @@ export const useUserStore = <T,>(selector: (state: UserState) => T): T => {
   if (!store) throw new Error("Missing UserStoreProvider");
   return useStore(store, selector);
 };
-

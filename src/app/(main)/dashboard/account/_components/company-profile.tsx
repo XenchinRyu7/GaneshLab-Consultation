@@ -1,45 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect, useCallback } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { useUserStore } from "@/stores/user/user-provider";
 
-const companySchema = z.object({
-  name: z.string().min(1, "Company name is required"),
-  website: z.string().url("Invalid URL").optional().or(z.literal("")),
-  description: z.string().optional(),
-  industry: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  province: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  contactPerson: z.string().optional(),
-  contactPhone: z.string().optional(),
-  contactEmail: z.string().email("Invalid email").optional().or(z.literal("")),
-});
-
-type CompanyFormValues = z.infer<typeof companySchema>;
+import { CompanyProfileFormAddress } from "./company-profile-form-address";
+import { CompanyProfileFormBasic } from "./company-profile-form-basic";
+import { CompanyProfileFormContact } from "./company-profile-form-contact";
+import { companySchema, type CompanyFormValues } from "./company-profile-schema";
 
 interface Company {
   id: string;
@@ -61,7 +38,7 @@ interface Company {
 }
 
 export function CompanyProfile() {
-  const currentUser = useUserStore((state) => state.currentUser);
+  const currentUser = useUserStore(state => state.currentUser);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [company, setCompany] = useState<Company | null>(null);
@@ -87,13 +64,50 @@ export function CompanyProfile() {
     },
   });
 
-  useEffect(() => {
-    if (currentUser) {
-      fetchCompany();
-    }
-  }, [currentUser]);
+  const buildBasicFormData = useCallback(
+    (company: Company) => ({
+      name: company.name,
+      website: company.website ?? "",
+      description: company.description ?? "",
+      industry: company.industry ?? "",
+    }),
+    []
+  );
 
-  async function fetchCompany() {
+  const buildAddressFormData = useCallback(
+    (company: Company) => ({
+      address: company.address ?? "",
+      city: company.city ?? "",
+      province: company.province ?? "",
+      postalCode: company.postalCode ?? "",
+      country: company.country ?? "Indonesia",
+    }),
+    []
+  );
+
+  const buildContactFormData = useCallback(
+    (company: Company) => ({
+      phone: company.phone ?? "",
+      email: company.email ?? "",
+      contactPerson: company.contactPerson ?? "",
+      contactPhone: company.contactPhone ?? "",
+      contactEmail: company.contactEmail ?? "",
+    }),
+    []
+  );
+
+  const resetFormWithCompanyData = useCallback(
+    (company: Company) => {
+      form.reset({
+        ...buildBasicFormData(company),
+        ...buildAddressFormData(company),
+        ...buildContactFormData(company),
+      });
+    },
+    [form, buildBasicFormData, buildAddressFormData, buildContactFormData]
+  );
+
+  const fetchCompany = useCallback(async () => {
     if (!currentUser) {
       console.error("[CompanyProfile] No user found in store");
       setFetching(false);
@@ -102,42 +116,18 @@ export function CompanyProfile() {
 
     try {
       setFetching(true);
-      const userId = currentUser.id;
-      
-      console.log("[CompanyProfile] Fetching company for user:", {
-        id: userId,
-        email: currentUser.email,
-        role: currentUser.role,
-      });
+      const response = await fetch(`/api/companies?userId=${currentUser.id}`);
 
-      const response = await fetch(`/api/companies?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.company) {
           setCompany(data.company);
-          form.reset({
-            name: data.company.name || "",
-            website: data.company.website || "",
-            description: data.company.description || "",
-            industry: data.company.industry || "",
-            address: data.company.address || "",
-            city: data.company.city || "",
-            province: data.company.province || "",
-            postalCode: data.company.postalCode || "",
-            country: data.company.country || "Indonesia",
-            phone: data.company.phone || "",
-            email: data.company.email || "",
-            contactPerson: data.company.contactPerson || "",
-            contactPhone: data.company.contactPhone || "",
-            contactEmail: data.company.contactEmail || "",
-          });
+          resetFormWithCompanyData(data.company);
         }
       } else {
-        const errorData = await response.json().catch(() => ({}));
         console.error("[CompanyProfile] Error fetching company:", {
           status: response.status,
-          error: errorData,
-          userId,
+          userId: currentUser.id,
         });
       }
     } catch (error) {
@@ -145,7 +135,13 @@ export function CompanyProfile() {
     } finally {
       setFetching(false);
     }
-  }
+  }, [currentUser, resetFormWithCompanyData]);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchCompany();
+    }
+  }, [currentUser, fetchCompany]);
 
   async function onSubmit(data: CompanyFormValues) {
     if (!currentUser) {
@@ -163,7 +159,7 @@ export function CompanyProfile() {
     try {
       setLoading(true);
       const userId = currentUser.id;
-      
+
       console.log("[CompanyProfile] Saving company profile for user:", {
         id: userId,
         email: currentUser.email,
@@ -189,12 +185,12 @@ export function CompanyProfile() {
           error,
           userId,
         });
-        
+
         // Show more detailed error message
-        const errorMessage = error.details 
+        const errorMessage = error.details
           ? `${error.error}: ${error.details}`
-          : error.error || "Failed to save company";
-        
+          : (error.error ?? "Failed to save company");
+
         throw new Error(errorMessage);
       }
 
@@ -203,9 +199,9 @@ export function CompanyProfile() {
       setSaved(true);
       toast.success("Company profile saved successfully");
       setTimeout(() => setSaved(false), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("[CompanyProfile] Error saving company:", error);
-      toast.error(error.message || "Failed to save company profile");
+      toast.error(error instanceof Error ? error.message : "Failed to save company profile");
     } finally {
       setLoading(false);
     }
@@ -215,7 +211,7 @@ export function CompanyProfile() {
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-muted-foreground">Loading company information...</p>
+          <p className="text-muted-foreground text-center">Loading company information...</p>
         </CardContent>
       </Card>
     );
@@ -245,231 +241,15 @@ export function CompanyProfile() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Basic Information</h3>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company Name *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter company name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="website"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Website</FormLabel>
-                    <FormControl>
-                      <Input type="url" placeholder="https://example.com" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Company description"
-                        className="resize-none"
-                        rows={3}
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="industry"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Industry</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Technology, Finance, Retail" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <CompanyProfileFormBasic form={form} />
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Address</h3>
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Street address"
-                        className="resize-none"
-                        rows={2}
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input placeholder="City" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="province"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Province</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Province" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="postalCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Postal Code</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Postal code" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Country" {...field} value={field.value || "Indonesia"} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <CompanyProfileFormAddress form={form} />
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Contact Information</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="Phone number" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="company@example.com" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Contact Person</h3>
-              <FormField
-                control={form.control}
-                name="contactPerson"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Person Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Contact person name" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="contactPhone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact Phone</FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="Contact phone" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="contactEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="contact@example.com" {...field} value={field.value || ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <CompanyProfileFormContact form={form} />
             </div>
 
             <div className="flex justify-end">
@@ -483,4 +263,3 @@ export function CompanyProfile() {
     </Card>
   );
 }
-

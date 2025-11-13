@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -24,6 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { Project } from "@/stores/project/project-store";
 
 const projectSchema = z.object({
@@ -68,7 +70,7 @@ export function EditProjectDialog({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       name: project.name,
-      description: project.description || "",
+      description: project.description ?? "",
       picId: project.picId,
       status: project.status,
     },
@@ -79,7 +81,7 @@ export function EditProjectDialog({
       fetchPICs();
       form.reset({
         name: project.name,
-        description: project.description || "",
+        description: project.description ?? "",
         picId: project.picId,
         status: project.status,
       });
@@ -94,7 +96,7 @@ export function EditProjectDialog({
         throw new Error("Failed to fetch PICs");
       }
       const data = await response.json();
-      setPics(data.pics || []);
+      setPics(data.pics ?? []);
     } catch (error) {
       console.error("Error fetching PICs:", error);
     } finally {
@@ -151,18 +153,14 @@ export function EditProjectDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>PIC (Person In Charge)</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={loading}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value} disabled={loading}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a PIC" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {pics.map((pic) => (
+                      {pics.map(pic => (
                         <SelectItem key={pic.id} value={pic.id}>
                           {pic.fullname} ({pic.email})
                         </SelectItem>
@@ -199,11 +197,7 @@ export function EditProjectDialog({
               )}
             />
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
@@ -216,4 +210,3 @@ export function EditProjectDialog({
     </Dialog>
   );
 }
-

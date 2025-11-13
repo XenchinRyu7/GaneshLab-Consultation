@@ -1,6 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
+import { Monitor, MapPin, Trash2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,10 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,10 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
-import { Monitor, MapPin, Trash2 } from "lucide-react";
-import type { Appointment, MeetingType, AppointmentStatus } from "./calendar-config";
-import type { ProjectContext } from "./calendar-config";
+
+import type {
+  Appointment,
+  MeetingType,
+  AppointmentStatus,
+  ProjectContext,
+} from "./calendar-config";
 
 interface EditAppointmentDialogProps {
   open: boolean;
@@ -42,37 +49,25 @@ export function EditAppointmentDialog({
   onDelete,
   projectContext,
 }: EditAppointmentDialogProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [type, setType] = useState<MeetingType>("online");
-  const [status, setStatus] = useState<AppointmentStatus>("pending");
-  const [meetingLink, setMeetingLink] = useState("");
-  const [location, setLocation] = useState("");
-  const [notes, setNotes] = useState("");
+  // Initialize state from appointment using lazy initialization
+  // Key prop on Dialog will reset state when appointment.id changes
+  const [title, setTitle] = useState(() => appointment?.title ?? "");
+  const [description, setDescription] = useState(() => appointment?.description ?? "");
+  const [date, setDate] = useState(() => appointment?.date ?? "");
+  const [startTime, setStartTime] = useState(() => appointment?.startTime ?? "");
+  const [endTime, setEndTime] = useState(() => appointment?.endTime ?? "");
+  const [type, setType] = useState<MeetingType>(() => appointment?.type ?? "online");
+  const [status, setStatus] = useState<AppointmentStatus>(() => appointment?.status ?? "pending");
+  const [meetingLink, setMeetingLink] = useState(() => appointment?.meetingLink ?? "");
+  const [location, setLocation] = useState(() => appointment?.location ?? "");
+  const [notes, setNotes] = useState(() => appointment?.notes ?? "");
 
-  useEffect(() => {
-    if (appointment && open) {
-      setTitle(appointment.title);
-      setDescription(appointment.description || "");
-      setDate(appointment.date);
-      setStartTime(appointment.startTime);
-      setEndTime(appointment.endTime);
-      setType(appointment.type);
-      setStatus(appointment.status);
-      setMeetingLink(appointment.meetingLink || "");
-      setLocation(appointment.location || "");
-      setNotes(appointment.notes || "");
-    }
-  }, [appointment, open]);
+  function validateForm(): boolean {
+    return !!(appointment && title.trim() && date && startTime && endTime);
+  }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!appointment || !title.trim() || !date || !startTime || !endTime) return;
-
-    onUpdate(appointment.id, {
+  function buildUpdatePayload(): Partial<Appointment> {
+    return {
       title: title.trim(),
       description: description.trim() || undefined,
       date,
@@ -84,8 +79,15 @@ export function EditAppointmentDialog({
       meetingLink: type === "online" ? meetingLink.trim() || undefined : undefined,
       location: type === "offline" ? location.trim() || undefined : undefined,
       notes: notes.trim() || undefined,
-    });
+    };
+  }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    if (!appointment) return;
+    onUpdate(appointment.id, buildUpdatePayload());
     onOpenChange(false);
   }
 
@@ -106,8 +108,8 @@ export function EditAppointmentDialog({
   if (!appointment) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange} key={appointment.id}>
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Appointment</DialogTitle>
           <DialogDescription>
@@ -121,7 +123,7 @@ export function EditAppointmentDialog({
             <Input
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={e => setTitle(e.target.value)}
               placeholder="Meeting title"
               required
             />
@@ -132,7 +134,7 @@ export function EditAppointmentDialog({
             <Textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
               placeholder="Meeting description"
               rows={3}
             />
@@ -145,14 +147,14 @@ export function EditAppointmentDialog({
                 id="date"
                 type="date"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={e => setDate(e.target.value)}
                 required
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
-              <Select value={status} onValueChange={(value) => setStatus(value as AppointmentStatus)}>
+              <Select value={status} onValueChange={value => setStatus(value as AppointmentStatus)}>
                 <SelectTrigger id="status">
                   <SelectValue />
                 </SelectTrigger>
@@ -169,26 +171,18 @@ export function EditAppointmentDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Start Time *</Label>
-              <TimePicker
-                value={startTime}
-                onChange={setStartTime}
-                id="startTime"
-              />
+              <TimePicker value={startTime} onChange={setStartTime} id="startTime" />
             </div>
 
             <div className="space-y-2">
               <Label>End Time *</Label>
-              <TimePicker
-                value={endTime}
-                onChange={setEndTime}
-                id="endTime"
-              />
+              <TimePicker value={endTime} onChange={setEndTime} id="endTime" />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="type">Meeting Type *</Label>
-            <Select value={type} onValueChange={(value) => setType(value as MeetingType)}>
+            <Select value={type} onValueChange={value => setType(value as MeetingType)}>
               <SelectTrigger id="type">
                 <SelectValue />
               </SelectTrigger>
@@ -215,7 +209,7 @@ export function EditAppointmentDialog({
               <Input
                 id="meetingLink"
                 value={meetingLink}
-                onChange={(e) => setMeetingLink(e.target.value)}
+                onChange={e => setMeetingLink(e.target.value)}
                 placeholder="https://meet.google.com/..."
               />
             </div>
@@ -227,7 +221,7 @@ export function EditAppointmentDialog({
               <Input
                 id="location"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={e => setLocation(e.target.value)}
                 placeholder="Meeting location"
               />
             </div>
@@ -238,7 +232,7 @@ export function EditAppointmentDialog({
             <Textarea
               id="notes"
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={e => setNotes(e.target.value)}
               placeholder="Meeting notes or outcomes"
               rows={3}
             />
@@ -246,7 +240,7 @@ export function EditAppointmentDialog({
 
           <DialogFooter className="flex items-center justify-between">
             <Button type="button" variant="destructive" onClick={handleDelete}>
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </Button>
             <div className="flex gap-2">
@@ -263,4 +257,3 @@ export function EditAppointmentDialog({
     </Dialog>
   );
 }
-

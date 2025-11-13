@@ -1,11 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { format, isToday } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { Monitor, MapPin, Clock } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
 import type { Appointment, PMAvailabilitySlot, ProjectContext } from "./calendar-config";
 
 interface DayCalendarViewProps {
@@ -29,23 +32,27 @@ export function DayCalendarView({
 
   // Filter by date
   const dayAppointments = useMemo(() => {
-    return appointments.filter((apt) => apt.date === dateStr);
+    return appointments.filter(apt => apt.date === dateStr);
   }, [appointments, dateStr]);
 
   // Filter availability slots
   const daySlots = useMemo(() => {
-    let slots = availabilitySlots.filter((slot) => slot.date === dateStr);
+    let slots = availabilitySlots.filter(slot => slot.date === dateStr);
     if (projectContext?.assignedPMId) {
-      slots = slots.filter((slot) => slot.pmId === projectContext.assignedPMId);
+      slots = slots.filter(slot => slot.pmId === projectContext.assignedPMId);
     }
     return slots;
   }, [availabilitySlots, dateStr, projectContext]);
 
   const statusColors = {
-    pending: "bg-yellow-50 border-yellow-200 text-yellow-700 dark:bg-yellow-950/30 dark:border-yellow-800 dark:text-yellow-400",
-    confirmed: "bg-green-50 border-green-200 text-green-700 dark:bg-green-950/30 dark:border-green-800 dark:text-green-400",
-    cancelled: "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400",
-    completed: "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/30 dark:border-blue-800 dark:text-blue-400",
+    pending:
+      "bg-yellow-50 border-yellow-200 text-yellow-700 dark:bg-yellow-950/30 dark:border-yellow-800 dark:text-yellow-400",
+    confirmed:
+      "bg-green-50 border-green-200 text-green-700 dark:bg-green-950/30 dark:border-green-800 dark:text-green-400",
+    cancelled:
+      "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400",
+    completed:
+      "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/30 dark:border-blue-800 dark:text-blue-400",
   };
 
   // Get color classes for meeting types (availability slots)
@@ -68,13 +75,19 @@ export function DayCalendarView({
   const getMeetingTypeBadge = (type: "online" | "offline") => {
     if (type === "online") {
       return (
-        <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-700">
+        <Badge
+          variant="outline"
+          className="border-blue-300 bg-blue-100 text-blue-700 dark:border-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
+        >
           Online
         </Badge>
       );
     } else {
       return (
-        <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-700">
+        <Badge
+          variant="outline"
+          className="border-orange-300 bg-orange-100 text-orange-700 dark:border-orange-700 dark:bg-orange-900/50 dark:text-orange-300"
+        >
           Offline
         </Badge>
       );
@@ -92,12 +105,12 @@ export function DayCalendarView({
       <CardContent>
         <div className="space-y-3">
           {/* Appointments */}
-          {dayAppointments.map((apt) => (
+          {dayAppointments.map(apt => (
             <Card
               key={apt.id}
               onClick={() => onAppointmentClick?.(apt)}
               className={cn(
-                "p-4 cursor-pointer hover:opacity-90 transition-opacity border-2",
+                "cursor-pointer border-2 p-4 transition-opacity hover:opacity-90",
                 statusColors[apt.status]
               )}
             >
@@ -105,25 +118,25 @@ export function DayCalendarView({
                 <div className="font-medium">{apt.title}</div>
                 <div className="flex items-center gap-2 text-sm opacity-75">
                   <Clock className="h-4 w-4" />
-                  <span>{apt.startTime} - {apt.endTime}</span>
+                  <span>
+                    {apt.startTime} - {apt.endTime}
+                  </span>
                 </div>
-                {apt.pmName && (
-                  <div className="text-sm opacity-60">PIC: {apt.pmName}</div>
-                )}
+                {apt.pmName && <div className="text-sm opacity-60">PIC: {apt.pmName}</div>}
                 {apt.description && (
-                  <div className="text-sm opacity-60 mt-1">{apt.description}</div>
+                  <div className="mt-1 text-sm opacity-60">{apt.description}</div>
                 )}
               </div>
             </Card>
           ))}
-          
+
           {/* Availability Slots - Each slot is a separate card */}
           {daySlots.map((slot, idx) => (
             <Card
               key={`${slot.pmId}-${slot.startTime}-${idx}`}
               onClick={() => onSlotSelect?.(slot)}
               className={cn(
-                "p-4 cursor-pointer hover:opacity-90 transition-opacity border-2",
+                "cursor-pointer border-2 p-4 transition-opacity hover:opacity-90",
                 getMeetingTypeColors(slot.type)
               )}
             >
@@ -134,17 +147,17 @@ export function DayCalendarView({
                 </div>
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Clock className="h-4 w-4 opacity-60" />
-                  <span>{slot.startTime} - {slot.endTime}</span>
+                  <span>
+                    {slot.startTime} - {slot.endTime}
+                  </span>
                 </div>
-                {slot.pmName && (
-                  <div className="text-sm opacity-60">PIC: {slot.pmName}</div>
-                )}
+                {slot.pmName && <div className="text-sm opacity-60">PIC: {slot.pmName}</div>}
               </div>
             </Card>
           ))}
-          
+
           {dayAppointments.length === 0 && daySlots.length === 0 && (
-            <div className="text-sm text-muted-foreground text-center py-12">
+            <div className="text-muted-foreground py-12 text-center text-sm">
               No appointments or available slots for this day
             </div>
           )}
@@ -153,4 +166,3 @@ export function DayCalendarView({
     </Card>
   );
 }
-

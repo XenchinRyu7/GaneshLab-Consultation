@@ -19,17 +19,15 @@ RUN npm ci
 # Copy all remaining files
 COPY . .
 
-# Copy and set up entrypoint script
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
 # Generate theme presets
 RUN npm run generate:presets
+
+# Generate Prisma Client
+RUN npx prisma generate || echo "Warning: Prisma generate failed"
 
 # Expose port
 EXPOSE 3000
 
-# Use entrypoint to generate Prisma Client before starting
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Start development server
 CMD ["npm", "run", "dev"]
 

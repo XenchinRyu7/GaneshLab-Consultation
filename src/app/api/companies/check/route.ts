@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
+
 import { getCurrentUser } from "@/app/actions/auth";
+import { prisma } from "@/lib/prisma";
 
 // GET /api/companies/check - Check if company profile is complete
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -74,4 +75,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

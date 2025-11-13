@@ -29,11 +29,7 @@ import {
   type TaskStatus,
 } from "./kanban-config";
 
-interface KanbanBoardProps {
-  projectId?: string;
-}
-
-export function KanbanBoard({ projectId }: KanbanBoardProps) {
+export function KanbanBoard() {
   const [columns, setColumns] = useState<KanbanColumnType[]>(defaultKanbanColumns);
   const [tasks, setTasks] = useState<KanbanTask[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<KanbanTask | null>(null);
@@ -52,11 +48,11 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
         tolerance: 5,
       },
     }),
-    useSensor(KeyboardSensor),
+    useSensor(KeyboardSensor)
   );
 
   function handleDragStart(event: DragStartEvent) {
-    const task = tasks.find((t) => t.id === event.active.id);
+    const task = tasks.find(t => t.id === event.active.id);
     setActiveTask(task ?? null);
   }
 
@@ -72,19 +68,19 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
     const overId = over.id as string;
 
     // Find the task being dragged
-    const activeTask = tasks.find((t) => t.id === activeId);
+    const activeTask = tasks.find(t => t.id === activeId);
     if (!activeTask) {
       setActiveTask(null);
       return;
     }
 
     // Check if dropped on a column (status change)
-    const overColumn = columns.find((col) => col.id === overId);
+    const overColumn = columns.find(col => col.id === overId);
     if (overColumn) {
       // Moving to a different column
       if (activeTask.status !== overColumn.id) {
-        setTasks((prevTasks) =>
-          prevTasks.map((task) => (task.id === activeId ? { ...task, status: overColumn.id } : task)),
+        setTasks(prevTasks =>
+          prevTasks.map(task => (task.id === activeId ? { ...task, status: overColumn.id } : task))
         );
       }
       setActiveTask(null);
@@ -92,19 +88,19 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
     }
 
     // Check if dropped on another task (reordering or moving between columns)
-    const overTask = tasks.find((t) => t.id === overId);
+    const overTask = tasks.find(t => t.id === overId);
     if (overTask) {
       if (activeTask.status === overTask.status) {
         // Same column, reorder
-        const activeIndex = tasks.findIndex((t) => t.id === activeId);
-        const overIndex = tasks.findIndex((t) => t.id === overId);
+        const activeIndex = tasks.findIndex(t => t.id === activeId);
+        const overIndex = tasks.findIndex(t => t.id === overId);
 
-        setTasks((prevTasks) => arrayMove(prevTasks, activeIndex, overIndex));
+        setTasks(prevTasks => arrayMove(prevTasks, activeIndex, overIndex));
       } else {
         // Different column, move to new column and position
-        setTasks((prevTasks) => {
-          const newTasks = prevTasks.filter((t) => t.id !== activeId);
-          const overIndex = newTasks.findIndex((t) => t.id === overId);
+        setTasks(prevTasks => {
+          const newTasks = prevTasks.filter(t => t.id !== activeId);
+          const overIndex = newTasks.findIndex(t => t.id === overId);
           const updatedTask = { ...activeTask, status: overTask.status };
 
           return [...newTasks.slice(0, overIndex), updatedTask, ...newTasks.slice(overIndex)];
@@ -120,7 +116,7 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
       ...taskData,
       id: Date.now().toString(),
     };
-    setTasks((prev) => [...prev, newTask]);
+    setTasks(prev => [...prev, newTask]);
   }
 
   function handleAddBoard(boardData: Omit<KanbanColumnType, "id"> & { id?: string }) {
@@ -130,7 +126,7 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
       title: boardData.title,
       color: boardData.color,
     };
-    setColumns((prev) => [...prev, newColumn]);
+    setColumns(prev => [...prev, newColumn]);
   }
 
   function handleCardClick(task: KanbanTask) {
@@ -139,13 +135,13 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
   }
 
   function handleUpdateCard(taskId: string, updatedTask: Partial<KanbanTask>) {
-    setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...updatedTask } : task)));
+    setTasks(prev => prev.map(task => (task.id === taskId ? { ...task, ...updatedTask } : task)));
     setIsEditDialogOpen(false);
     setEditingTask(null);
   }
 
-  const existingIds = columns.map((col) => col.id);
-  const availableStatuses: TaskStatus[] = columns.map((col) => col.id);
+  const existingIds = columns.map(col => col.id);
+  const availableStatuses: TaskStatus[] = columns.map(col => col.id);
 
   return (
     <div className="flex flex-col gap-4">
@@ -160,8 +156,8 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
       >
         <ScrollArea className="h-[calc(100vh-16rem)]">
           <div className="flex gap-4 p-4">
-            {columns.map((column) => {
-              const columnTasks = tasks.filter((task) => task.status === column.id);
+            {columns.map(column => {
+              const columnTasks = tasks.filter(task => task.status === column.id);
               return (
                 <KanbanColumn
                   key={column.id}
@@ -183,7 +179,9 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
                     <h4 className="text-sm leading-tight font-semibold">{activeTask.title}</h4>
                   </div>
                   {activeTask.description && (
-                    <p className="text-muted-foreground mt-2 line-clamp-2 text-xs">{activeTask.description}</p>
+                    <p className="text-muted-foreground mt-2 line-clamp-2 text-xs">
+                      {activeTask.description}
+                    </p>
                   )}
                 </div>
               </div>

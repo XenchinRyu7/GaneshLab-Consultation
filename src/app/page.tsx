@@ -11,8 +11,12 @@ export default function Home() {
     <div className="flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-tl from-black via-zinc-600/20 to-black">
       <nav className="animate-fade-in my-16">
         <ul className="flex items-center justify-center gap-4">
-          {navigation.map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm text-zinc-500 duration-500 hover:text-zinc-300">
+          {navigation.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sm text-zinc-500 duration-500 hover:text-zinc-300"
+            >
               {item.name}
             </Link>
           ))}

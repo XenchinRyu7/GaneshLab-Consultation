@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useRef, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+
 import { useStore, type StoreApi } from "zustand";
 
 import { createProjectStore, type ProjectState, type Project } from "./project-store";
@@ -16,42 +17,29 @@ export const ProjectStoreProvider = ({
   initialProjects?: Project[];
   initialActiveProject?: Project | null;
 }) => {
-  const storeRef = useRef<StoreApi<ProjectState> | null>(null);
-
-  // Initialize store
-  if (!storeRef.current) {
-    // Try to restore active project from localStorage on client side
-    let activeProject = initialActiveProject ?? null;
-    if (typeof window !== "undefined") {
-      const savedActiveProjectId = localStorage.getItem("activeProjectId");
-      if (savedActiveProjectId && initialProjects) {
-        activeProject = initialProjects.find((p) => p.id === savedActiveProjectId) ?? null;
-      }
-    }
-
-    storeRef.current = createProjectStore({
+  // Create store once during initial render using props. We'll sync active project from localStorage on mount.
+  const [store] = useState<StoreApi<ProjectState>>(() =>
+    createProjectStore({
       projects: initialProjects ?? [],
-      activeProject,
-    });
-  }
+      activeProject: initialActiveProject ?? null,
+    })
+  );
 
   // Sync active project from localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined" && storeRef.current) {
+    if (typeof window !== "undefined") {
       const savedActiveProjectId = localStorage.getItem("activeProjectId");
       if (savedActiveProjectId) {
-        const projects = storeRef.current.getState().projects;
-        const savedProject = projects.find((p) => p.id === savedActiveProjectId);
+        const projects = store.getState().projects;
+        const savedProject = projects.find(p => p.id === savedActiveProjectId);
         if (savedProject) {
-          storeRef.current.getState().setActiveProject(savedProject);
+          store.getState().setActiveProject(savedProject);
         }
       }
     }
-  }, []);
+  }, [store]);
 
-  return (
-    <ProjectStoreContext.Provider value={storeRef.current}>{children}</ProjectStoreContext.Provider>
-  );
+  return <ProjectStoreContext.Provider value={store}>{children}</ProjectStoreContext.Provider>;
 };
 
 export const useProjectStore = <T,>(selector: (state: ProjectState) => T): T => {
@@ -61,4 +49,3 @@ export const useProjectStore = <T,>(selector: (state: ProjectState) => T): T => 
   }
   return useStore(store, selector);
 };
-

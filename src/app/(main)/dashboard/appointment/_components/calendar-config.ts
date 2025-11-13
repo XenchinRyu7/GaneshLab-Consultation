@@ -71,4 +71,3 @@ export interface PIC {
   name: string;
   email: string;
 }
-

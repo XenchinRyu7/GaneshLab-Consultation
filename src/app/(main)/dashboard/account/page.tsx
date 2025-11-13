@@ -1,13 +1,14 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useUserStore } from "@/stores/user/user-provider";
+
 import { AccountProfile } from "./_components/account-profile";
 import { CompanyProfile } from "./_components/company-profile";
 import { GaneshlabInfo } from "./_components/ganeshlab-info";
-import { useUserStore } from "@/stores/user/user-provider";
 
 export default function AccountPage() {
-  const currentUser = useUserStore((state) => state.currentUser);
+  const currentUser = useUserStore(state => state.currentUser);
   const isClient = currentUser?.role === "client";
 
   return (
@@ -38,4 +39,3 @@ export default function AccountPage() {
     </div>
   );
 }
-

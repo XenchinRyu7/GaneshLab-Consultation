@@ -16,12 +16,7 @@ export type ProjectComplexity = "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
 
 export type ProjectPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
-export type ProjectStatus =
-  | "active"
-  | "completed"
-  | "cancelled"
-  | "pending"
-  | "on_hold";
+export type ProjectStatus = "active" | "completed" | "cancelled" | "pending" | "on_hold";
 
 export interface Project {
   id: string;
@@ -30,29 +25,29 @@ export interface Project {
   clientId: string;
   picId: string;
   status: ProjectStatus;
-  
+
   // Project Type & Category
   type: ProjectType;
   category?: string | null;
-  
+
   // Budget & Pricing
   budgetMin?: number | null;
   budgetMax?: number | null;
   estimatedCost?: number | null;
-  
+
   // Project Details
   complexity: ProjectComplexity;
   priority: ProjectPriority;
   timeline?: number | null;
   startDate?: string | null;
   endDate?: string | null;
-  
+
   // Technology & Requirements
   technologyStack?: string | null;
   requirements?: string | null;
   features?: string | null;
   deliverables?: string | null;
-  
+
   // Company Relation
   companyId?: string | null;
   company?: {
@@ -60,17 +55,17 @@ export interface Project {
     name: string;
     website?: string | null;
   } | null;
-  
+
   // Project Status Details
   progress: number;
   notes?: string | null;
   clientNotes?: string | null;
-  
+
   // Metadata
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
-  
+
   // Relations
   client?: {
     id: string;
@@ -99,7 +94,7 @@ export const createProjectStore = (init?: Partial<ProjectState>) =>
     activeProject: init?.activeProject ?? null,
     projects: init?.projects ?? [],
 
-    setActiveProject: (project) => {
+    setActiveProject: project => {
       set({ activeProject: project });
       // Save to localStorage for persistence
       if (typeof window !== "undefined") {
@@ -111,16 +106,16 @@ export const createProjectStore = (init?: Partial<ProjectState>) =>
       }
     },
 
-    setProjects: (projects) => set({ projects }),
+    setProjects: projects => set({ projects }),
 
-    addProject: (project) => {
+    addProject: project => {
       const currentProjects = get().projects;
       set({ projects: [...currentProjects, project] });
     },
 
     updateProject: (projectId, updates) => {
       const currentProjects = get().projects;
-      const updatedProjects = currentProjects.map((p) =>
+      const updatedProjects = currentProjects.map(p =>
         p.id === projectId ? { ...p, ...updates } : p
       );
       set({ projects: updatedProjects });
@@ -132,9 +127,9 @@ export const createProjectStore = (init?: Partial<ProjectState>) =>
       }
     },
 
-    removeProject: (projectId) => {
+    removeProject: projectId => {
       const currentProjects = get().projects;
-      const filteredProjects = currentProjects.filter((p) => p.id !== projectId);
+      const filteredProjects = currentProjects.filter(p => p.id !== projectId);
       set({ projects: filteredProjects });
 
       // Clear active project if it's the one being removed
@@ -147,4 +142,3 @@ export const createProjectStore = (init?: Partial<ProjectState>) =>
       }
     },
   }));
-

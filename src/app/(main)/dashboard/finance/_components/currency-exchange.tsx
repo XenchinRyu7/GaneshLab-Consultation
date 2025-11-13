@@ -4,14 +4,23 @@ import { ArrowLeftRight, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/utils";
 
 function CurrencySelector(props: { defaultValue: string }) {
   return (
     <Select defaultValue={props.defaultValue}>
-      <SelectTrigger size="sm" className="border-none shadow-none outline-none focus-visible:ring-0">
+      <SelectTrigger
+        size="sm"
+        className="border-none shadow-none outline-none focus-visible:ring-0"
+      >
         <SelectValue placeholder="Currency" />
       </SelectTrigger>
       <SelectContent>
@@ -37,11 +46,11 @@ export function CurrencyExchange() {
               <div className="flex flex-1 justify-center">
                 <CurrencySelector defaultValue="usd" />
               </div>
-              <Separator orientation="vertical" className="!h-auto" />
+              <Separator orientation="vertical" className="h-auto!" />
               <div className="flex flex-1 items-center justify-center">
                 <ArrowLeftRight className="text-muted-foreground size-4" />
               </div>
-              <Separator orientation="vertical" className="!h-auto" />
+              <Separator orientation="vertical" className="h-auto!" />
               <div className="flex flex-1 justify-center">
                 <CurrencySelector defaultValue="eur" />
               </div>

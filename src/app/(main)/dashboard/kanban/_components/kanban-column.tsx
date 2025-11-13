@@ -24,7 +24,7 @@ export function KanbanColumn({ column, tasks, onAddCard, onCardClick }: KanbanCo
     id: column.id,
   });
 
-  const taskIds = tasks.map((task) => task.id);
+  const taskIds = tasks.map(task => task.id);
 
   return (
     <div className="flex h-full max-w-[320px] min-w-[280px] flex-col">
@@ -54,7 +54,10 @@ export function KanbanColumn({ column, tasks, onAddCard, onCardClick }: KanbanCo
         </CardHeader>
         <CardContent
           ref={setNodeRef}
-          className={cn("flex-1 space-y-3 overflow-y-auto p-4 transition-colors", isOver && "bg-muted/50")}
+          className={cn(
+            "flex-1 space-y-3 overflow-y-auto p-4 transition-colors",
+            isOver && "bg-muted/50"
+          )}
         >
           <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
             {tasks.length === 0 ? (
@@ -62,7 +65,7 @@ export function KanbanColumn({ column, tasks, onAddCard, onCardClick }: KanbanCo
                 Drop tasks here
               </div>
             ) : (
-              tasks.map((task) => <KanbanCard key={task.id} task={task} onCardClick={onCardClick} />)
+              tasks.map(task => <KanbanCard key={task.id} task={task} onCardClick={onCardClick} />)
             )}
           </SortableContext>
         </CardContent>

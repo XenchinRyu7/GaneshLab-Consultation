@@ -1,357 +1,79 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
 
-import { PlusCircleIcon, MailIcon, ChevronRight } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { type NavGroup, type NavMainItem } from "@/navigation/sidebar/sidebar-items";
-import { CreateProjectDialog } from "@/app/(main)/dashboard/projects/_components/create-project-dialog";
-import { useProjectStore } from "@/stores/project/project-provider";
 import { useUserStore } from "@/stores/user/user-provider";
+
+import { NavCreateProjectButton } from "./nav-create-project-button";
+import { NavItemCollapsed } from "./nav-item-collapsed";
+import { NavItemExpanded } from "./nav-item-expanded";
+import { NavItemSimple } from "./nav-item-simple";
 import { ProjectSelector } from "./project-selector";
-import { toast } from "sonner";
 
 interface NavMainProps {
   readonly items: readonly NavGroup[];
 }
 
-const IsComingSoon = () => (
-  <span className="ml-auto rounded-md bg-gray-200 px-2 py-1 text-xs dark:text-gray-800">Soon</span>
-);
-
-const NavItemExpanded = ({
-  item,
-  isActive,
-  isSubmenuOpen,
-}: {
-  item: NavMainItem;
-  isActive: (url: string, subItems?: NavMainItem["subItems"]) => boolean;
-  isSubmenuOpen: (subItems?: NavMainItem["subItems"]) => boolean;
-}) => {
-  return (
-    <Collapsible key={item.title} asChild defaultOpen={isSubmenuOpen(item.subItems)} className="group/collapsible">
-      <SidebarMenuItem>
-        <CollapsibleTrigger asChild>
-          {item.subItems ? (
-            <SidebarMenuButton
-              disabled={item.comingSoon}
-              isActive={isActive(item.url, item.subItems)}
-              tooltip={item.title}
-            >
-              {item.icon && <item.icon />}
-              <span>{item.title}</span>
-              {item.comingSoon && <IsComingSoon />}
-              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-            </SidebarMenuButton>
-          ) : (
-            <SidebarMenuButton
-              asChild
-              aria-disabled={item.comingSoon}
-              isActive={isActive(item.url)}
-              tooltip={item.title}
-            >
-              <Link href={item.url} target={item.newTab ? "_blank" : undefined}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-                {item.comingSoon && <IsComingSoon />}
-              </Link>
-            </SidebarMenuButton>
-          )}
-        </CollapsibleTrigger>
-        {item.subItems && (
-          <CollapsibleContent>
-            <SidebarMenuSub>
-              {item.subItems.map((subItem) => (
-                <SidebarMenuSubItem key={subItem.title}>
-                  <SidebarMenuSubButton aria-disabled={subItem.comingSoon} isActive={isActive(subItem.url)} asChild>
-                    <Link href={subItem.url} target={subItem.newTab ? "_blank" : undefined}>
-                      {subItem.icon && <subItem.icon />}
-                      <span>{subItem.title}</span>
-                      {subItem.comingSoon && <IsComingSoon />}
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              ))}
-            </SidebarMenuSub>
-          </CollapsibleContent>
-        )}
-      </SidebarMenuItem>
-    </Collapsible>
-  );
-};
-
-const NavItemCollapsed = ({
-  item,
-  isActive,
-}: {
-  item: NavMainItem;
-  isActive: (url: string, subItems?: NavMainItem["subItems"]) => boolean;
-}) => {
-  return (
-    <SidebarMenuItem key={item.title}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <SidebarMenuButton
-            disabled={item.comingSoon}
-            tooltip={item.title}
-            isActive={isActive(item.url, item.subItems)}
-          >
-            {item.icon && <item.icon />}
-            <span>{item.title}</span>
-            <ChevronRight />
-          </SidebarMenuButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-50 space-y-1" side="right" align="start">
-          {item.subItems?.map((subItem) => (
-            <DropdownMenuItem key={subItem.title} asChild>
-              <SidebarMenuSubButton
-                key={subItem.title}
-                asChild
-                className="focus-visible:ring-0"
-                aria-disabled={subItem.comingSoon}
-                isActive={isActive(subItem.url)}
-              >
-                <Link href={subItem.url} target={subItem.newTab ? "_blank" : undefined}>
-                  {subItem.icon && <subItem.icon className="[&>svg]:text-sidebar-foreground" />}
-                  <span>{subItem.title}</span>
-                  {subItem.comingSoon && <IsComingSoon />}
-                </Link>
-              </SidebarMenuSubButton>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </SidebarMenuItem>
-  );
-};
-
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
-  const router = useRouter();
   const { state, isMobile } = useSidebar();
-  const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] = useState(false);
-  const currentUser = useUserStore((state) => state.currentUser);
-  const addProject = useProjectStore((state) => state.addProject);
-  const setActiveProject = useProjectStore((state) => state.setActiveProject);
+  const currentUser = useUserStore(state => state.currentUser);
 
   const isItemActive = (url: string, subItems?: NavMainItem["subItems"]) => {
     if (subItems?.length) {
-      return subItems.some((sub) => path.startsWith(sub.url));
+      return subItems.some(sub => path.startsWith(sub.url));
     }
     return path === url;
   };
 
   const isSubmenuOpen = (subItems?: NavMainItem["subItems"]) => {
-    return subItems?.some((sub) => path.startsWith(sub.url)) ?? false;
+    return subItems?.some(sub => path.startsWith(sub.url)) ?? false;
   };
-
-  async function handleCreateProjectClick() {
-    if (!currentUser || currentUser.role !== "client") {
-      toast.error("Only clients can create projects");
-      return;
-    }
-
-    try {
-      // Check company profile completeness
-      const checkResponse = await fetch("/api/companies/check");
-      if (!checkResponse.ok) {
-        console.error("Error checking company profile:", await checkResponse.text());
-        toast.error("Failed to verify company profile");
-        return;
-      }
-
-      const checkData = await checkResponse.json();
-      
-      if (!checkData.isComplete) {
-        toast.error(checkData.message || "Please complete your company profile first", {
-          description: checkData.missingFields 
-            ? `Missing fields: ${checkData.missingFields.join(", ")}`
-            : "Go to Account > Company Profile to complete your profile",
-          action: {
-            label: "Go to Profile",
-            onClick: () => router.push("/dashboard/account"),
-          },
-        });
-        return;
-      }
-
-      // Company profile is complete, open dialog
-      setIsCreateProjectDialogOpen(true);
-    } catch (error: any) {
-      console.error("Error checking company profile:", error);
-      toast.error("Failed to verify company profile. Please try again.");
-    }
-  }
-
-  async function handleCreateProject(projectData: any) {
-    if (!currentUser || currentUser.role !== "client") {
-      console.error("Only clients can create projects");
-      toast.error("Only clients can create projects");
-      return;
-    }
-
-    try {
-      const clientId = currentUser.id;
-      
-      // Fetch company for the client
-      let companyId = null;
-      try {
-        const companyResponse = await fetch(`/api/companies?userId=${clientId}`);
-        if (companyResponse.ok) {
-          const companyData = await companyResponse.json();
-          if (companyData.company) {
-            companyId = companyData.company.id;
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching company:", error);
-      }
-
-      // Double check company profile before creating project
-      const checkResponse = await fetch("/api/companies/check");
-      if (checkResponse.ok) {
-        const checkData = await checkResponse.json();
-        if (!checkData.isComplete) {
-          toast.error("Company profile is incomplete. Please complete your company profile first.");
-          setIsCreateProjectDialogOpen(false);
-          router.push("/dashboard/account");
-          return;
-        }
-      }
-
-      const response = await fetch("/api/projects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...projectData,
-          clientId,
-          companyId,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Error creating project:", error);
-        throw new Error(error.error || "Failed to create project");
-      }
-
-      const data = await response.json();
-      const newProject = data.project;
-      
-      // Add project to store
-      addProject(newProject);
-      
-      // Set as active project
-      setActiveProject(newProject);
-      
-      setIsCreateProjectDialogOpen(false);
-      
-      toast.success("Project created successfully");
-      
-      // Optionally redirect to projects page
-      router.push("/dashboard/projects");
-    } catch (error: any) {
-      console.error("Error creating project:", error);
-      toast.error(error.message || "Failed to create project");
-    }
-  }
-
-  // Only show Create Project button for clients
-  const canCreateProject = currentUser?.role === "client";
 
   return (
     <>
-      {canCreateProject && (
-        <SidebarGroup>
-          <SidebarGroupContent className="flex flex-col gap-2">
-            <SidebarMenu>
-              <SidebarMenuItem className="flex items-center gap-2">
-                <SidebarMenuButton
-                  tooltip="Create Project"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
-                  onClick={handleCreateProjectClick}
-                >
-                  <PlusCircleIcon />
-                  <span>Create Project</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
+      <NavCreateProjectButton />
       <SidebarGroup>
         <SidebarGroupContent>
           <ProjectSelector />
         </SidebarGroupContent>
       </SidebarGroup>
-      <CreateProjectDialog
-        open={isCreateProjectDialogOpen}
-        onOpenChange={setIsCreateProjectDialogOpen}
-        onSubmit={handleCreateProject}
-      />
-      {items.map((group) => (
+      {items.map(group => (
         <SidebarGroup key={group.id}>
           {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
               {group.items
-                .filter((item) => {
-                  // Filter by role if specified
+                .filter(item => {
                   if (item.roles && currentUser) {
                     return item.roles.includes(currentUser.role);
                   }
                   return true;
                 })
-                .map((item) => {
+                .map(item => {
                   if (state === "collapsed" && !isMobile) {
-                    // If no subItems, just render the button as a link
                     if (!item.subItems) {
-                      return (
-                        <SidebarMenuItem key={item.title}>
-                          <SidebarMenuButton
-                            asChild
-                            aria-disabled={item.comingSoon}
-                            tooltip={item.title}
-                            isActive={isItemActive(item.url)}
-                          >
-                            <Link href={item.url} target={item.newTab ? "_blank" : undefined}>
-                              {item.icon && <item.icon />}
-                              <span>{item.title}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      );
+                      return <NavItemSimple key={item.title} item={item} isActive={isItemActive} />;
                     }
-                    // Otherwise, render the dropdown as before
-                    return <NavItemCollapsed key={item.title} item={item} isActive={isItemActive} />;
+                    return (
+                      <NavItemCollapsed key={item.title} item={item} isActive={isItemActive} />
+                    );
                   }
-                  // Expanded view
                   return (
-                    <NavItemExpanded key={item.title} item={item} isActive={isItemActive} isSubmenuOpen={isSubmenuOpen} />
+                    <NavItemExpanded
+                      key={item.title}
+                      item={item}
+                      isActive={isItemActive}
+                      isSubmenuOpen={isSubmenuOpen}
+                    />
                   );
                 })}
             </SidebarMenu>

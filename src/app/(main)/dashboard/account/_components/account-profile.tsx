@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as z from "zod";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,7 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useUserStore } from "@/stores/user/user-provider";
 
 const accountSchema = z.object({
@@ -37,8 +39,8 @@ interface UserProfile {
 }
 
 export function AccountProfile() {
-  const currentUser = useUserStore((state) => state.currentUser);
-  const setCurrentUser = useUserStore((state) => state.setCurrentUser);
+  const currentUser = useUserStore(state => state.currentUser);
+  const setCurrentUser = useUserStore(state => state.setCurrentUser);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -81,7 +83,7 @@ export function AccountProfile() {
           form.reset({
             fullname: userProfile.fullname || "",
             email: userProfile.email || "",
-            phone: userProfile.phone || "",
+            phone: userProfile.phone ?? "",
           });
         }
       } else {
@@ -122,7 +124,7 @@ export function AccountProfile() {
         },
         body: JSON.stringify({
           fullname: data.fullname,
-          phone: data.phone || null,
+          phone: data.phone ?? null,
         }),
       });
 
@@ -132,26 +134,24 @@ export function AccountProfile() {
           status: response.status,
           error,
         });
-        throw new Error(error.error || "Failed to update profile");
+        throw new Error(error.error ?? "Failed to update profile");
       }
 
       const result = await response.json();
       const updatedUser = result.user;
 
       // Update user store with new fullname
-      if (setCurrentUser && currentUser) {
-        setCurrentUser({
-          ...currentUser,
-          name: updatedUser.fullname,
-        });
-      }
+      setCurrentUser({
+        ...currentUser,
+        name: updatedUser.fullname,
+      });
 
       setSaved(true);
       toast.success("Profile updated successfully");
       setTimeout(() => setSaved(false), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("[AccountProfile] Error updating user profile:", error);
-      toast.error(error.message || "Failed to update profile");
+      toast.error(error instanceof Error ? error.message : "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -161,7 +161,7 @@ export function AccountProfile() {
     return (
       <Card>
         <CardContent className="py-12">
-          <div className="text-center text-muted-foreground">Loading profile...</div>
+          <div className="text-muted-foreground text-center">Loading profile...</div>
         </CardContent>
       </Card>
     );
@@ -212,11 +212,11 @@ export function AccountProfile() {
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="tel" 
-                      placeholder="Enter your phone number" 
-                      {...field} 
-                      value={field.value || ""}
+                    <Input
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      {...field}
+                      value={field.value ?? ""}
                       disabled={loading}
                     />
                   </FormControl>
@@ -236,4 +236,3 @@ export function AccountProfile() {
     </Card>
   );
 }
-

@@ -1,6 +1,6 @@
-# GaneshLab Meetly - Admin Dashboard
+# GaneshLab Consultation - Admin Dashboard
 
-**GaneshLab Meetly** - Modern admin dashboard built with Next.js, TypeScript, and Shadcn UI. Includes multiple dashboards, authentication layouts, customizable theme presets, and more.
+**GaneshLab Consultation** - Modern admin dashboard built with Next.js, TypeScript, and Shadcn UI. Includes multiple dashboards, authentication layouts, customizable theme presets, and more.
 
 ## Features
 
@@ -57,12 +57,12 @@ This ensures all developers have the same environment.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/XenchinRyu7/GaneshLab-Meetly.git
+   git clone https://github.com/XenchinRyu7/GaneshLab-Consultation.git
    ```
    
 2. **Navigate into the project**
    ```bash
-   cd GaneshLab-Meetly
+   cd GaneshLab-Consultation
    ```
 
 3. **Start with Docker Compose**
@@ -88,12 +88,12 @@ Your app will be running at [http://localhost:3000](http://localhost:3000)
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/XenchinRyu7/GaneshLab-Meetly.git
+   git clone https://github.com/XenchinRyu7/GaneshLab-Consultation.git
    ```
    
 2. **Navigate into the project**
    ```bash
-   cd GaneshLab-Meetly
+   cd GaneshLab-Consultation
    ```
 
 3. **Install dependencies**
@@ -140,10 +140,10 @@ To build and run production Docker image:
 
 ```bash
 # Build production image
-docker build -t ganeshlab-meetly:latest .
+docker build -t ganeshlab-consultation:latest .
 
 # Run production container
-docker run -p 3000:3000 ganeshlab-meetly:latest
+docker run -p 3000:3000 ganeshlab-consultation:latest
 ```
 
 ## Project Structure

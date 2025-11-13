@@ -16,7 +16,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 import type { KanbanTask, TaskStatus } from "./kanban-config";
@@ -86,7 +92,7 @@ export function AddCardDialog({ columnId, onAddCard, trigger }: AddCardDialogPro
                 id="title"
                 placeholder="Enter task title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 required
               />
             </div>
@@ -96,14 +102,17 @@ export function AddCardDialog({ columnId, onAddCard, trigger }: AddCardDialogPro
                 id="description"
                 placeholder="Enter task description (optional)"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 rows={3}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="priority">Priority</Label>
-                <Select value={priority} onValueChange={(value) => setPriority(value as typeof priority)}>
+                <Select
+                  value={priority}
+                  onValueChange={value => setPriority(value as typeof priority)}
+                >
                   <SelectTrigger id="priority">
                     <SelectValue />
                   </SelectTrigger>
@@ -116,7 +125,12 @@ export function AddCardDialog({ columnId, onAddCard, trigger }: AddCardDialogPro
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="dueDate">Due Date</Label>
-                <Input id="dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={dueDate}
+                  onChange={e => setDueDate(e.target.value)}
+                />
               </div>
             </div>
             <div className="grid gap-2">
@@ -125,7 +139,7 @@ export function AddCardDialog({ columnId, onAddCard, trigger }: AddCardDialogPro
                 id="assignee"
                 placeholder="Assign to (optional)"
                 value={assignee}
-                onChange={(e) => setAssignee(e.target.value)}
+                onChange={e => setAssignee(e.target.value)}
               />
             </div>
           </div>
