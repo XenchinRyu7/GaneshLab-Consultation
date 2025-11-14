@@ -49,7 +49,7 @@ export function KanbanCard({ task, onCardClick }: KanbanCardProps) {
       className={cn(
         "group cursor-grab transition-shadow hover:shadow-md active:cursor-grabbing",
         isDragging && "opacity-50 shadow-lg",
-        onCardClick && "cursor-pointer",
+        onCardClick && "cursor-pointer"
       )}
     >
       <CardHeader className="pb-3">
@@ -62,12 +62,14 @@ export function KanbanCard({ task, onCardClick }: KanbanCardProps) {
             <GripVertical className="size-4" />
           </div>
         </div>
-        {task.description && <p className="text-muted-foreground mt-2 line-clamp-2 text-xs">{task.description}</p>}
+        {task.description && (
+          <p className="text-muted-foreground mt-2 line-clamp-2 text-xs">{task.description}</p>
+        )}
       </CardHeader>
       <CardContent className="space-y-3 pt-0">
         {task.tags && task.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {task.tags.map((tag) => (
+            {task.tags.map(tag => (
               <Badge key={tag} variant="outline" className="text-xs">
                 {tag}
               </Badge>
@@ -89,7 +91,10 @@ export function KanbanCard({ task, onCardClick }: KanbanCardProps) {
               </div>
             )}
           </div>
-          <Badge variant="outline" className={cn("flex-shrink-0 text-xs", priorityColors[task.priority])}>
+          <Badge
+            variant="outline"
+            className={cn("flex-shrink-0 text-xs", priorityColors[task.priority])}
+          >
             {task.priority}
           </Badge>
         </div>

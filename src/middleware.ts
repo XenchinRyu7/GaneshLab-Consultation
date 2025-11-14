@@ -7,11 +7,15 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ["/auth/login", "/auth/register", "/get-started", "/", "/api"];
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+  const publicRoutes = ["/auth/login", "/auth/register", "/get-started"];
+  const isPublicRoute = pathname === "/" || publicRoutes.some(route => pathname.startsWith(route));
+
+  // API routes are public but we don't redirect them
+  const isApiRoute = pathname.startsWith("/api");
 
   // If accessing a protected route without session, redirect to login
-  if (!isPublicRoute && !session) {
+  // Skip API routes from authentication checks
+  if (!isPublicRoute && !isApiRoute && !session) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
@@ -42,4 +46,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-

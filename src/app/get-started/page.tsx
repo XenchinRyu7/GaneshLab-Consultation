@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+
 import Link from "next/link";
 
 import { Mail, Building2, User, MessageSquare, LogIn } from "lucide-react";
@@ -53,7 +54,7 @@ export default function WaitlistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
+    <div className="min-h-screen bg-linear-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
       <Navigation />
       <div className="container mx-auto flex min-h-screen items-start justify-center px-4 pt-24 pb-8">
         <div className="mx-auto w-full max-w-2xl">
@@ -75,14 +76,17 @@ export default function WaitlistPage() {
                   Schedule a Consultation
                 </h1>
                 <p className="mt-4 text-lg text-zinc-400">
-                  Connect with our team to discuss your project needs. We&apos;ll send you login information to access
-                  our platform after reviewing your request.
+                  Connect with our team to discuss your project needs. We&apos;ll send you login
+                  information to access our platform after reviewing your request.
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="fullname" className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300">
+                  <label
+                    htmlFor="fullname"
+                    className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
+                  >
                     <User size={16} />
                     Full Name
                   </label>
@@ -91,14 +95,17 @@ export default function WaitlistPage() {
                     id="fullname"
                     required
                     value={formData.fullname}
-                    onChange={(e) => setFormData({ ...formData, fullname: e.target.value })}
+                    onChange={e => setFormData({ ...formData, fullname: e.target.value })}
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
                     placeholder="Your full name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300">
+                  <label
+                    htmlFor="email"
+                    className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
+                  >
                     <Mail size={16} />
                     Email
                   </label>
@@ -107,7 +114,7 @@ export default function WaitlistPage() {
                     id="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
                     placeholder="your.email@example.com"
                   />
@@ -125,7 +132,9 @@ export default function WaitlistPage() {
                         name="type"
                         value="personal"
                         checked={formData.type === "personal"}
-                        onChange={(e) => setFormData({ ...formData, type: e.target.value, company: "" })}
+                        onChange={e =>
+                          setFormData({ ...formData, type: e.target.value, company: "" })
+                        }
                         className="h-4 w-4 border-zinc-700 bg-zinc-800 text-zinc-500 focus:ring-zinc-500"
                       />
                       <span className="text-zinc-300">Personal</span>
@@ -136,7 +145,7 @@ export default function WaitlistPage() {
                         name="type"
                         value="company"
                         checked={formData.type === "company"}
-                        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                        onChange={e => setFormData({ ...formData, type: e.target.value })}
                         className="h-4 w-4 border-zinc-700 bg-zinc-800 text-zinc-500 focus:ring-zinc-500"
                       />
                       <span className="text-zinc-300">Company</span>
@@ -146,7 +155,10 @@ export default function WaitlistPage() {
 
                 {formData.type === "company" && (
                   <div>
-                    <label htmlFor="company" className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300">
+                    <label
+                      htmlFor="company"
+                      className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
+                    >
                       <Building2 size={16} />
                       Company Name
                     </label>
@@ -155,7 +167,7 @@ export default function WaitlistPage() {
                       id="company"
                       required
                       value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      onChange={e => setFormData({ ...formData, company: e.target.value })}
                       className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
                       placeholder="Your company name"
                     />
@@ -163,7 +175,10 @@ export default function WaitlistPage() {
                 )}
 
                 <div>
-                  <label htmlFor="message" className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300">
+                  <label
+                    htmlFor="message"
+                    className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
+                  >
                     <MessageSquare size={16} />
                     What will you discuss with our team
                   </label>
@@ -172,7 +187,7 @@ export default function WaitlistPage() {
                     required
                     rows={6}
                     value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    onChange={e => setFormData({ ...formData, message: e.target.value })}
                     className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
                     placeholder="Describe what you need from GaneshLab..."
                   />
@@ -180,8 +195,8 @@ export default function WaitlistPage() {
 
                 {submitStatus === "success" && (
                   <div className="rounded-lg border border-green-800 bg-green-900/20 p-4 text-green-400">
-                    Thank you! We&apos;ve received your request and will review it shortly. You&apos;ll receive login
-                    information via email to access our platform.
+                    Thank you! We&apos;ve received your request and will review it shortly.
+                    You&apos;ll receive login information via email to access our platform.
                   </div>
                 )}
 

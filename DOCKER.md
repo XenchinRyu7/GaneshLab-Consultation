@@ -35,6 +35,7 @@ docker-compose down
 ### Volume Configuration
 
 The `docker-compose.yml` uses **named volumes** for better management:
+
 - `node_modules` - Isolated node_modules from container (not from host)
 - `next_cache` - Next.js build cache (.next directory)
 
@@ -43,11 +44,13 @@ This prevents anonymous volumes with hash names and makes cleanup easier.
 ### Prisma Setup
 
 This project uses **Prisma** as the database ORM for PostgreSQL (Supabase). Prisma is used for:
+
 - **Authentication** - User profiles, login, password management
 - **Database queries** - All database operations through Prisma Client
 - **Type safety** - TypeScript types generated from database schema
 
 **Important:** Prisma Client must be generated after installing dependencies. This is handled automatically:
+
 - ✅ **Dockerfile.dev** - Runs `prisma generate` during image build
 - ✅ **package.json** - Has `postinstall` script that runs `prisma generate`
 - ✅ **Manual**: Run `npx prisma generate` if needed
@@ -168,41 +171,50 @@ When you build a Docker image, Docker assigns a tag (usually `latest`). When you
 ### When to Rebuild
 
 Rebuild your Docker image when:
+
 - ✅ **Dependencies change** (`package.json`, `package-lock.json`)
 - ✅ **Dockerfile changes** (new commands, different base image)
 - ✅ **System libraries are updated**
 - ✅ **Configuration files change** that are copied into image
 
 You don't need to rebuild when:
+
 - ❌ Only source code changes (handled by volume mounting in dev)
 - ❌ Only `.env` file changes (loaded at runtime)
 
 ### Best Practices
 
 1. **Always rebuild and recreate after dependency changes:**
+
    ```bash
    docker-compose up -d --build
    ```
+
    This ensures your container uses the latest image with new dependencies.
 
 2. **Clean up dangling images regularly:**
+
    ```bash
    # Remove dangling images (<none>)
    docker image prune -f
    ```
+
    This frees up disk space. Dangling images are safe to remove if no containers are using them.
 
 3. **Use `--no-cache` for clean builds:**
+
    ```bash
    docker-compose build --no-cache
    ```
+
    Use when you suspect cached layers are causing issues.
 
 4. **Check image usage before removing:**
+
    ```bash
    # List all images
    docker images
-   
+
    # Check which containers are using an image
    docker ps -a
    ```
@@ -212,23 +224,26 @@ You don't need to rebuild when:
 If you see images with `<none>` tag in Docker Desktop:
 
 1. **Check if any containers are using it:**
+
    ```bash
    docker ps -a
    ```
 
 2. **If no containers are using it, safe to remove:**
+
    ```bash
    docker image prune -f
    ```
 
 3. **If container is still using old image:**
+
    ```bash
    # Stop and remove container
    docker-compose down
-   
+
    # Rebuild and recreate with new image
    docker-compose up -d --build
-   
+
    # Now safe to remove old image
    docker image prune -f
    ```
@@ -236,26 +251,32 @@ If you see images with `<none>` tag in Docker Desktop:
 ## Troubleshooting
 
 ### Docker Desktop not running
+
 - Make sure Docker Desktop is running on Windows/Mac
 - Check with: `docker ps`
 
 ### Port already in use
+
 - Change port in `docker-compose.yml`: `"3001:3000"`
 
 ### File changes not reflecting (Windows)
+
 - File changes should reflect automatically with volume mounting
 - If not, try rebuilding: `docker-compose up --build`
 
 ### Permission issues (Linux/Mac)
+
 - May need to adjust file permissions
 - Or run with: `sudo docker-compose up`
 
 ### Container using old image after rebuild
+
 - Stop and remove container: `docker-compose down`
 - Rebuild and recreate: `docker-compose up -d --build`
 - Verify with: `docker ps` (check image ID matches latest build)
 
 ### Dangling images (`<none>`) accumulating
+
 - This is normal behavior - old images become dangling when rebuilt
 - Clean up with: `docker image prune -f`
 - Set up periodic cleanup: `docker system prune -a --volumes` (use carefully!)
@@ -312,12 +333,14 @@ docker system prune -a --volumes
 ### Anonymous Volumes vs Named Volumes
 
 **Anonymous Volumes (nama hash panjang):**
+
 - Dibuat otomatis oleh Docker ketika mount path tanpa nama
 - Contoh: `/app/node_modules` di docker-compose.yml tanpa nama
 - Nama: hash panjang seperti `41c3e8ce4207a3a1b26b173ef73965d549d19e225210b0fcb4de39e61241f2c8`
 - Sulit diidentifikasi dan dikelola
 
 **Named Volumes (nama jelas):**
+
 - Dibuat dengan nama eksplisit di docker-compose.yml
 - Contoh: `node_modules:/app/node_modules`
 - Nama: jelas seperti `ganeshlab-consultation-dashboard_node_modules`
@@ -333,6 +356,7 @@ docker system prune -a --volumes
 - **Volumes** = Persistent storage untuk data (database, uploaded files, dll)
 
 Volumes tidak otomatis terhapus karena:
+
 - ✅ **Data protection** - Volume mungkin berisi data penting (database, user uploads)
 - ✅ **Safety** - Mencegah kehilangan data secara tidak sengaja
 - ✅ **Separation of concerns** - Images dan volumes adalah komponen berbeda
@@ -362,16 +386,19 @@ docker builder prune -f
 ⚠️ **Be careful when removing volumes!** They may contain important data.
 
 **Safe to remove:**
+
 - ✅ Volumes from deleted containers
 - ✅ Anonymous volumes (long hash names)
 - ✅ Volumes you know are no longer needed
 
 **Do NOT remove if:**
+
 - ❌ Volume is used by a running container
 - ❌ Volume contains important data (database, user files)
 - ❌ You're not sure what's inside
 
 **Check volume usage before removing:**
+
 ```bash
 # See which containers use which volumes
 docker ps -a --format "table {{.Names}}\t{{.Mounts}}"
@@ -388,4 +415,3 @@ docker volume inspect <volume-name>
 ✅ Easy to onboard new team members  
 ✅ Production-ready Dockerfile included  
 ✅ Automatic dependency management through image layers
-

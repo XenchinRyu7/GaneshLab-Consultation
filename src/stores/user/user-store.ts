@@ -55,11 +55,11 @@ export const createUserStore = (init?: Partial<UserState>) =>
     currentUser: init?.currentUser ?? null,
     isDevelopmentMode: init?.isDevelopmentMode ?? false,
 
-    setCurrentUser: (user) => set({ currentUser: user }),
+    setCurrentUser: user => set({ currentUser: user }),
 
-    setDevelopmentMode: (enabled) => set({ isDevelopmentMode: enabled }),
+    setDevelopmentMode: enabled => set({ isDevelopmentMode: enabled }),
 
-    switchRole: (role) => {
+    switchRole: role => {
       // Hanya bisa switch role di development mode
       if (get().isDevelopmentMode && get().currentUser) {
         set({
@@ -74,23 +74,22 @@ export const createUserStore = (init?: Partial<UserState>) =>
       }
     },
 
-    hasPermission: (permission) => {
+    hasPermission: permission => {
       const user = get().currentUser;
       if (!user) return false;
       const permissions = rolePermissions[user.role];
       return permissions.includes(permission);
     },
 
-    hasAnyPermission: (permissions) => {
-      return permissions.some((perm) => get().hasPermission(perm));
+    hasAnyPermission: permissions => {
+      return permissions.some(perm => get().hasPermission(perm));
     },
 
-    hasAllPermissions: (permissions) => {
-      return permissions.every((perm) => get().hasPermission(perm));
+    hasAllPermissions: permissions => {
+      return permissions.every(perm => get().hasPermission(perm));
     },
 
     isAdmin: () => get().currentUser?.role === "admin",
     isPIC: () => get().currentUser?.role === "pic",
     isClient: () => get().currentUser?.role === "client",
   }));
-

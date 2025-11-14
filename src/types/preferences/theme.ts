@@ -10,7 +10,7 @@ export const THEME_MODE_OPTIONS = [
   },
 ] as const;
 
-export const THEME_MODE_VALUES = THEME_MODE_OPTIONS.map((m) => m.value);
+export const THEME_MODE_VALUES = THEME_MODE_OPTIONS.map(m => m.value);
 
 export type ThemeMode = (typeof THEME_MODE_VALUES)[number];
 
@@ -53,7 +53,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Brutalist",
     value: "brutalist",
     primary: {
-      light: "oklch(0.6489 0.2370 26.9728)",
+      light: "oklch(0.6489 0.237 26.9728)",
       dark: "oklch(0.7044 0.1872 23.1858)",
     },
   },
@@ -62,7 +62,7 @@ export const THEME_PRESET_OPTIONS = [
     value: "bubblegum",
     primary: {
       light: "oklch(0.6209 0.1801 348.1385)",
-      dark: "oklch(0.9195 0.0801 87.6670)",
+      dark: "oklch(0.9195 0.0801 87.667)",
     },
   },
   {
@@ -117,7 +117,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Cosmic Night",
     value: "cosmic-night",
     primary: {
-      light: "oklch(0.5417 0.1790 288.0332)",
+      light: "oklch(0.5417 0.179 288.0332)",
       dark: "oklch(0.7162 0.1597 290.3962)",
     },
   },
@@ -133,7 +133,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Dark Matter",
     value: "darkmatter",
     primary: {
-      light: "oklch(0.6716 0.1368 48.5130)",
+      light: "oklch(0.6716 0.1368 48.513)",
       dark: "oklch(0.7214 0.1337 49.9802)",
     },
   },
@@ -142,14 +142,14 @@ export const THEME_PRESET_OPTIONS = [
     value: "doom-64",
     primary: {
       light: "oklch(0.5016 0.1887 27.4816)",
-      dark: "oklch(0.6083 0.2090 27.0276)",
+      dark: "oklch(0.6083 0.209 27.0276)",
     },
   },
   {
     label: "Elegant Luxury",
     value: "elegant-luxury",
     primary: {
-      light: "oklch(0.4650 0.1470 24.9381)",
+      light: "oklch(0.465 0.147 24.9381)",
       dark: "oklch(0.5054 0.1905 27.5181)",
     },
   },
@@ -165,7 +165,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Kodama Grove",
     value: "kodama-grove",
     primary: {
-      light: "oklch(0.6657 0.1050 118.9078)",
+      light: "oklch(0.6657 0.105 118.9078)",
       dark: "oklch(0.6762 0.0567 132.4479)",
     },
   },
@@ -182,15 +182,15 @@ export const THEME_PRESET_OPTIONS = [
     value: "mocha-mousse",
     primary: {
       light: "oklch(0.6083 0.0623 44.3588)",
-      dark: "oklch(0.7272 0.0539 52.3320)",
+      dark: "oklch(0.7272 0.0539 52.332)",
     },
   },
   {
     label: "Modern Minimal",
     value: "modern-minimal",
     primary: {
-      light: "oklch(0.6231 0.1880 259.8145)",
-      dark: "oklch(0.6231 0.1880 259.8145)",
+      light: "oklch(0.6231 0.188 259.8145)",
+      dark: "oklch(0.6231 0.188 259.8145)",
     },
   },
   {
@@ -229,7 +229,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Ocean Breeze",
     value: "ocean-breeze",
     primary: {
-      light: "oklch(0.7227 0.1920 149.5793)",
+      light: "oklch(0.7227 0.192 149.5793)",
       dark: "oklch(0.7729 0.1535 163.2231)",
     },
   },
@@ -237,7 +237,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Pastel Dreams",
     value: "pastel-dreams",
     primary: {
-      light: "oklch(0.7090 0.1592 293.5412)",
+      light: "oklch(0.709 0.1592 293.5412)",
       dark: "oklch(0.7874 0.1179 295.7538)",
     },
   },
@@ -246,7 +246,7 @@ export const THEME_PRESET_OPTIONS = [
     value: "perpetuity",
     primary: {
       light: "oklch(0.5624 0.0947 203.2755)",
-      dark: "oklch(0.8520 0.1269 195.0354)",
+      dark: "oklch(0.852 0.1269 195.0354)",
     },
   },
   {
@@ -301,7 +301,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Supabase",
     value: "supabase",
     primary: {
-      light: "oklch(0.8348 0.1302 160.9080)",
+      light: "oklch(0.8348 0.1302 160.908)",
       dark: "oklch(0.4365 0.1044 156.7556)",
     },
   },
@@ -326,7 +326,7 @@ export const THEME_PRESET_OPTIONS = [
     value: "twitter",
     primary: {
       light: "oklch(0.6723 0.1606 244.9955)",
-      dark: "oklch(0.6692 0.1607 245.0110)",
+      dark: "oklch(0.6692 0.1607 245.011)",
     },
   },
   {
@@ -341,7 +341,7 @@ export const THEME_PRESET_OPTIONS = [
     label: "Vintage Paper",
     value: "vintage-paper",
     primary: {
-      light: "oklch(0.6180 0.0778 65.5444)",
+      light: "oklch(0.618 0.0778 65.5444)",
       dark: "oklch(0.7264 0.0581 66.6967)",
     },
   },
@@ -355,7 +355,7 @@ export const THEME_PRESET_OPTIONS = [
   },
 ] as const;
 
-export const THEME_PRESET_VALUES = THEME_PRESET_OPTIONS.map((p) => p.value);
+export const THEME_PRESET_VALUES = THEME_PRESET_OPTIONS.map(p => p.value);
 
 export type ThemePreset = (typeof THEME_PRESET_OPTIONS)[number]["value"];
 

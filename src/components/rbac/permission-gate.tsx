@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { useUserStore } from "@/stores/user/user-provider";
-import type { Permission } from "@/types/rbac";
 import type { UserState } from "@/stores/user/user-store";
+import type { Permission } from "@/types/rbac";
 
 interface PermissionGateProps {
   permission: Permission | Permission[];
@@ -26,7 +27,7 @@ export function PermissionGate({
 }: PermissionGateProps) {
   // Create stable permissions key
   const permissionsKey = useMemo(() => getPermissionsKey(permission), [permission]);
-  
+
   // Create stable permissions array
   const permissions = useMemo(() => {
     const perms = Array.isArray(permission) ? permission : [permission];
@@ -51,4 +52,3 @@ export function PermissionGate({
   if (!hasAccess) return <>{fallback}</>;
   return <>{children}</>;
 }
-

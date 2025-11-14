@@ -104,7 +104,7 @@ export const projectRevenueChartData = [
   { name: "DevOps Support", actual: 77000, target: 90000 },
   { name: "LLM Training", actual: 68000, target: 80000 },
   { name: "Product Launch", actual: 52000, target: 70000 },
-].map((row) => ({
+].map(row => ({
   ...row,
   remaining: Math.max(0, row.target - row.actual),
 }));

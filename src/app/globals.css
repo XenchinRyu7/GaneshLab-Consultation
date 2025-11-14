@@ -2,11 +2,23 @@
 
 @layer base {
   .text-edge-outline {
-    -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
   }
-  
+
   .font-display {
     font-family: var(--font-calsans), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Ensure time inputs use 24-hour format */
+  input[type="time"] {
+    font-variant-numeric: tabular-nums;
+    /* Force 24-hour format - browsers will display 24-hour format when value is in HH:mm format */
+    /* Using lang="en-GB" attribute on input elements to ensure 24-hour format */
+  }
+
+  /* Additional styling to ensure 24-hour format is displayed */
+  input[type="time"][lang="en-GB"] {
+    direction: ltr;
   }
 }
 

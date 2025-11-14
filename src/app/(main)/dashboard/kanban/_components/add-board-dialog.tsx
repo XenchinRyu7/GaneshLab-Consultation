@@ -14,7 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 import { columnColors, type KanbanColumn } from "./kanban-config";
@@ -81,7 +87,7 @@ export function AddBoardDialog({ onAddBoard, existingIds }: AddBoardDialogProps)
                 id="board-title"
                 placeholder="e.g., Backlog, Testing, etc."
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 required
               />
             </div>
@@ -97,7 +103,7 @@ export function AddBoardDialog({ onAddBoard, existingIds }: AddBoardDialogProps)
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {columnColors.map((col) => (
+                  {columnColors.map(col => (
                     <SelectItem key={col} value={col}>
                       <div className="flex items-center gap-2">
                         <div className={cn("size-3 rounded-full", col)} />

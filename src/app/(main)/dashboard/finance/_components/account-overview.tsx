@@ -5,22 +5,76 @@ import { siApple, siPaypal, siOpenai, siVercel, siFigma } from "simple-icons";
 
 import { SimpleIcon } from "@/components/simple-icon";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, cn } from "@/lib/utils";
 
 function ChipSVG() {
   return (
-    <svg enableBackground="new 0 0 132 92" viewBox="0 0 132 92" xmlns="http://www.w3.org/2000/svg" className="w-14">
+    <svg
+      enableBackground="new 0 0 132 92"
+      viewBox="0 0 132 92"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-14"
+    >
       <title>Chip</title>
       <rect x="0.5" y="0.5" width="131" height="91" rx="15" className="fill-accent stroke-accent" />
-      <rect x="9.5" y="9.5" width="48" height="21" rx="10.5" className="fill-accent stroke-accent-foreground" />
-      <rect x="9.5" y="61.5" width="48" height="21" rx="10.5" className="fill-accent stroke-accent-foreground" />
-      <rect x="9.5" y="35.5" width="48" height="21" rx="10.5" className="fill-accent stroke-accent-foreground" />
-      <rect x="74.5" y="9.5" width="48" height="21" rx="10.5" className="fill-accent stroke-accent-foreground" />
-      <rect x="74.5" y="61.5" width="48" height="21" rx="10.5" className="fill-accent stroke-accent-foreground" />
-      <rect x="74.5" y="35.5" width="48" height="21" rx="10.5" className="fill-accent stroke-accent-foreground" />
+      <rect
+        x="9.5"
+        y="9.5"
+        width="48"
+        height="21"
+        rx="10.5"
+        className="fill-accent stroke-accent-foreground"
+      />
+      <rect
+        x="9.5"
+        y="61.5"
+        width="48"
+        height="21"
+        rx="10.5"
+        className="fill-accent stroke-accent-foreground"
+      />
+      <rect
+        x="9.5"
+        y="35.5"
+        width="48"
+        height="21"
+        rx="10.5"
+        className="fill-accent stroke-accent-foreground"
+      />
+      <rect
+        x="74.5"
+        y="9.5"
+        width="48"
+        height="21"
+        rx="10.5"
+        className="fill-accent stroke-accent-foreground"
+      />
+      <rect
+        x="74.5"
+        y="61.5"
+        width="48"
+        height="21"
+        rx="10.5"
+        className="fill-accent stroke-accent-foreground"
+      />
+      <rect
+        x="74.5"
+        y="35.5"
+        width="48"
+        height="21"
+        rx="10.5"
+        className="fill-accent stroke-accent-foreground"
+      />
     </svg>
   );
 }
@@ -69,7 +123,9 @@ export function AccountOverview() {
     <Card className="shadow-xs">
       <CardHeader className="items-center">
         <CardTitle>My Cards</CardTitle>
-        <CardDescription>Your card summary, balance, and recent transactions in one view.</CardDescription>
+        <CardDescription>
+          Your card summary, balance, and recent transactions in one view.
+        </CardDescription>
         <CardAction>
           <Button size="icon" variant="outline">
             <Plus className="size-4" />
@@ -141,7 +197,7 @@ export function AccountOverview() {
                 <h6 className="text-muted-foreground text-sm uppercase">Recent Payments</h6>
 
                 <div className="space-y-4">
-                  {recentPayments.map((transaction) => (
+                  {recentPayments.map(transaction => (
                     <div key={transaction.id} className="flex items-center gap-2">
                       <div className="bg-muted flex size-10 shrink-0 items-center justify-center rounded-full">
                         <SimpleIcon icon={transaction.icon} className="size-5" />
@@ -149,13 +205,15 @@ export function AccountOverview() {
                       <div className="flex w-full items-end justify-between">
                         <div>
                           <p className="text-sm font-medium">{transaction.title}</p>
-                          <p className="text-muted-foreground line-clamp-1 text-xs">{transaction.subtitle}</p>
+                          <p className="text-muted-foreground line-clamp-1 text-xs">
+                            {transaction.subtitle}
+                          </p>
                         </div>
                         <div>
                           <span
                             className={cn(
                               "text-sm leading-none font-medium tabular-nums",
-                              transaction.type === "debit" ? "text-destructive" : "text-green-500",
+                              transaction.type === "debit" ? "text-destructive" : "text-green-500"
                             )}
                           >
                             {formatCurrency(transaction.amount, { noDecimals: true })}
@@ -172,7 +230,9 @@ export function AccountOverview() {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="physical">Physical card details are currently unavailable</TabsContent>
+          <TabsContent value="physical">
+            Physical card details are currently unavailable
+          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>

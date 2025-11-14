@@ -1,16 +1,25 @@
 "use client";
 
+import { useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { signIn } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 const FormSchema = z.object({
@@ -41,7 +50,7 @@ export function LoginForm() {
 
       console.log("[LoginForm] SignIn result:", result);
 
-      if (result?.error) {
+      if (result.error) {
         console.error("[LoginForm] Login error:", result.error);
         toast.error("Login failed", {
           description: result.error,
@@ -90,7 +99,13 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input id="email" type="email" placeholder="you@example.com" autoComplete="email" {...field} />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -128,7 +143,10 @@ export function LoginForm() {
                   className="size-4"
                 />
               </FormControl>
-              <FormLabel htmlFor="login-remember" className="text-muted-foreground ml-1 text-sm font-medium">
+              <FormLabel
+                htmlFor="login-remember"
+                className="text-muted-foreground ml-1 text-sm font-medium"
+              >
                 Remember me for 30 days
               </FormLabel>
             </FormItem>

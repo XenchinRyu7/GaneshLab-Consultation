@@ -1,10 +1,25 @@
 "use client";
 
-import { XAxis, Label, Pie, PieChart, Bar, BarChart, CartesianGrid, LabelList, YAxis } from "recharts";
+import {
+  XAxis,
+  Label,
+  Pie,
+  PieChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  YAxis,
+} from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend } from "@/components/ui/chart";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+} from "@/components/ui/chart";
 
 import {
   leadsBySourceChartData,
@@ -47,7 +62,12 @@ export function InsightCards() {
                   content={({ viewBox }) => {
                     if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                       return (
-                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
+                        <text
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
                           <tspan
                             x={viewBox.cx}
                             y={viewBox.cy}
@@ -55,7 +75,11 @@ export function InsightCards() {
                           >
                             {totalLeads.toLocaleString()}
                           </tspan>
-                          <tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 24} className="fill-muted-foreground">
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy ?? 0) + 24}
+                            className="fill-muted-foreground"
+                          >
                             Leads
                           </tspan>
                         </text>
@@ -70,10 +94,13 @@ export function InsightCards() {
                 align="right"
                 content={() => (
                   <ul className="ml-8 flex flex-col gap-3">
-                    {leadsBySourceChartData.map((item) => (
+                    {leadsBySourceChartData.map(item => (
                       <li key={item.source} className="flex w-36 items-center justify-between">
                         <span className="flex items-center gap-2 capitalize">
-                          <span className="size-2.5 rounded-full" style={{ background: item.fill }} />
+                          <span
+                            className="size-2.5 rounded-full"
+                            style={{ background: item.fill }}
+                          />
                           {leadsBySourceChartConfig[item.source].label}
                         </span>
                         <span className="tabular-nums">{item.leads}</span>
@@ -109,7 +136,7 @@ export function InsightCards() {
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+                tickFormatter={value => value.slice(0, 3)}
                 hide
               />
               <XAxis dataKey="actual" type="number" hide />
@@ -146,7 +173,9 @@ export function InsightCards() {
           </ChartContainer>
         </CardContent>
         <CardFooter>
-          <p className="text-muted-foreground text-xs">Average progress: 78% · 2 projects above target</p>
+          <p className="text-muted-foreground text-xs">
+            Average progress: 78% · 2 projects above target
+          </p>
         </CardFooter>
       </Card>
     </div>

@@ -3,6 +3,7 @@
 ## Overview
 
 Sistem authentication menggunakan **custom implementation** dengan:
+
 - **Supabase PostgreSQL** - Hanya sebagai database (bukan Supabase Auth)
 - **bcryptjs** - Password hashing
 - **JWT (jose)** - Session management
@@ -50,8 +51,8 @@ CREATE TABLE user_profiles (
 ```
 
 **Important:**
-- Password disimpan di database (hashed dengan bcrypt)
 
+- Password disimpan di database (hashed dengan bcrypt)
 
 ## Implementation
 
@@ -169,17 +170,20 @@ VALUES (
 ## Security
 
 ### 1. Password Security
+
 - Password di-hash dengan bcrypt (10 rounds)
 - Password tidak pernah disimpan sebagai plain text
 - Password verification menggunakan bcrypt.compare()
 
 ### 2. Session Security
+
 - JWT token disimpan di HTTP-only cookie
 - Token expires setelah 7 hari
 - Token signed dengan AUTH_SECRET
 - Secure flag enabled di production
 
 ### 3. Route Protection
+
 - Middleware protect all routes except public routes
 - Public routes: `/auth/login`, `/get-started`, `/`
 - Protected routes require valid session
@@ -215,4 +219,3 @@ VALUES (
 5. ⏳ Admin panel untuk create users (future)
 6. ⏳ Password reset functionality (future)
 7. ⏳ Email notification saat credential dibuat (future)
-

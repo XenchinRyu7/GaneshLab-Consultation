@@ -28,14 +28,14 @@ if (!fs.existsSync(presetDir)) {
 
 const outputPath = path.resolve(__dirname, "../types/preferences/theme.ts");
 
-const files = fs.readdirSync(presetDir).filter((file) => file.endsWith(".css"));
+const files = fs.readdirSync(presetDir).filter(file => file.endsWith(".css"));
 
 if (files.length === 0) {
   console.warn("⚠️ No preset CSS files found. Only default preset will be included.");
 }
 
 // eslint-disable-next-line complexity
-const presets = files.map((file) => {
+const presets = files.map(file => {
   const filePath = path.join(presetDir, file);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   const content = fs.readFileSync(filePath, "utf8");
@@ -53,8 +53,12 @@ const presets = files.map((file) => {
   const label = labelMatch?.[1]?.trim() ?? file.replace(".css", "");
   const value = valueMatch?.[1]?.trim() ?? file.replace(".css", "");
 
-  const lightPrimaryMatch = content.match(/:root\[data-theme-preset="[^"]*"\][\s\S]*?--primary:\s*([^;]+);/);
-  const darkPrimaryMatch = content.match(/\.dark:root\[data-theme-preset="[^"]*"\][\s\S]*?--primary:\s*([^;]+);/);
+  const lightPrimaryMatch = content.match(
+    /:root\[data-theme-preset="[^"]*"\][\s\S]*?--primary:\s*([^;]+);/
+  );
+  const darkPrimaryMatch = content.match(
+    /\.dark:root\[data-theme-preset="[^"]*"\][\s\S]*?--primary:\s*([^;]+);/
+  );
 
   const primary = {
     light: lightPrimaryMatch?.[1]?.trim() ?? "",
@@ -106,7 +110,7 @@ const fileContent = fs.readFileSync(outputPath, "utf8");
 
 const updated = fileContent.replace(
   /\/\/ --- generated:themePresets:start ---[\s\S]*?\/\/ --- generated:themePresets:end ---/,
-  generatedBlock,
+  generatedBlock
 );
 
 async function main() {
@@ -121,7 +125,7 @@ async function main() {
   console.log("✅ theme.ts updated with new theme presets");
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error("❌ Unexpected error while generating theme presets:", err);
   process.exit(1);
 });

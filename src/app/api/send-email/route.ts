@@ -1,18 +1,17 @@
-import transporter from "@/lib/email";
 import bcrypt from "bcryptjs";
+
+import transporter from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 type RequestBody = {
   fullname: string;
   email: string;
-  type: string;
-  company: string;
   message: string;
 };
 
 export async function POST(req: Request) {
   try {
-    const { fullname, email, type, company, message }: RequestBody = await req.json();
+    const { fullname, email, message }: RequestBody = await req.json();
 
     const password = Math.random().toString(36).slice(-8);
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -65,11 +64,11 @@ export async function POST(req: Request) {
       { success: true, message: "Email berhasil dikirim", client },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error:", error);
 
     return Response.json(
-      { success: false, error: error.message }, 
+      { success: false, error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useUserStore } from "@/stores/user/user-provider";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -10,14 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { useUserStore } from "@/stores/user/user-provider";
 import type { UserRole } from "@/types/rbac";
 
 export function RoleSwitcher() {
-  const currentUser = useUserStore((state) => state.currentUser);
-  const switchRole = useUserStore((state) => state.switchRole);
-  const isDevelopmentMode = useUserStore((state) => state.isDevelopmentMode);
-  const setDevelopmentMode = useUserStore((state) => state.setDevelopmentMode);
+  const currentUser = useUserStore(state => state.currentUser);
+  const switchRole = useUserStore(state => state.switchRole);
+  const isDevelopmentMode = useUserStore(state => state.isDevelopmentMode);
+  const setDevelopmentMode = useUserStore(state => state.setDevelopmentMode);
 
   // Enable development mode by default in dev environment
   useEffect(() => {
@@ -31,9 +32,9 @@ export function RoleSwitcher() {
   if (!currentUser || !isDevelopmentMode) return null;
 
   return (
-    <div className="flex items-center gap-2 border-b bg-muted/50 p-2">
-      <span className="text-sm text-muted-foreground">Dev Mode:</span>
-      <Select value={currentUser.role} onValueChange={(role) => switchRole(role as UserRole)}>
+    <div className="bg-muted/50 flex items-center gap-2 border-b p-2">
+      <span className="text-muted-foreground text-sm">Dev Mode:</span>
+      <Select value={currentUser.role} onValueChange={role => switchRole(role as UserRole)}>
         <SelectTrigger className="w-[150px]">
           <SelectValue />
         </SelectTrigger>
@@ -64,7 +65,7 @@ export function RoleSwitcher() {
           </SelectItem>
         </SelectContent>
       </Select>
-      <span className="text-xs text-muted-foreground">
+      <span className="text-muted-foreground text-xs">
         {currentUser.name} ({currentUser.email})
       </span>
       <Button
@@ -78,4 +79,3 @@ export function RoleSwitcher() {
     </div>
   );
 }
-

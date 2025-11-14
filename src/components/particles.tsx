@@ -88,7 +88,7 @@ export default function Particles({
         }
       }
     },
-    [dpr],
+    [dpr]
   );
 
   const resizeCanvas = useCallback(() => {
@@ -123,7 +123,7 @@ export default function Particles({
       const remapped = ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
       return remapped > 0 ? remapped : 0;
     },
-    [],
+    []
   );
 
   const animate = useCallback(() => {
@@ -148,8 +148,10 @@ export default function Particles({
       }
       circle.x += circle.dx;
       circle.y += circle.dy;
-      circle.translateX += (mouse.current.x / (staticity / circle.magnetism) - circle.translateX) / ease;
-      circle.translateY += (mouse.current.y / (staticity / circle.magnetism) - circle.translateY) / ease;
+      circle.translateX +=
+        (mouse.current.x / (staticity / circle.magnetism) - circle.translateX) / ease;
+      circle.translateY +=
+        (mouse.current.y / (staticity / circle.magnetism) - circle.translateY) / ease;
       // circle gets out of the canvas
       if (
         circle.x < -circle.size ||
@@ -173,7 +175,7 @@ export default function Particles({
             translateY: circle.translateY,
             alpha: circle.alpha,
           },
-          true,
+          true
         );
       }
     });

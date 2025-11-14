@@ -13,7 +13,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 import type { KanbanTask, TaskStatus } from "./kanban-config";
@@ -78,7 +84,7 @@ function EditCardForm({
             id="edit-title"
             placeholder="Enter task title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={e => setTitle(e.target.value)}
             required
           />
         </div>
@@ -88,19 +94,19 @@ function EditCardForm({
             id="edit-description"
             placeholder="Enter task description (optional)"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             rows={3}
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label htmlFor="edit-status">Status</Label>
-            <Select value={status} onValueChange={(value) => setStatus(value)}>
+            <Select value={status} onValueChange={value => setStatus(value)}>
               <SelectTrigger id="edit-status">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {availableStatuses.map((statusId) => (
+                {availableStatuses.map(statusId => (
                   <SelectItem key={statusId} value={statusId}>
                     {statusId.charAt(0).toUpperCase() + statusId.slice(1).replace(/-/g, " ")}
                   </SelectItem>
@@ -110,7 +116,7 @@ function EditCardForm({
           </div>
           <div className="grid gap-2">
             <Label htmlFor="edit-priority">Priority</Label>
-            <Select value={priority} onValueChange={(value) => setPriority(value as typeof priority)}>
+            <Select value={priority} onValueChange={value => setPriority(value as typeof priority)}>
               <SelectTrigger id="edit-priority">
                 <SelectValue />
               </SelectTrigger>
@@ -125,7 +131,12 @@ function EditCardForm({
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label htmlFor="edit-dueDate">Due Date</Label>
-            <Input id="edit-dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <Input
+              id="edit-dueDate"
+              type="date"
+              value={dueDate}
+              onChange={e => setDueDate(e.target.value)}
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="edit-assignee">Assignee</Label>
@@ -133,7 +144,7 @@ function EditCardForm({
               id="edit-assignee"
               placeholder="Assign to (optional)"
               value={assignee}
-              onChange={(e) => setAssignee(e.target.value)}
+              onChange={e => setAssignee(e.target.value)}
             />
           </div>
         </div>
@@ -148,7 +159,13 @@ function EditCardForm({
   );
 }
 
-export function EditCardDialog({ task, open, onOpenChange, onUpdateCard, availableStatuses }: EditCardDialogProps) {
+export function EditCardDialog({
+  task,
+  open,
+  onOpenChange,
+  onUpdateCard,
+  availableStatuses,
+}: EditCardDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent key={task.id}>
