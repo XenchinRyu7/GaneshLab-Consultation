@@ -129,15 +129,14 @@ export const sidebarItems: NavGroup[] = [
         icon: Kanban,
       },
       {
+        title: "Users",
+        url: "/dashboard/user",
+        icon: Users,
+      },
+      {
         title: "Invoice",
         url: "/dashboard/coming-soon",
         icon: ReceiptText,
-        comingSoon: true,
-      },
-      {
-        title: "Users",
-        url: "/dashboard/coming-soon",
-        icon: Users,
         comingSoon: true,
       },
       {
