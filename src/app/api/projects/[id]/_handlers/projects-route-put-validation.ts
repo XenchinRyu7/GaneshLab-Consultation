@@ -11,10 +11,21 @@ import { prisma } from "@/lib/prisma";
  */
 export async function validatePIC(
   picId: string | undefined,
-  existingPicId: string | null
+  existingPicId: string | null,
+  projectStatus?: string
 ): Promise<NextResponse | null> {
   if (!picId || picId === existingPicId) {
     return null;
+  }
+
+  // Prevent PIC changes for approved projects
+  if (projectStatus && projectStatus !== "PENDING") {
+    return NextResponse.json(
+      {
+        error: "Cannot change PIC for approved projects",
+      },
+      { status: 400 }
+    );
   }
 
   const pic = await prisma.userProfile.findUnique({

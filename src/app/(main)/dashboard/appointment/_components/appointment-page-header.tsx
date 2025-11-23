@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 interface AppointmentPageHeaderProps {
   isClient: boolean;
   activeProjectName: string | null;
-  onCreateAppointment: () => void;
+  onCreateAppointment?: () => void;
 }
 
 export function AppointmentPageHeader({
@@ -25,7 +25,7 @@ export function AppointmentPageHeader({
             : "Manage appointments and meetings"}
         </p>
       </div>
-      {isClient && (
+      {isClient && onCreateAppointment && (
         <Button onClick={onCreateAppointment} className="gap-2">
           <Plus className="size-4" />
           <span>Create Appointment</span>

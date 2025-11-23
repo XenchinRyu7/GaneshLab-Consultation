@@ -76,7 +76,7 @@ export function verifyCompanyProfile(
   }
 
   const requiredFields = {
-    name: client.company.name ?? "",
+    name: client.company.name,
     address: client.company.address ?? "",
     phone: client.company.phone ?? "",
     email: client.company.email ?? "",

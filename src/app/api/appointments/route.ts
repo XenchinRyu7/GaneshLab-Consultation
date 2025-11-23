@@ -118,8 +118,9 @@ export async function GET(req: NextRequest) {
     const formattedAppointments = appointments.map(apt => formatAppointment(apt));
 
     return NextResponse.json({ appointments: formattedAppointments }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching appointments:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

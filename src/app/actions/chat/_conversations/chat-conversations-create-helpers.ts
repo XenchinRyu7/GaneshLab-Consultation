@@ -79,7 +79,7 @@ export async function createNewConversation(
       picId: picId,
       projectId: projectId,
       clearedByClientAt: null,
-      clearedByPICAt: null,
+      clearedByPicAt: null,
     },
     include: {
       client: {
@@ -104,21 +104,21 @@ export function buildUnclearUpdateData(
     clientId: string;
     picId: string;
     clearedByClientAt: Date | null;
-    clearedByPICAt: Date | null;
+    clearedByPicAt: Date | null;
   }
-): { clearedByClientAt?: null; clearedByPICAt?: null } {
-  const updateData: { clearedByClientAt?: null; clearedByPICAt?: null } = {};
+): { clearedByClientAt?: null; clearedByPicAt?: null } {
+  const updateData: { clearedByClientAt?: null; clearedByPicAt?: null } = {};
 
   if (user.role === "client" && conversation.clientId === user.id) {
     updateData.clearedByClientAt = null;
   } else if (user.role === "pic" && conversation.picId === user.id) {
-    updateData.clearedByPICAt = null;
+    updateData.clearedByPicAt = null;
   } else {
     // Handle edge cases: check by actual ID position
     if (conversation.clientId === user.id) {
       updateData.clearedByClientAt = null;
     } else if (conversation.picId === user.id) {
-      updateData.clearedByPICAt = null;
+      updateData.clearedByPicAt = null;
     }
   }
 
@@ -129,8 +129,8 @@ export function buildUnclearUpdateData(
  * Check if conversation needs to be un-cleared
  */
 export function needsUnclear(
-  updateData: { clearedByClientAt?: null; clearedByPICAt?: null },
-  conversation: { clearedByClientAt: Date | null; clearedByPICAt: Date | null }
+  updateData: { clearedByClientAt?: null; clearedByPicAt?: null },
+  conversation: { clearedByClientAt: Date | null; clearedByPicAt: Date | null }
 ): boolean {
   if (Object.keys(updateData).length === 0) {
     return false;
@@ -138,7 +138,7 @@ export function needsUnclear(
 
   return (
     (updateData.clearedByClientAt === null && conversation.clearedByClientAt !== null) ||
-    (updateData.clearedByPICAt === null && conversation.clearedByPICAt !== null)
+    (updateData.clearedByPicAt === null && conversation.clearedByPicAt !== null)
   );
 }
 
@@ -147,7 +147,7 @@ export function needsUnclear(
  */
 export async function unClearConversation(
   conversationId: string,
-  updateData: { clearedByClientAt?: null; clearedByPICAt?: null }
+  updateData: { clearedByClientAt?: null; clearedByPicAt?: null }
 ) {
   return prisma.conversation.update({
     where: { id: conversationId },

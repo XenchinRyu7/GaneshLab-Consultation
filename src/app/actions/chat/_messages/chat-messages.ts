@@ -92,7 +92,7 @@ export async function sendMessage(
     }
 
     // If conversation was cleared, un-clear it when user sends a message (like WhatsApp)
-    const updateData = buildUnclearUpdateData(user, conversation);
+    const updateData = await buildUnclearUpdateData(user, conversation);
 
     // Create message first
     const message = await prisma.message.create({
@@ -121,7 +121,7 @@ export async function sendMessage(
       senderName: message.sender.fullname,
       senderAvatar: message.sender.avatarColor ?? undefined,
       content: message.content,
-      isDeleted: message.isDeleted || false,
+      isDeleted: message.isDeleted,
       editedAt: message.editedAt,
       readAt: message.readAt,
       createdAt: message.createdAt,
@@ -239,7 +239,7 @@ export async function editMessage(
       senderName: updatedMessage.sender.fullname,
       senderAvatar: updatedMessage.sender.avatarColor ?? undefined,
       content: updatedMessage.content,
-      isDeleted: updatedMessage.isDeleted ?? false,
+      isDeleted: updatedMessage.isDeleted,
       editedAt: updatedMessage.editedAt,
       readAt: updatedMessage.readAt,
       createdAt: updatedMessage.createdAt,

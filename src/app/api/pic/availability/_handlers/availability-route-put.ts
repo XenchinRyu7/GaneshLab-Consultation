@@ -213,7 +213,7 @@ export async function PUT(req: NextRequest) {
     if (validationError) return validationError;
 
     // Delete all existing availabilities for this PIC
-    await prisma.pICAvailability.deleteMany({
+    await prisma.picAvailability.deleteMany({
       where: {
         picId: user.id,
       },
@@ -223,13 +223,13 @@ export async function PUT(req: NextRequest) {
     const slotsToCreate = buildSlotsToCreate(availabilities as Record<string, unknown[]>, user.id);
 
     if (slotsToCreate.length > 0) {
-      await prisma.pICAvailability.createMany({
+      await prisma.picAvailability.createMany({
         data: slotsToCreate,
       });
     }
 
     // Fetch updated availabilities
-    const updatedAvailabilities = await prisma.pICAvailability.findMany({
+    const updatedAvailabilities = await prisma.picAvailability.findMany({
       where: {
         picId: user.id,
       },

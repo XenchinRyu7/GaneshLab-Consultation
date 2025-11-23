@@ -11,6 +11,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import type { NavMainItem } from "@/navigation/sidebar/sidebar-items";
+import { useUserStore } from "@/stores/user/user-provider";
 
 const IsComingSoon = () => (
   <span className="ml-auto rounded-md bg-gray-200 px-2 py-1 text-xs dark:text-gray-800">Soon</span>
@@ -23,6 +24,7 @@ interface NavItemExpandedProps {
 }
 
 export function NavItemExpanded({ item, isActive, isSubmenuOpen }: NavItemExpandedProps) {
+  const currentUser = useUserStore(state => state.currentUser);
   return (
     <Collapsible
       key={item.title}
@@ -61,21 +63,28 @@ export function NavItemExpanded({ item, isActive, isSubmenuOpen }: NavItemExpand
         {item.subItems && (
           <CollapsibleContent>
             <SidebarMenuSub>
-              {item.subItems.map(subItem => (
-                <SidebarMenuSubItem key={subItem.title}>
-                  <SidebarMenuSubButton
-                    aria-disabled={subItem.comingSoon}
-                    isActive={isActive(subItem.url)}
-                    asChild
-                  >
-                    <Link href={subItem.url} target={subItem.newTab ? "_blank" : undefined}>
-                      {subItem.icon && <subItem.icon />}
-                      <span>{subItem.title}</span>
-                      {subItem.comingSoon && <IsComingSoon />}
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              ))}
+              {item.subItems
+                .filter(subItem => {
+                  if (subItem.roles && currentUser) {
+                    return subItem.roles.includes(currentUser.role);
+                  }
+                  return true;
+                })
+                .map(subItem => (
+                  <SidebarMenuSubItem key={subItem.title}>
+                    <SidebarMenuSubButton
+                      aria-disabled={subItem.comingSoon}
+                      isActive={isActive(subItem.url)}
+                      asChild
+                    >
+                      <Link href={subItem.url} target={subItem.newTab ? "_blank" : undefined}>
+                        {subItem.icon && <subItem.icon />}
+                        <span>{subItem.title}</span>
+                        {subItem.comingSoon && <IsComingSoon />}
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
             </SidebarMenuSub>
           </CollapsibleContent>
         )}

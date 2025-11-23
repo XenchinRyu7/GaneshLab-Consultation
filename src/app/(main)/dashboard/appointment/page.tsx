@@ -1,5 +1,8 @@
 "use client";
 
+import { AlertCircle } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +20,7 @@ import { AppointmentPageHeader } from "./_components/appointment-page-header";
 import { CalendarView } from "./_components/calendar-view";
 import { CreateAppointmentDialog } from "./_components/create-appointment-dialog";
 import { EditAppointmentDialog } from "./_components/edit-appointment-dialog";
+import { RescheduleRequests } from "./_components/reschedule-requests";
 import { useAppointmentPage } from "./_hooks/appointment-page-hooks";
 
 export default function AppointmentPage() {
@@ -48,6 +52,22 @@ export default function AppointmentPage() {
 
   const currentUser = useUserStore(state => state.currentUser);
 
+  const isProjectAccessible =
+    !activeProject ||
+    activeProject.status === "APPROVED" ||
+    activeProject.status === "ACTIVE" ||
+    activeProject.status === "PENDING"; // Client can book for PENDING too
+
+  const canCreateAppointment =
+    !activeProject || activeProject.status === "APPROVED" || activeProject.status === "ACTIVE";
+
+  const handleEditDialogOpenChange = (open: boolean) => {
+    setIsEditDialogOpen(open);
+    if (!open) {
+      setEditingAppointment(null);
+    }
+  };
+
   const {
     handleCreateAppointment,
     handleSlotSelect,
@@ -56,6 +76,7 @@ export default function AppointmentPage() {
     handleUpdateAppointment,
     handleDeleteAppointment,
     confirmDeleteAppointment,
+    handleRequestReschedule,
   } = useAppointmentHandlers({
     currentUserId: currentUser?.id,
     activeProjectId: activeProject?.id,
@@ -85,8 +106,22 @@ export default function AppointmentPage() {
       <AppointmentPageHeader
         isClient={isClient}
         activeProjectName={activeProject?.name ?? null}
-        onCreateAppointment={handleCreateAppointment}
+        onCreateAppointment={canCreateAppointment ? handleCreateAppointment : undefined}
       />
+
+      {isClient && currentUser?.id && <RescheduleRequests clientId={currentUser.id} />}
+
+      {activeProject && !canCreateAppointment && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Project Not Approved</AlertTitle>
+          <AlertDescription>
+            Appointments can only be created for approved or active projects. Current status:{" "}
+            <strong>{activeProject.status}</strong>. You can view existing appointments but cannot
+            create new ones.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {!activeProject && isClient && (
         <div className="bg-muted/50 rounded-lg border p-4">
@@ -127,7 +162,7 @@ export default function AppointmentPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {isClient && (
+      {isClient && canCreateAppointment && (
         <CreateAppointmentDialog
           open={isCreateDialogOpen}
           onOpenChange={setIsCreateDialogOpen}
@@ -139,11 +174,13 @@ export default function AppointmentPage() {
 
       <EditAppointmentDialog
         open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
+        onOpenChange={handleEditDialogOpenChange}
         appointment={editingAppointment}
         onUpdate={handleUpdateAppointment}
         onDelete={handleDeleteAppointment}
+        onRequestReschedule={handleRequestReschedule}
         projectContext={projectContext}
+        isClient={isClient}
       />
     </div>
   );

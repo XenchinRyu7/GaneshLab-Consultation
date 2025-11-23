@@ -37,12 +37,12 @@ function filterPICsByProjectContext(pics: PIC[], projectContext?: ProjectContext
 function autoSelectPIC(
   pics: PIC[],
   projectContext: ProjectContext | undefined,
-  setPmId: (id: string) => void
+  setPicId: (id: string) => void
 ) {
   if (pics.length === 1) {
-    setPmId(pics[0].id);
+    setPicId(pics[0].id);
   } else if (projectContext?.assignedPMId) {
-    setPmId(projectContext.assignedPMId);
+    setPicId(projectContext.assignedPMId);
   }
 }
 
@@ -52,7 +52,7 @@ function autoSelectPIC(
 export async function fetchAndProcessPICs(
   projectContext: ProjectContext | undefined,
   setPics: (pics: PIC[]) => void,
-  setPmId: (id: string) => void,
+  setPicId: (id: string) => void,
   setLoadingPics: (loading: boolean) => void
 ): Promise<void> {
   try {
@@ -65,7 +65,7 @@ export async function fetchAndProcessPICs(
     const fetchedPics: PIC[] = (data.pics ?? []).map(transformPICResponse);
     const filteredPics = filterPICsByProjectContext(fetchedPics, projectContext);
     setPics(filteredPics);
-    autoSelectPIC(filteredPics, projectContext, setPmId);
+    autoSelectPIC(filteredPics, projectContext, setPicId);
   } catch (error) {
     console.error("Error fetching PICs:", error);
   } finally {
@@ -82,37 +82,34 @@ export function initializeFormFromSlot(
     | undefined,
   open: boolean,
   setters: {
-    setPmId: (id: string) => void;
+    setPicId: (id: string) => void;
     setDate: (date: string) => void;
     setStartTime: (time: string) => void;
     setEndTime: (time: string) => void;
     setType: (type: MeetingType) => void;
     setTitle: (title: string) => void;
     setDescription: (desc: string) => void;
-    setMeetingLink: (link: string) => void;
     setLocation: (location: string) => void;
   }
 ) {
   if (initialSlot && open) {
-    setters.setPmId(initialSlot.pmId);
+    setters.setPicId(initialSlot.pmId);
     setters.setDate(initialSlot.date);
     setters.setStartTime(initialSlot.startTime);
     setters.setEndTime(initialSlot.endTime);
     setters.setType(initialSlot.type);
     setters.setTitle("");
     setters.setDescription("");
-    setters.setMeetingLink("");
     setters.setLocation("");
   } else if (open) {
     // Reset form
     setters.setTitle("");
     setters.setDescription("");
-    setters.setPmId("");
+    setters.setPicId("");
     setters.setDate("");
     setters.setStartTime("");
     setters.setEndTime("");
     setters.setType("online");
-    setters.setMeetingLink("");
     setters.setLocation("");
   }
 }
@@ -133,17 +130,17 @@ export function calculateDuration(start: string, end: string): number {
  */
 export function validateFormSubmission(
   title: string,
-  pmId: string,
+  picId: string,
   date: string,
   startTime: string,
   endTime: string,
   pics: PIC[]
 ): { valid: boolean; selectedPM: PIC | null } {
-  if (!title.trim() || !pmId || !date || !startTime || !endTime) {
+  if (!title.trim() || !picId || !date || !startTime || !endTime) {
     return { valid: false, selectedPM: null };
   }
 
-  const selectedPM = pics.find(pm => pm.id === pmId);
+  const selectedPM = pics.find(pm => pm.id === picId);
   if (!selectedPM) {
     return { valid: false, selectedPM: null };
   }
@@ -157,32 +154,31 @@ export function validateFormSubmission(
 export function buildAppointmentPayload(
   title: string,
   description: string,
-  pmId: string,
+  picId: string,
   selectedPM: PIC,
   date: string,
   startTime: string,
   endTime: string,
   duration: number,
   type: MeetingType,
-  meetingLink: string,
-  location: string,
-  projectContext?: ProjectContext
+  location: string
 ) {
   return {
     title: title.trim(),
     description: description.trim() || undefined,
     clientId: "", // Will be set by parent component
     clientName: "", // Will be set by parent component
-    pmId,
+    pmId: picId,
     pmName: selectedPM.name,
+    picId,
+    picName: selectedPM.name,
     date,
     startTime,
     endTime,
     duration,
     type,
-    meetingLink: type === "online" ? meetingLink.trim() || undefined : undefined,
     location: type === "offline" ? location.trim() || undefined : undefined,
     status: "pending" as const,
-    projectId: projectContext?.projectId,
+    projectId: undefined, // Will be set by parent component
   };
 }

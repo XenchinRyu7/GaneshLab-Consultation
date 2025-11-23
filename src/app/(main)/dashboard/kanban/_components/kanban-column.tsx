@@ -32,7 +32,7 @@ export function KanbanColumn({ column, tasks, onAddCard, onCardClick }: KanbanCo
         <CardHeader className="border-b pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className={cn("size-2 rounded-full", column.color)} />
+              <div className="size-2 rounded-full" style={{ backgroundColor: column.color }} />
               <CardTitle className="text-base font-semibold">{column.title}</CardTitle>
               <Badge variant="secondary" className="text-xs">
                 {tasks.length}

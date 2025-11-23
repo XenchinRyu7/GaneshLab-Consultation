@@ -13,6 +13,7 @@ import {
   checkAppointmentConflictForCreate,
   validateDuration,
   validateRequiredFields,
+  validateGoogleCalendarConnection,
 } from "./appointments-route-post-validation";
 
 /**
@@ -39,6 +40,29 @@ export async function POST(req: NextRequest) {
     );
     if (conflictError) return conflictError;
 
+    // Validate Google Calendar connection for online appointments
+    const calendarError = await validateGoogleCalendarConnection(body.picId, body.type);
+    if (calendarError) return calendarError;
+
+    // Validate project status if projectId is provided
+    if (body.projectId) {
+      const project = await prisma.project.findUnique({
+        where: { id: body.projectId },
+        select: { status: true },
+      });
+
+      if (!project) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+
+      if (project.status !== "APPROVED" && project.status !== "ACTIVE") {
+        return NextResponse.json(
+          { error: "Appointments can only be created for approved or active projects" },
+          { status: 403 }
+        );
+      }
+    }
+
     // Build appointment data
     const appointmentData = buildAppointmentData(body);
 
@@ -58,6 +82,9 @@ export async function POST(req: NextRequest) {
             id: true,
             fullname: true,
             email: true,
+            googleAccessToken: true, // Tambah untuk check calendar connection
+            googleRefreshToken: true,
+            googleTokenExpiry: true,
           },
         },
         project: {
@@ -69,8 +96,40 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Auto-generate Google Meet link jika tipe online dan PIC sudah connect calendar
+    let meetLink = null;
+    if (appointment.type === "online" && appointment.pic.googleAccessToken) {
+      try {
+        const { createCalendarEventWithMeet } = await import("@/lib/google-calendar");
+
+        const calendarData = await createCalendarEventWithMeet(appointment.pic, {
+          summary: `Appointment: ${appointment.title}`,
+          description: `Client: ${appointment.client.fullname}\nType: ${appointment.type}\n${appointment.description ?? ""}`,
+          start: new Date(
+            `${appointment.date.toISOString().split("T")[0]}T${appointment.startTime}`
+          ),
+          end: new Date(`${appointment.date.toISOString().split("T")[0]}T${appointment.endTime}`),
+          attendees: [appointment.client.email],
+          type: appointment.type as "online" | "offline",
+          location: appointment.location ?? undefined,
+        });
+
+        if (calendarData?.meetLink) {
+          meetLink = calendarData.meetLink;
+          // Update appointment dengan meet link
+          await prisma.appointment.update({
+            where: { id: appointment.id },
+            data: { meetingLink: meetLink },
+          });
+        }
+      } catch (calendarError) {
+        console.warn("Failed to create calendar event:", calendarError);
+        // Continue tanpa error - appointment tetap dibuat
+      }
+    }
+
     // Format and return response
-    const formattedAppointment = formatAppointment(appointment);
+    const formattedAppointment = formatAppointment({ ...appointment, meetingLink: meetLink });
     return NextResponse.json({ appointment: formattedAppointment }, { status: 201 });
   } catch (error) {
     console.error("Error creating appointment:", error);

@@ -11,6 +11,7 @@ import type { AvailabilitySlot } from "../_hooks/availability-page-hooks";
 
 import { AvailabilityDaySection } from "./availability-day-section";
 import { AvailabilityPICSelector } from "./availability-pic-selector";
+import { GoogleCalendarStatus } from "./google-calendar-status";
 
 const DAYS_OF_WEEK = [
   { value: "monday", label: "Monday" },
@@ -74,6 +75,8 @@ export function AvailabilityPageContent({
           onPicChange={onPicChange}
         />
       </div>
+
+      {isViewingOwnSchedule && currentUserId && <GoogleCalendarStatus picId={currentUserId} />}
 
       <Card>
         <CardHeader>

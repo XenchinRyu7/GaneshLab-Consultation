@@ -18,7 +18,7 @@ function buildBasicFields(data: CreateProjectBody) {
     description: data.description ?? null,
     clientId: data.clientId,
     picId: data.picId,
-    status: "pending" as const,
+    status: "PENDING" as const,
   };
 }
 

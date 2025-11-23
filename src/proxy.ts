@@ -1,8 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { decrypt } from "@/lib/auth";
+import { jwtVerify } from "jose";
 
-export async function middleware(request: NextRequest) {
+const secretKey = process.env.AUTH_SECRET ?? "your-secret-key-change-in-production";
+const key = new TextEncoder().encode(secretKey);
+
+/**
+ * Edge-compatible JWT decrypt function
+ */
+async function verifySession(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, key, {
+      algorithms: ["HS256"],
+    });
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Runs before requests complete.
+ * Use for rewrites, redirects, or header changes.
+ */
+export async function proxy(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
   const { pathname } = request.nextUrl;
 
@@ -23,7 +44,7 @@ export async function middleware(request: NextRequest) {
 
   // If accessing login/register with valid session, redirect to dashboard
   if ((pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register")) && session) {
-    const user = await decrypt(session);
+    const user = await verifySession(session);
     if (user) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
@@ -34,6 +55,9 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+/**
+ * Matcher runs for specific routes
+ */
 export const config = {
   matcher: [
     /*

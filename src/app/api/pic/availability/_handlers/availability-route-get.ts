@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
     const targetPicId = getTargetPicId(req, user.id);
 
     // Get PIC availability
-    const availabilities = await prisma.pICAvailability.findMany({
+    const availabilities = await prisma.picAvailability.findMany({
       where: {
         picId: targetPicId,
       },

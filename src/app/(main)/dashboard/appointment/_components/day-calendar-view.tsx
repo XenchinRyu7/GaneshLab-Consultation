@@ -122,7 +122,7 @@ export function DayCalendarView({
                     {apt.startTime} - {apt.endTime}
                   </span>
                 </div>
-                {apt.pmName && <div className="text-sm opacity-60">PIC: {apt.pmName}</div>}
+                {apt.picName && <div className="text-sm opacity-60">PIC: {apt.picName}</div>}
                 {apt.description && (
                   <div className="mt-1 text-sm opacity-60">{apt.description}</div>
                 )}
@@ -131,9 +131,9 @@ export function DayCalendarView({
           ))}
 
           {/* Availability Slots - Each slot is a separate card */}
-          {daySlots.map((slot, idx) => (
+          {daySlots.map(slot => (
             <Card
-              key={`${slot.pmId}-${slot.startTime}-${idx}`}
+              key={`${slot.pmId}-${slot.startTime}-${slot.endTime}`}
               onClick={() => onSlotSelect?.(slot)}
               className={cn(
                 "cursor-pointer border-2 p-4 transition-opacity hover:opacity-90",

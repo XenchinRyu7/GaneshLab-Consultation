@@ -10,6 +10,8 @@ export interface Appointment {
   clientName: string;
   pmId: string;
   pmName: string;
+  picId: string;
+  picName: string;
   date: string; // ISO date string
   startTime: string; // "09:00"
   endTime: string; // "10:00"
@@ -22,8 +24,6 @@ export interface Appointment {
   createdAt: string;
   updatedAt: string;
   // Additional fields from API
-  picId?: string;
-  picName?: string;
   projectId?: string;
   projectName?: string;
 }
@@ -70,4 +70,20 @@ export interface PIC {
   id: string;
   name: string;
   email: string;
+}
+
+// Reschedule request types
+export type RescheduleStatus = "pending" | "approved" | "rejected" | "completed";
+
+export interface RescheduleRequest {
+  id: string;
+  appointmentId: string;
+  requestedById: string;
+  newDate: string;
+  newStartTime: string;
+  newEndTime: string;
+  reason?: string;
+  status: RescheduleStatus;
+  createdAt: string;
+  updatedAt: string;
 }

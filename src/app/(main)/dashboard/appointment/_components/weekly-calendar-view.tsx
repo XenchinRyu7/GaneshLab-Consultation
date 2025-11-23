@@ -2,10 +2,11 @@
 
 import { useMemo } from "react";
 
-import { format, startOfWeek, addDays, isToday } from "date-fns";
-import { Monitor, MapPin, Clock } from "lucide-react";
+import { format, startOfWeek, addDays, isToday, addWeeks, subWeeks } from "date-fns";
+import { Monitor, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -25,12 +26,27 @@ export function WeeklyCalendarView({
   selectedDate,
   appointments,
   availabilitySlots = [],
+  onDateSelect,
   onSlotSelect,
   onAppointmentClick,
   projectContext,
 }: WeeklyCalendarViewProps) {
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Monday
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  const handlePreviousWeek = () => {
+    const newDate = subWeeks(selectedDate, 1);
+    onDateSelect?.(newDate);
+  };
+
+  const handleNextWeek = () => {
+    const newDate = addWeeks(selectedDate, 1);
+    onDateSelect?.(newDate);
+  };
+
+  const handleToday = () => {
+    onDateSelect?.(new Date());
+  };
 
   // Filter availability slots by project context
   const filteredSlots = useMemo(() => {
@@ -92,6 +108,27 @@ export function WeeklyCalendarView({
 
   return (
     <div className="space-y-4">
+      {/* Week Navigation */}
+      <div className="flex items-center justify-between">
+        <Button variant="outline" size="sm" onClick={handlePreviousWeek}>
+          <ChevronLeft className="mr-1 h-4 w-4" />
+          Previous Week
+        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleToday}>
+            Today
+          </Button>
+          <span className="text-muted-foreground text-sm font-medium">
+            {format(weekStart, "MMM d")} - {format(addDays(weekStart, 6), "MMM d, yyyy")}
+          </span>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleNextWeek}>
+          Next Week
+          <ChevronRight className="ml-1 h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Week Grid */}
       <div className="grid grid-cols-7 gap-2">
         {weekDays.map(day => {
           const dayStr = format(day, "yyyy-MM-dd");
@@ -129,7 +166,9 @@ export function WeeklyCalendarView({
                             {apt.startTime} - {apt.endTime}
                           </span>
                         </div>
-                        {apt.pmName && <div className="text-xs opacity-60">PIC: {apt.pmName}</div>}
+                        {apt.picName && (
+                          <div className="text-xs opacity-60">PIC: {apt.picName}</div>
+                        )}
                       </div>
                     </Card>
                   ))}

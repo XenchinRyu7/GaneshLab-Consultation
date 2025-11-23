@@ -52,9 +52,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const formattedAppointment = formatAppointment(appointment);
 
     return NextResponse.json({ appointment: formattedAppointment }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching appointment:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -81,8 +82,9 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     });
 
     return NextResponse.json({ message: "Appointment cancelled successfully" }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting appointment:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -84,9 +84,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     return NextResponse.json({ project: formatProject(project) }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching project:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -109,13 +110,14 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       where: { id },
       data: {
         deletedAt: new Date(),
-        status: "cancelled",
+        status: "CANCELLED",
       },
     });
 
     return NextResponse.json({ message: "Project deleted successfully" }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting project:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

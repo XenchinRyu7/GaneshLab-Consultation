@@ -25,6 +25,7 @@ import {
 export function NavCreateProjectButton() {
   const router = useRouter();
   const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const currentUser = useUserStore(state => state.currentUser);
   const addProject = useProjectStore(state => state.addProject);
   const setActiveProject = useProjectStore(state => state.setActiveProject);
@@ -61,7 +62,7 @@ export function NavCreateProjectButton() {
       }
 
       setIsCreateProjectDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error checking company profile:", error);
       toast.error("Failed to verify company profile. Please try again.");
     }
@@ -74,6 +75,7 @@ export function NavCreateProjectButton() {
       return;
     }
 
+    setIsCreating(true);
     try {
       const clientId = currentUser.id;
       const companyId = await fetchCompanyId(clientId);
@@ -97,10 +99,12 @@ export function NavCreateProjectButton() {
     } catch (error: unknown) {
       console.error("Error creating project:", error);
       if (error instanceof Error) {
-        toast.error(error.message ?? "Failed to create project");
+        toast.error(error.message);
       } else {
         toast.error("Failed to create project");
       }
+    } finally {
+      setIsCreating(false);
     }
   }
 
@@ -116,6 +120,7 @@ export function NavCreateProjectButton() {
                 tooltip="Create Project"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
                 onClick={handleCreateProjectClick}
+                disabled={isCreating}
               >
                 <PlusCircleIcon />
                 <span>Create Project</span>
@@ -128,6 +133,7 @@ export function NavCreateProjectButton() {
         open={isCreateProjectDialogOpen}
         onOpenChange={setIsCreateProjectDialogOpen}
         onSubmit={handleCreateProject}
+        isSubmitting={isCreating}
       />
     </>
   );

@@ -28,7 +28,7 @@ export async function getPicIds(picId: string | null): Promise<string[]> {
  * Get PIC availability data
  */
 export async function getPicAvailabilities(picIds: string[]) {
-  return prisma.pICAvailability.findMany({
+  return prisma.picAvailability.findMany({
     where: {
       picId: {
         in: picIds,
@@ -42,7 +42,7 @@ export async function getPicAvailabilities(picIds: string[]) {
  * Get blocked slots
  */
 export async function getBlockedSlots(picIds: string[], start: Date, endDate: Date) {
-  return prisma.pICBlockedSlot.findMany({
+  return prisma.picBlockedSlot.findMany({
     where: {
       picId: {
         in: picIds,

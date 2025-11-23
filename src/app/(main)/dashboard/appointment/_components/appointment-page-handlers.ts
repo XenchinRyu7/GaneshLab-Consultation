@@ -16,6 +16,12 @@ interface UseAppointmentHandlersProps {
   fetchAvailability: () => Promise<void>;
   isClient: boolean;
   appointmentToDelete: string | null;
+  onRequestReschedule?: (
+    appointmentId: string,
+    newDate: string,
+    newStartTime: string,
+    newEndTime: string
+  ) => void;
 }
 
 export function useAppointmentHandlers({
@@ -63,7 +69,7 @@ export function useAppointmentHandlers({
           title: appointmentData.title,
           description: appointmentData.description,
           clientId: currentUserId,
-          picId: appointmentData.pmId,
+          picId: appointmentData.picId,
           projectId: appointmentData.projectId ?? activeProjectId ?? null,
           date: appointmentData.date,
           startTime: appointmentData.startTime,
@@ -80,8 +86,7 @@ export function useAppointmentHandlers({
         throw new Error(error.error ?? "Failed to create appointment");
       }
 
-      const data = await response.json();
-      setAppointments(prev => [...prev, data.appointment]);
+      await response.json(); // Consume response
       setIsCreateDialogOpen(false);
       setSelectedSlot(null);
 
@@ -123,8 +128,7 @@ export function useAppointmentHandlers({
         throw new Error(error.error ?? "Failed to update appointment");
       }
 
-      const data = await response.json();
-      setAppointments(prev => prev.map(apt => (apt.id === appointmentId ? data.appointment : apt)));
+      await response.json(); // Consume response
       setIsEditDialogOpen(false);
       setEditingAppointment(null);
 
@@ -175,6 +179,38 @@ export function useAppointmentHandlers({
     }
   };
 
+  const handleRequestReschedule = async (
+    appointmentId: string,
+    newDate: string,
+    newStartTime: string,
+    newEndTime: string
+  ) => {
+    try {
+      const response = await fetch(`/api/appointments/${appointmentId}/reschedule`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          newDate,
+          newStartTime,
+          newEndTime,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error ?? "Failed to request reschedule");
+      }
+
+      toast.success("Reschedule request sent to client");
+      await fetchAppointments();
+    } catch (error: unknown) {
+      console.error("Error requesting reschedule:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to request reschedule");
+    }
+  };
+
   return {
     handleCreateAppointment,
     handleSlotSelect,
@@ -183,5 +219,6 @@ export function useAppointmentHandlers({
     handleUpdateAppointment,
     handleDeleteAppointment,
     confirmDeleteAppointment,
+    handleRequestReschedule,
   };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -39,7 +39,6 @@ const projectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
   description: z.string().optional(),
   picId: z.string().min(1, "PIC is required"),
-  status: z.enum(["active", "completed", "cancelled", "pending", "on_hold"]),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -72,23 +71,10 @@ export function EditProjectDialog({
       name: project.name,
       description: project.description ?? "",
       picId: project.picId,
-      status: project.status,
     },
   });
 
-  useEffect(() => {
-    if (open) {
-      fetchPICs();
-      form.reset({
-        name: project.name,
-        description: project.description ?? "",
-        picId: project.picId,
-        status: project.status,
-      });
-    }
-  }, [open, project]);
-
-  async function fetchPICs() {
+  const fetchPICs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/projects/pics");
@@ -102,7 +88,18 @@ export function EditProjectDialog({
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      fetchPICs();
+      form.reset({
+        name: project.name,
+        description: project.description ?? "",
+        picId: project.picId,
+      });
+    }
+  }, [open, project, form, fetchPICs]);
 
   function handleSubmit(data: ProjectFormValues) {
     onSubmit(data);
@@ -153,7 +150,11 @@ export function EditProjectDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>PIC (Person In Charge)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={loading}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={loading || project.status !== "PENDING"}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a PIC" />
@@ -167,31 +168,11 @@ export function EditProjectDialog({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>Select the PIC who will manage this project</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="on_hold">On Hold</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormDescription>
+                    {project.status !== "PENDING"
+                      ? "PIC cannot be changed once the project is approved"
+                      : "Select the PIC who will manage this project"}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

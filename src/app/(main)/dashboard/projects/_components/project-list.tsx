@@ -20,24 +20,47 @@ interface ProjectListProps {
   onEdit: (project: Project) => void;
   onDelete: (projectId: string) => void;
   onCreateNew: () => void;
+  userRole?: string;
 }
 
 const statusColors: Record<ProjectStatus, string> = {
-  active: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  completed: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  cancelled: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  on_hold: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  PENDING: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  APPROVED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  DECLINED: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  ACTIVE: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  COMPLETED: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+  ON_MAINTAIN: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  CANCELLED: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
 function formatStatus(status: ProjectStatus): string {
-  return status
-    .split("_")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  switch (status) {
+    case "PENDING":
+      return "Pending Approval";
+    case "APPROVED":
+      return "Approved";
+    case "DECLINED":
+      return "Declined";
+    case "ACTIVE":
+      return "Active";
+    case "COMPLETED":
+      return "Completed";
+    case "ON_MAINTAIN":
+      return "On Maintain";
+    case "CANCELLED":
+      return "Cancelled";
+    default:
+      return status;
+  }
 }
 
-export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: ProjectListProps) {
+export function ProjectList({
+  projects,
+  onEdit,
+  onDelete,
+  onCreateNew,
+  userRole,
+}: ProjectListProps) {
   const activeProject = useProjectStore(state => state.activeProject);
   const setActiveProject = useProjectStore(state => state.setActiveProject);
 
@@ -90,6 +113,10 @@ export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: Project
                   <span className="text-muted-foreground">Client:</span>{" "}
                   <span className="font-medium">{project.client?.fullname ?? "N/A"}</span>
                 </div>
+                <div>
+                  <span className="text-muted-foreground">Progress:</span>{" "}
+                  <span className="font-medium">{project.progress}%</span>
+                </div>
               </div>
               {isActive && (
                 <Badge variant="outline" className="mt-3">
@@ -98,16 +125,18 @@ export function ProjectList({ projects, onEdit, onDelete, onCreateNew }: Project
               )}
             </CardContent>
             <CardFooter className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={e => {
-                  e.stopPropagation();
-                  onEdit(project);
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
+              {userRole === "client" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={e => {
+                    e.stopPropagation();
+                    onEdit(project);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"

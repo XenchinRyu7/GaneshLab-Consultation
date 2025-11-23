@@ -16,7 +16,14 @@ export type ProjectComplexity = "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
 
 export type ProjectPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
-export type ProjectStatus = "active" | "completed" | "cancelled" | "pending" | "on_hold";
+export type ProjectStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "DECLINED"
+  | "ACTIVE"
+  | "COMPLETED"
+  | "ON_MAINTAIN"
+  | "CANCELLED";
 
 export interface Project {
   id: string;

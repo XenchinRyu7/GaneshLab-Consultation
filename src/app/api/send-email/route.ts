@@ -54,6 +54,7 @@ export async function POST(req: Request) {
     // Simpan user ke database Supabase
     const client = await prisma.userProfile.create({
       data: {
+        userId: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate temporary userId
         fullname,
         email,
         password: hashedPassword,

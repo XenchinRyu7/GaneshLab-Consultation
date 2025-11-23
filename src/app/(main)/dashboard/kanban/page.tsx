@@ -1,5 +1,8 @@
 "use client";
 
+import { AlertCircle } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useProjectStore } from "@/stores/project/project-provider";
 
@@ -7,6 +10,9 @@ import { KanbanBoard } from "./_components/kanban-board";
 
 export default function KanbanPage() {
   const activeProject = useProjectStore(state => state.activeProject);
+
+  const isProjectAccessible =
+    activeProject && (activeProject.status === "APPROVED" || activeProject.status === "ACTIVE");
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
@@ -27,6 +33,7 @@ export default function KanbanPage() {
           </p>
         </div>
       </div>
+
       {!activeProject && (
         <div className="rounded-lg border border-dashed p-8 text-center">
           <p className="text-muted-foreground">
@@ -35,7 +42,19 @@ export default function KanbanPage() {
           </p>
         </div>
       )}
-      {activeProject && <KanbanBoard />}
+
+      {activeProject && !isProjectAccessible && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Project Not Approved</AlertTitle>
+          <AlertDescription>
+            Kanban board is only available for approved or active projects. Current status:{" "}
+            <strong>{activeProject.status}</strong>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {activeProject && isProjectAccessible && <KanbanBoard projectId={activeProject.id} />}
     </div>
   );
 }

@@ -116,11 +116,11 @@ export async function getPICContacts(picId: string): Promise<Contact[]> {
         {
           clientId: { in: clientIds },
           picId: picId,
-          clearedByPICAt: null,
+          clearedByPicAt: null,
         },
         // PIC-PIC conversations - current user as PIC (exclude cleared by PIC)
         {
-          AND: [{ clientId: { in: picIds } }, { picId: picId }, { clearedByPICAt: null }],
+          AND: [{ clientId: { in: picIds } }, { picId: picId }, { clearedByPicAt: null }],
         },
         // PIC-PIC conversations - current user as Client (exclude cleared by client)
         {

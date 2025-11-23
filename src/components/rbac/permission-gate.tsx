@@ -28,12 +28,6 @@ export function PermissionGate({
   // Create stable permissions key
   const permissionsKey = useMemo(() => getPermissionsKey(permission), [permission]);
 
-  // Create stable permissions array
-  const permissions = useMemo(() => {
-    const perms = Array.isArray(permission) ? permission : [permission];
-    return [...perms].sort();
-  }, [permissionsKey]);
-
   // Create stable selector that doesn't depend on permissions array reference
   const selector = useMemo(
     () => (state: UserState) => {

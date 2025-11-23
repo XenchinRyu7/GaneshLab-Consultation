@@ -10,7 +10,7 @@ export default function LoginPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-center">
               <Image
-                src="/logo/cropped-LOGO-GANESH-1-192x192.png"
+                src="/logo/ganeshlabs.png"
                 alt="GaneshLab Logo"
                 width={120}
                 height={120}
@@ -33,7 +33,7 @@ export default function LoginPage() {
           <div className="space-y-4 text-center">
             <div className="mb-6 flex items-center justify-center lg:hidden">
               <Image
-                src="/logo/cropped-LOGO-GANESH-1-192x192.png"
+                src="/logo/ganeshlabs.png"
                 alt="GaneshLab Logo"
                 width={80}
                 height={80}

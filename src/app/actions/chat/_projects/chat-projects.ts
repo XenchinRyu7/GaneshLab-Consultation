@@ -17,7 +17,7 @@ export async function getClientProjects(): Promise<{
     const projects = await prisma.project.findMany({
       where: {
         clientId: user.id,
-        status: "active",
+        status: "ACTIVE",
       },
       include: {
         pic: {

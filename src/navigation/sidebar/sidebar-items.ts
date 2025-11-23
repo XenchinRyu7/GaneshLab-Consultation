@@ -27,6 +27,7 @@ export interface NavSubItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: ("admin" | "pic" | "client")[]; // Optional: filter by role
 }
 
 export interface NavMainItem {
@@ -111,6 +112,19 @@ export const sidebarItems: NavGroup[] = [
         title: "Projects",
         url: "/dashboard/projects",
         icon: FolderKanban,
+        subItems: [
+          {
+            title: "All Projects",
+            url: "/dashboard/projects",
+            icon: FolderKanban,
+          },
+          {
+            title: "Project Approvals",
+            url: "/dashboard/projects/approvals",
+            icon: Fingerprint,
+            roles: ["pic", "admin"], // Only visible for PIC and Admin
+          },
+        ],
       },
       {
         title: "Appointment",

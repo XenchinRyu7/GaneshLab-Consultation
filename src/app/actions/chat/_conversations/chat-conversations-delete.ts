@@ -30,18 +30,18 @@ export async function deleteConversation(
 
     // Mark conversation as cleared for the current user (doesn't delete, just hides it)
     // Like WhatsApp: clearing only affects the user who clears it
-    const updateData: { clearedByClientAt?: Date; clearedByPICAt?: Date } = {};
+    const updateData: { clearedByClientAt?: Date; clearedByPicAt?: Date } = {};
 
     if (user.role === "client" && conversation.clientId === user.id) {
       updateData.clearedByClientAt = new Date();
     } else if (user.role === "pic" && conversation.picId === user.id) {
-      updateData.clearedByPICAt = new Date();
+      updateData.clearedByPicAt = new Date();
     } else {
       // Handle edge case: PIC might be in client position in some conversations
       if (conversation.clientId === user.id) {
         updateData.clearedByClientAt = new Date();
       } else if (conversation.picId === user.id) {
-        updateData.clearedByPICAt = new Date();
+        updateData.clearedByPicAt = new Date();
       }
     }
 

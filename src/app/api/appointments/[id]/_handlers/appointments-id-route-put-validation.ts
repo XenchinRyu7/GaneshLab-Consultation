@@ -18,7 +18,7 @@ export async function checkAppointmentConflict(
 ): Promise<NextResponse | null> {
   const conflictingAppointment = await prisma.appointment.findFirst({
     where: {
-      picId,
+      picId: picId,
       date,
       id: {
         not: excludeAppointmentId,

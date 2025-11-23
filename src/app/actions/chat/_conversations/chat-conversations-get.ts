@@ -59,7 +59,7 @@ export async function getConversations(): Promise<{
           OR: [
             {
               picId: user.id,
-              clearedByPICAt: null, // Exclude if cleared by PIC
+              clearedByPicAt: null, // Exclude if cleared by PIC
             },
             {
               clientId: user.id,

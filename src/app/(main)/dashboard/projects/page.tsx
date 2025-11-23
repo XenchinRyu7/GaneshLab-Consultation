@@ -243,6 +243,10 @@ export default function ProjectsPage() {
   }
 
   function handleEditClick(project: Project) {
+    if (!currentUser || currentUser.role !== "client") {
+      toast.error("Only clients can edit projects");
+      return;
+    }
     setEditingProject(project);
     setIsEditDialogOpen(true);
   }
@@ -290,6 +294,7 @@ export default function ProjectsPage() {
         onEdit={handleEditClick}
         onDelete={handleDeleteProject}
         onCreateNew={handleCreateProjectClick}
+        userRole={currentUser?.role}
       />
 
       <CreateProjectDialog

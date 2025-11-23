@@ -1,6 +1,7 @@
 /**
  * Helper functions for conversation actions
  */
+"use server";
 
 import type { Prisma } from "@prisma/client";
 
@@ -60,7 +61,7 @@ export async function transformConversation(
 /**
  * Transform conversation with last message from Prisma query
  */
-export function transformConversationWithLastMessage(
+export async function transformConversationWithLastMessage(
   conversation: Prisma.ConversationGetPayload<{
     include: {
       client: { select: { id: true; fullname: true; avatarColor: true } };
@@ -72,7 +73,7 @@ export function transformConversationWithLastMessage(
     };
   }>,
   unreadCount: number
-): ConversationWithParticipants {
+): Promise<ConversationWithParticipants> {
   const lastMessage = conversation.messages[0];
 
   return {

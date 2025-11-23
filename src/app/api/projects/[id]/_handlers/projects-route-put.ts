@@ -71,12 +71,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Validate PIC if being updated
-    const picError = await validatePIC(body.picId, existingProject.picId);
+    const picError = await validatePIC(body.picId, existingProject.picId, existingProject.status);
     if (picError) return picError;
-
-    // Validate status
-    const statusError = validateStatus(body.status);
-    if (statusError) return statusError;
 
     // Validate budget range
     const budgetError = validateBudgetRange(body.budgetMin, body.budgetMax);

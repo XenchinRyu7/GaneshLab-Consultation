@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -28,6 +28,7 @@ interface CreateProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: ProjectFormValues) => void;
+  isSubmitting?: boolean;
 }
 
 interface PIC {
@@ -36,7 +37,12 @@ interface PIC {
   email: string;
 }
 
-export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProjectDialogProps) {
+export function CreateProjectDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  isSubmitting = false,
+}: CreateProjectDialogProps) {
   const [pics, setPics] = useState<PIC[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -63,14 +69,7 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
     },
   });
 
-  useEffect(() => {
-    if (open) {
-      fetchPICs();
-      form.reset();
-    }
-  }, [open]);
-
-  async function fetchPICs() {
+  const fetchPICs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/projects/pics");
@@ -84,7 +83,14 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      fetchPICs();
+      form.reset();
+    }
+  }, [open, form, fetchPICs]);
 
   function handleSubmit(data: ProjectFormValues) {
     const cleanedData = cleanFormData(data);
@@ -131,8 +137,8 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                Create Project
+              <Button type="submit" disabled={loading || isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create Project"}
               </Button>
             </DialogFooter>
           </form>
