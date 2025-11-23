@@ -107,7 +107,7 @@ export function CreateProjectFormDetails({ form }: CreateProjectFormDetailsProps
               <FormControl>
                 <DatePicker
                   value={field.value ?? undefined}
-                  onChange={value => field.onChange(value ?? null)}
+                  onChange={value => field.onChange(value)}
                   placeholder="Select start date"
                 />
               </FormControl>
@@ -125,7 +125,7 @@ export function CreateProjectFormDetails({ form }: CreateProjectFormDetailsProps
               <FormControl>
                 <DatePicker
                   value={field.value ?? undefined}
-                  onChange={value => field.onChange(value ?? null)}
+                  onChange={value => field.onChange(value)}
                   placeholder="Select end date"
                 />
               </FormControl>

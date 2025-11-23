@@ -26,7 +26,7 @@ async function validateAndVerify(body: CreateProjectBody) {
   const { error: clientError, client } = await verifyClient(body.clientId);
   if (clientError || !client) {
     return {
-      error: clientError ?? NextResponse.json({ error: "Client not found" }, { status: 404 }),
+      error: clientError,
       client: null,
       finalCompanyId: null,
     };

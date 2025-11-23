@@ -24,12 +24,20 @@ export async function GET(req: NextRequest) {
     }
 
     // Verify user has access to this project
+    const whereClause =
+      user.role === "admin"
+        ? {
+            id: projectId,
+            deletedAt: null,
+          }
+        : {
+            id: projectId,
+            OR: [{ clientId: user.id }, { picId: user.id }],
+            deletedAt: null,
+          };
+
     const project = await prisma.project.findFirst({
-      where: {
-        id: projectId,
-        OR: [{ clientId: user.id }, { picId: user.id }],
-        deletedAt: null,
-      },
+      where: whereClause,
     });
 
     if (!project) {
@@ -86,13 +94,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Title and projectId required" }, { status: 400 });
     }
 
-    // Verify user is PIC of the project
+    // Verify user is PIC of the project or admin
+    const whereClausePost =
+      user.role === "admin"
+        ? {
+            id: projectId,
+            deletedAt: null,
+          }
+        : {
+            id: projectId,
+            picId: user.id,
+            deletedAt: null,
+          };
+
     const project = await prisma.project.findFirst({
-      where: {
-        id: projectId,
-        picId: user.id,
-        deletedAt: null,
-      },
+      where: whereClausePost,
     });
 
     if (!project) {

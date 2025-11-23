@@ -141,12 +141,17 @@ const chartConfig = {
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState("90d");
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    if (isMobile) {
+    setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (mounted && isMobile) {
       setTimeRange("7d");
     }
-  }, [isMobile]);
+  }, [isMobile, mounted]);
 
   const filteredData = chartData.filter(item => {
     const date = new Date(item.date);
@@ -163,7 +168,7 @@ export function ChartAreaInteractive() {
   });
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card" suppressHydrationWarning>
       <CardHeader>
         <CardTitle>Total Visitors</CardTitle>
         <CardDescription>
@@ -176,7 +181,7 @@ export function ChartAreaInteractive() {
             value={timeRange}
             onValueChange={setTimeRange}
             variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
+            className="hidden *:data-[slot=toggle-group-item]:px-4! @[767px]/card:flex"
           >
             <ToggleGroupItem value="90d">Last 3 months</ToggleGroupItem>
             <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>

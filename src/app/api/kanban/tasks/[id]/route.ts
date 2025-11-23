@@ -31,7 +31,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    if (task.project.clientId !== user.id && task.project.picId !== user.id) {
+    if (
+      task.project.clientId !== user.id &&
+      task.project.picId !== user.id &&
+      user.role !== "admin"
+    ) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -85,7 +89,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    if (task.project.clientId !== user.id && task.project.picId !== user.id) {
+    if (
+      task.project.clientId !== user.id &&
+      task.project.picId !== user.id &&
+      user.role !== "admin"
+    ) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 

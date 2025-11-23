@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -21,7 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
 
 const FormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -134,7 +134,7 @@ export function LoginForm() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowPassword((prev) => !prev)}
+                    onClick={() => setShowPassword(prev => !prev)}
                     className="absolute top-1/2 right-2 -translate-y-1/2 p-1"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >

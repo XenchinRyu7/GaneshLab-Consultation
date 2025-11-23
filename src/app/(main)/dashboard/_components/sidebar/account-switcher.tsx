@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react";
+import { BadgeCheck, Bell, LogOut } from "lucide-react";
 
 import { signOut } from "@/app/actions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -80,10 +80,6 @@ export function AccountSwitcher({
           <DropdownMenuItem onClick={() => router.push("/dashboard/account")}>
             <BadgeCheck />
             Account
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CreditCard />
-            Billing
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Bell />

@@ -35,7 +35,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify user has access to project
-    if (board.project.clientId !== user.id && board.project.picId !== user.id) {
+    if (
+      board.project.clientId !== user.id &&
+      board.project.picId !== user.id &&
+      user.role !== "admin"
+    ) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 

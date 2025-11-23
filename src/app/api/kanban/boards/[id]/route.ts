@@ -71,13 +71,17 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params;
 
-    // Verify user is PIC of the project
+    // Verify user is PIC of the project or admin
     const board = await prisma.kanbanBoard.findUnique({
       where: { id },
       include: { project: true, tasks: true },
     });
 
-    if (!board || board.project.picId !== user.id) {
+    if (!board) {
+      return NextResponse.json({ error: "Board not found" }, { status: 404 });
+    }
+
+    if (board.project.picId !== user.id && user.role !== "admin") {
       return NextResponse.json({ error: "Board not found or access denied" }, { status: 404 });
     }
 
@@ -129,14 +133,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Invalid position" }, { status: 400 });
     }
 
-    // Verify user is PIC of the project
+    // Verify user is PIC of the project or admin
     const board = await prisma.kanbanBoard.findUnique({
       where: { id },
       include: { project: true },
     });
 
-    if (!board || board.project.picId !== user.id) {
-      return NextResponse.json({ error: "Board not found or access denied" }, { status: 404 });
+    if (!board) {
+      return NextResponse.json({ error: "Board not found" }, { status: 404 });
+    }
+
+    if (board.project.picId !== user.id && user.role !== "admin") {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     const oldPosition = board.position;

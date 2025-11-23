@@ -66,7 +66,7 @@ export function useKanbanData({ projectId, onError }: UseKanbanDataProps) {
               status: board.id,
               priority: task.priority.toLowerCase() as "low" | "medium" | "high",
               assignee: task.assignee?.fullname ?? undefined,
-              tags: task.tags ?? [],
+              tags: task.tags,
               dueDate: task.dueDate
                 ? new Date(task.dueDate).toISOString().split("T")[0]
                 : undefined,
