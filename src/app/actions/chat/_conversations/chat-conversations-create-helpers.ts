@@ -23,18 +23,34 @@ export async function determineParticipantIds(
     return { clientId: "", picId: "", projectId: null, error: "User not found" };
   }
 
-  if (user.role === "client") {
-    if (otherUser.role !== "pic") {
-      return { clientId: "", picId: "", projectId: null, error: "Client can only chat with PIC" };
-    }
-    return handleClientRole(user, otherUserId, projectId ?? null);
-  }
+  switch (user.role) {
+    case "client":
+      if (otherUser.role !== "pic") {
+        return { clientId: "", picId: "", projectId: null, error: "Client can only chat with PIC" };
+      }
+      return handleClientRole(user, otherUserId, projectId ?? null);
 
-  if (user.role === "pic") {
-    return handlePICRole(user, otherUserId, otherUser.role, projectId ?? null);
-  }
+    case "pic":
+      return handlePICRole(user, otherUserId, otherUser.role, projectId ?? null);
 
-  return { clientId: "", picId: "", projectId: null, error: "Admin cannot create conversations" };
+    case "admin":
+      // Admin can chat with PICs and clients
+      if (otherUser.role === "pic") {
+        return { clientId: otherUserId, picId: user.id, projectId: projectId ?? null };
+      }
+      if (otherUser.role === "client") {
+        return { clientId: otherUserId, picId: user.id, projectId: projectId ?? null };
+      }
+      return {
+        clientId: "",
+        picId: "",
+        projectId: null,
+        error: "Admin can only chat with PICs and clients",
+      };
+
+    default:
+      return { clientId: "", picId: "", projectId: null, error: "Invalid user role" };
+  }
 }
 
 /**

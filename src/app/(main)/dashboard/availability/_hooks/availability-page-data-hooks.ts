@@ -94,8 +94,8 @@ export function useAvailabilityAuthorization() {
   const isViewingOwnSchedule = selectedPicId === currentUser?.id;
 
   useEffect(() => {
-    if (currentUser && currentUser.role !== "pic") {
-      toast.error("Only PIC can access this page");
+    if (currentUser && currentUser.role !== "pic" && currentUser.role !== "admin") {
+      toast.error("Only PIC and Admin can access this page");
       router.push("/dashboard");
       return;
     }

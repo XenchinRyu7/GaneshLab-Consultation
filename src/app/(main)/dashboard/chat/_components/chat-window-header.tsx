@@ -14,15 +14,13 @@ export function ChatWindowHeader({ conversation, currentUserId }: ChatWindowHead
       : { name: conversation.clientName, avatar: conversation.clientAvatar };
 
   return (
-    <div className="bg-background flex-shrink-0 border-b p-4">
+    <div className="bg-background shrink-0 border-b p-4">
       <div className="flex items-center gap-3">
-        <Avatar
-          className="h-10 w-10"
-          style={{
-            backgroundColor: otherParticipant.avatar ?? "#3b82f6",
-          }}
-        >
-          <AvatarFallback className="text-sm text-white">
+        <Avatar className="h-10 w-10">
+          <AvatarFallback
+            className="text-sm text-white"
+            style={{ backgroundColor: otherParticipant.avatar ?? "#3b82f6" }}
+          >
             {getInitials(otherParticipant.name)}
           </AvatarFallback>
         </Avatar>

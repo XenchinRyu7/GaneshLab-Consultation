@@ -45,13 +45,11 @@ export function ContactListItem({
         onClick={() => onSelectContact(contact)}
         className="flex min-w-0 flex-1 items-start gap-3 p-4 text-left"
       >
-        <Avatar
-          className="h-10 w-10 shrink-0"
-          style={{
-            backgroundColor: contact.avatar ?? "#3b82f6",
-          }}
-        >
-          <AvatarFallback className="text-sm text-white">
+        <Avatar className="h-10 w-10 shrink-0">
+          <AvatarFallback
+            className="text-sm text-white"
+            style={{ backgroundColor: contact.avatar ?? "#3b82f6" }}
+          >
             {getInitials(contact.name)}
           </AvatarFallback>
         </Avatar>
@@ -74,7 +72,7 @@ export function ContactListItem({
                 </span>
               )}
               {hasUnread && (
-                <span className="bg-primary text-primary-foreground flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium">
+                <span className="bg-primary text-primary-foreground flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium">
                   {contact.unreadCount > 99 ? "99+" : contact.unreadCount}
                 </span>
               )}

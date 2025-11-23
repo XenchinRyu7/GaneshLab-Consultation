@@ -1,15 +1,9 @@
 "use client";
 import * as React from "react";
 
-import {
-  LayoutDashboard,
-  ChartBar,
-  Gauge,
-  ShoppingBag,
-  GraduationCap,
-  Forklift,
-  Search,
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import { Search, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,22 +15,71 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-
-const searchItems = [
-  { group: "Dashboards", icon: LayoutDashboard, label: "Default" },
-  { group: "Dashboards", icon: ChartBar, label: "CRM", disabled: true },
-  { group: "Dashboards", icon: Gauge, label: "Analytics", disabled: true },
-  { group: "Dashboards", icon: ShoppingBag, label: "E-Commerce", disabled: true },
-  { group: "Dashboards", icon: GraduationCap, label: "Academy", disabled: true },
-  { group: "Dashboards", icon: Forklift, label: "Logistics", disabled: true },
-  { group: "Authentication", label: "Login v1" },
-  { group: "Authentication", label: "Login v2" },
-  { group: "Authentication", label: "Register v1" },
-  { group: "Authentication", label: "Register v2" },
-];
+import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import { useUserStore } from "@/stores/user/user-provider";
 
 export function SearchDialog() {
+  const currentUser = useUserStore(state => state.currentUser);
+  const router = useRouter();
   const [open, setOpen] = React.useState(false);
+
+  // Generate search items from sidebar items based on user role
+  const generateSearchItems = () => {
+    if (!currentUser) return [];
+
+    const items: Array<{
+      group: string;
+      icon?: LucideIcon;
+      label: string;
+      url: string;
+      disabled?: boolean;
+    }> = [];
+
+    sidebarItems.forEach(group => {
+      group.items.forEach(item => {
+        // Check if item is accessible based on roles
+        if (item.roles && !item.roles.includes(currentUser.role)) {
+          return; // Skip if user doesn't have access
+        }
+
+        if (item.comingSoon) {
+          return; // Skip coming soon items
+        }
+
+        // Add main item
+        items.push({
+          group: group.label ?? "Pages",
+          icon: item.icon,
+          label: item.title,
+          url: item.url,
+        });
+
+        // Add sub items if they exist
+        if (item.subItems) {
+          item.subItems.forEach(subItem => {
+            if (subItem.roles && !subItem.roles.includes(currentUser.role)) {
+              return; // Skip if user doesn't have access
+            }
+
+            if (subItem.comingSoon) {
+              return; // Skip coming soon items
+            }
+
+            items.push({
+              group: group.label ?? "Pages",
+              icon: subItem.icon,
+              label: `${item.title} > ${subItem.title}`,
+              url: subItem.url,
+            });
+          });
+        }
+      });
+    });
+
+    return items;
+  };
+
+  const searchItems = generateSearchItems();
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
@@ -52,7 +95,7 @@ export function SearchDialog() {
     <>
       <Button
         variant="link"
-        className="text-muted-foreground !px-0 font-normal hover:no-underline"
+        className="text-muted-foreground px-0! font-normal hover:no-underline"
         onClick={() => setOpen(true)}
       >
         <Search className="size-4" />
@@ -73,9 +116,12 @@ export function SearchDialog() {
                   .filter(item => item.group === group)
                   .map(item => (
                     <CommandItem
-                      className="!py-1.5"
+                      className="py-1.5!"
                       key={item.label}
-                      onSelect={() => setOpen(false)}
+                      onSelect={() => {
+                        setOpen(false);
+                        router.push(item.url);
+                      }}
                     >
                       {item.icon && <item.icon />}
                       <span>{item.label}</span>

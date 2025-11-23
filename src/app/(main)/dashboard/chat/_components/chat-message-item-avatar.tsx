@@ -17,13 +17,11 @@ export function MessageAvatar({ message, showAvatar }: MessageAvatarProps) {
   }
 
   return (
-    <Avatar
-      className="h-8 w-8"
-      style={{
-        backgroundColor: message.senderAvatar ?? "#3b82f6",
-      }}
-    >
-      <AvatarFallback className="text-xs text-white">
+    <Avatar className="h-8 w-8">
+      <AvatarFallback
+        className="text-xs text-white"
+        style={{ backgroundColor: message.senderAvatar ?? "#3b82f6" }}
+      >
         {getInitials(message.senderName)}
       </AvatarFallback>
     </Avatar>

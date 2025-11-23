@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 
 import { columnColors, type KanbanColumn } from "./kanban-config";
 
@@ -97,8 +96,8 @@ export function AddBoardDialog({ onAddBoard, existingIds }: AddBoardDialogProps)
                 <SelectTrigger id="board-color">
                   <SelectValue>
                     <div className="flex items-center gap-2">
-                      <div className={cn("size-3 rounded-full", color)} />
-                      <span>{color.replace("bg-", "").replace("-500", "")}</span>
+                      <div className="size-3 rounded-full" style={{ backgroundColor: color }} />
+                      <span>{color}</span>
                     </div>
                   </SelectValue>
                 </SelectTrigger>
@@ -106,8 +105,8 @@ export function AddBoardDialog({ onAddBoard, existingIds }: AddBoardDialogProps)
                   {columnColors.map(col => (
                     <SelectItem key={col} value={col}>
                       <div className="flex items-center gap-2">
-                        <div className={cn("size-3 rounded-full", col)} />
-                        <span>{col.replace("bg-", "").replace("-500", "")}</span>
+                        <div className="size-3 rounded-full" style={{ backgroundColor: col }} />
+                        <span>{col}</span>
                       </div>
                     </SelectItem>
                   ))}

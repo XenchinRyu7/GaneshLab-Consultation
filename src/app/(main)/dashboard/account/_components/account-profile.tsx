@@ -21,10 +21,46 @@ import {
 import { Input } from "@/components/ui/input";
 import { useUserStore } from "@/stores/user/user-provider";
 
+const AVATAR_COLORS = [
+  "#3b82f6", // blue
+  "#10b981", // emerald
+  "#f59e0b", // amber
+  "#ef4444", // red
+  "#8b5cf6", // violet
+  "#ec4899", // pink
+  "#06b6d4", // cyan
+  "#14b8a6", // teal
+];
+
+interface ColorPickerProps {
+  value: string;
+  onChange: (color: string) => void;
+}
+
+function ColorPicker({ value, onChange }: ColorPickerProps) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {AVATAR_COLORS.map(color => (
+        <button
+          key={color}
+          type="button"
+          className={`h-8 w-8 rounded-full border-2 transition-all ${
+            value === color ? "scale-110 border-gray-900" : "border-gray-300 hover:scale-105"
+          }`}
+          style={{ backgroundColor: color }}
+          onClick={() => onChange(color)}
+          title={color}
+        />
+      ))}
+    </div>
+  );
+}
+
 const accountSchema = z.object({
   fullname: z.string().min(1, "Full name is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
+  avatarColor: z.string().min(1, "Avatar color is required"),
 });
 
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -51,6 +87,7 @@ export function AccountProfile() {
       fullname: "",
       email: "",
       phone: "",
+      avatarColor: "#3b82f6",
     },
   });
 
@@ -84,6 +121,7 @@ export function AccountProfile() {
             fullname: userProfile.fullname || "",
             email: userProfile.email || "",
             phone: userProfile.phone ?? "",
+            avatarColor: userProfile.avatarColor ?? "#3b82f6",
           });
         }
       } else {
@@ -125,6 +163,7 @@ export function AccountProfile() {
         body: JSON.stringify({
           fullname: data.fullname,
           phone: data.phone ?? null,
+          avatarColor: data.avatarColor,
         }),
       });
 
@@ -140,10 +179,11 @@ export function AccountProfile() {
       const result = await response.json();
       const updatedUser = result.user;
 
-      // Update user store with new fullname
+      // Update user store with new fullname and avatar color
       setCurrentUser({
         ...currentUser,
         name: updatedUser.fullname,
+        avatar: updatedUser.avatarColor,
       });
 
       setSaved(true);
@@ -220,6 +260,21 @@ export function AccountProfile() {
                       disabled={loading}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="avatarColor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Avatar Color</FormLabel>
+                  <FormControl>
+                    <ColorPicker value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormDescription>Choose a color for your profile avatar initials</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

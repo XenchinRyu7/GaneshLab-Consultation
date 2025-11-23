@@ -34,7 +34,7 @@ export interface Contact {
   name: string;
   avatar?: string;
   email: string;
-  role: "client" | "pic";
+  role: "client" | "pic" | "admin";
   hasConversation: boolean;
   conversationId?: string;
   lastMessage?: string;

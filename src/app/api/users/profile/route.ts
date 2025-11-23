@@ -49,7 +49,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { fullname, phone } = body;
+    const { fullname, phone, avatarColor } = body;
 
     // Validate input
     if (!fullname || typeof fullname !== "string" || fullname.trim().length === 0) {
@@ -72,6 +72,7 @@ export async function PUT(req: NextRequest) {
       data: {
         fullname: fullname.trim(),
         phone: phone && phone.trim().length > 0 ? phone.trim() : null,
+        avatarColor: avatarColor ?? "#3b82f6",
       },
       select: {
         id: true,

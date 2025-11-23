@@ -23,7 +23,7 @@ export function useCalendarConnection(): CalendarConnection {
       const response = await fetch("/api/calendar/status");
       if (response.ok) {
         const data = await response.json();
-        setIsConnected(data.isConnected);
+        setIsConnected(data.connected);
       }
     } catch (error) {
       console.error("Error checking calendar status:", error);

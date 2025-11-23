@@ -42,7 +42,7 @@ export default function AvailabilityPage() {
     );
   }
 
-  if (!currentUser || currentUser.role !== "pic") {
+  if (!currentUser || (currentUser.role !== "pic" && currentUser.role !== "admin")) {
     return null;
   }
 

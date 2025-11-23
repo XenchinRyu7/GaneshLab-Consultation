@@ -43,5 +43,11 @@ export async function handlePICRole(
     return { clientId, picId, projectId: null };
   }
 
+  if (otherUserRole === "admin") {
+    // PIC chatting with admin - treat admin as PIC
+    const { clientId, picId } = validatePICPICConversation(user.id, otherUserId);
+    return { clientId, picId, projectId: null };
+  }
+
   return { clientId: "", picId: "", projectId: null, error: "Invalid user role" };
 }
