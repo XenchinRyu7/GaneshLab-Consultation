@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 
 import transporter from "@/lib/email";
 import { prisma } from "@/lib/prisma";
+import { getLoginUrl } from "@/lib/utils";
 
 type RequestBody = {
   fullname: string;
@@ -16,6 +17,8 @@ export async function POST(req: Request) {
     const password = Math.random().toString(36).slice(-8);
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const loginUrl = getLoginUrl();
+
     const htmlContent = `
       <div style="font-family: 'Segoe UI', Arial; background-color: #f9f9f9; padding: 20px;">
         <div style="max-width: 500px; margin: auto; background: #fff; border-radius: 8px; overflow: hidden;">
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
               <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
               <tr><td><strong>Password:</strong></td><td>${password}</td></tr>
             </table>
-            <a href="${process.env.BASE_URL_LOGIN_NEXT}"
+            <a href="${loginUrl}"
               style="display:inline-block;margin-top:20px;padding:10px 20px;
               background-color:#004aad;color:white;text-decoration:none;
               border-radius:5px;">Login Sekarang</a>
