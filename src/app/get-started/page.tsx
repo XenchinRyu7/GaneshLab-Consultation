@@ -13,7 +13,7 @@ export default function WaitlistPage() {
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
-    type: "personal", // personal or company
+    type: "personal",
     company: "",
     message: "",
   });

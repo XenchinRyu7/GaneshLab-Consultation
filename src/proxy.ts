@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { jwtVerify } from "jose";
 
-const secretKey = process.env.AUTH_SECRET ?? "your-secret-key-change-in-production";
+const secretKey = process.env.AUTH_SECRET ?? "ganeshlab_secret_key";
 const key = new TextEncoder().encode(secretKey);
 
 /**
@@ -28,7 +28,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ["/auth/login", "/auth/register", "/get-started"];
+  const publicRoutes = [
+    "/auth/login",
+    "/auth/register",
+    "/get-started",
+    "/terms-of-service",
+    "/privacy-policy",
+  ];
   const isPublicRoute = pathname === "/" || publicRoutes.some(route => pathname.startsWith(route));
 
   // API routes are public but we don't redirect them
