@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     // Only admin can create users
     if (!session || session.role !== "admin") {
       await logAudit({
-        userId: session?.userId,
+        userId: session?.id,
         action: "CREATE_USER",
         entityType: "USER",
         details: { reason: "Unauthorized attempt" },
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       await logAudit({
-        userId: session.userId,
+        userId: session.id,
         action: "CREATE_USER",
         entityType: "USER",
         details: { email: validated.email, reason: "Email already exists" },
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
 
     // Log successful user creation
     await logAudit({
-      userId: session.userId,
+      userId: session.id,
       action: "CREATE_USER",
       entityType: "USER",
       entityId: user.id,

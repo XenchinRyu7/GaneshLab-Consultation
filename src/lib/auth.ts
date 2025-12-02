@@ -166,3 +166,6 @@ export async function logout(): Promise<void> {
 export async function getCurrentUser(): Promise<User | null> {
   return await getSession();
 }
+
+// Alias for getCurrentUser for consistency with other Next.js auth patterns
+export const auth = getCurrentUser;

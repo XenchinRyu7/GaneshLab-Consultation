@@ -86,7 +86,7 @@ export async function transformConversationWithLastMessage(
     picAvatar: conversation.pic.avatarColor ?? undefined,
     projectId: conversation.projectId,
     projectName: conversation.project?.name ?? null,
-    lastMessage: lastMessage?.content ?? null,
+    lastMessage: lastMessage.content,
     lastMessageAt: conversation.lastMessageAt,
     unreadCount,
     createdAt: conversation.createdAt,

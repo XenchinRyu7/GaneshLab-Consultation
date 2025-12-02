@@ -10,8 +10,8 @@ model Appointment {
   id                String                @id @default(cuid())
   title             String
   description       String?
-  clientId          String                @map("client_id")
-  picId             String                @map("pic_id")
+  clientId          String?               @map("client_id")
+  picId             String?               @map("pic_id")
   projectId         String?               @map("project_id")
   date              DateTime              @db.Date
   startTime         String                @map("start_time")
@@ -25,8 +25,16 @@ model Appointment {
   createdAt         DateTime              @default(now()) @map("created_at")
   updatedAt         DateTime              @updatedAt @map("updated_at")
 
-  client            UserProfile           @relation("AppointmentClient", fields: [clientId], references: [id], onDelete: Cascade)
-  pic               UserProfile           @relation("AppointmentPic", fields: [picId], references: [id], onDelete: Cascade)
+  // Guest appointment fields
+  isGuestAppointment Boolean              @default(false) @map("is_guest_appointment")
+  guestName         String?               @map("guest_name")
+  guestEmail        String?               @map("guest_email")
+  guestPhone        String?               @map("guest_phone")
+  guestPurpose      String?               @map("guest_purpose")
+  guestOrganization String?               @map("guest_organization")
+
+  client            UserProfile?          @relation("AppointmentClient", fields: [clientId], references: [id], onDelete: Cascade)
+  pic               UserProfile?          @relation("AppointmentPic", fields: [picId], references: [id], onDelete: Cascade)
   project           Project?              @relation(fields: [projectId], references: [id])
   rescheduleRequests RescheduleRequest[]
 

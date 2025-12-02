@@ -37,7 +37,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         session?.role
       );
       await logAudit({
-        userId: session?.userId,
+        userId: session?.id,
         action: "UPDATE_USER",
         entityType: "USER",
         details: { reason: "Unauthorized attempt" },
@@ -103,7 +103,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     // Log successful user update
     await logAudit({
-      userId: session.userId,
+      userId: session.id,
       action: "UPDATE_USER",
       entityType: "USER",
       entityId: userId,
@@ -158,7 +158,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         session?.role
       );
       await logAudit({
-        userId: session?.userId,
+        userId: session?.id,
         action: "DELETE_USER",
         entityType: "USER",
         details: { reason: "Unauthorized attempt" },
@@ -196,7 +196,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     // Log successful user deletion
     await logAudit({
-      userId: session.userId,
+      userId: session.id,
       action: "DELETE_USER",
       entityType: "USER",
       entityId: userId,

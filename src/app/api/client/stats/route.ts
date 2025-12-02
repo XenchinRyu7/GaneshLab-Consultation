@@ -116,7 +116,7 @@ export async function GET() {
       unreadMessages,
       overallProgress,
       nextAppointmentDate,
-      nextAppointmentPIC: nextAppointment?.pic?.fullname ?? "",
+      nextAppointmentPIC: nextAppointment.pic.fullname,
     };
 
     // Format projects for frontend

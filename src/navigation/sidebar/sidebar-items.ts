@@ -9,6 +9,7 @@ import {
   Clock,
   Shield,
   BarChart3,
+  UserPlus,
   type LucideIcon,
 } from "lucide-react";
 
@@ -130,6 +131,13 @@ export const sidebarItems: NavGroup[] = [
         url: "/dashboard/admin/users",
         icon: Users,
         roles: ["admin"],
+      },
+      {
+        title: "Guest Appointments",
+        url: "/dashboard/admin/guest-appointments",
+        icon: UserPlus,
+        roles: ["admin"],
+        isNew: true,
       },
     ],
   },
