@@ -3,11 +3,12 @@ import {
   Calendar,
   Kanban,
   Users,
-  Lock,
   Fingerprint,
   LayoutDashboard,
   FolderKanban,
   Clock,
+  Shield,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,7 +19,7 @@ export interface NavSubItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
-  roles?: ("admin" | "pic" | "client")[]; // Optional: filter by role
+  roles?: ("admin" | "pic" | "client")[];
 }
 
 export interface NavMainItem {
@@ -29,13 +30,14 @@ export interface NavMainItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
-  roles?: ("admin" | "pic" | "client")[]; // Optional: filter by role
+  roles?: ("admin" | "pic" | "client")[];
 }
 
 export interface NavGroup {
   id: number;
   label?: string;
   items: NavMainItem[];
+  roles?: ("admin" | "pic" | "client")[];
 }
 
 export const sidebarItems: NavGroup[] = [
@@ -44,8 +46,8 @@ export const sidebarItems: NavGroup[] = [
     label: "Dashboards",
     items: [
       {
-        title: "Default",
-        url: "/dashboard/default",
+        title: "Overview",
+        url: "/dashboard/overview",
         icon: LayoutDashboard,
       },
     ],
@@ -73,7 +75,7 @@ export const sidebarItems: NavGroup[] = [
             title: "Project Approvals",
             url: "/dashboard/projects/approvals",
             icon: Fingerprint,
-            roles: ["pic", "admin"], // Only visible for PIC and Admin
+            roles: ["pic", "admin"],
           },
         ],
       },
@@ -93,17 +95,41 @@ export const sidebarItems: NavGroup[] = [
         url: "/dashboard/kanban",
         icon: Kanban,
       },
+    ],
+  },
+  {
+    id: 3,
+    label: "Administration",
+    roles: ["admin"], // Only visible for Admin
+    items: [
       {
-        title: "Users",
-        url: "/dashboard/user",
-        icon: Users,
-        roles: ["admin"], // Only visible for Admin
+        title: "Admin Dashboard",
+        url: "/dashboard/admin",
+        icon: Shield,
+        roles: ["admin"],
+        subItems: [
+          {
+            title: "Overview",
+            url: "/dashboard/admin",
+            icon: Shield,
+          },
+          {
+            title: "Audit Logs",
+            url: "/dashboard/admin#audit-logs",
+            icon: Shield,
+          },
+          {
+            title: "Analytics",
+            url: "/dashboard/admin#analytics",
+            icon: BarChart3,
+          },
+        ],
       },
       {
-        title: "Roles",
-        url: "/dashboard/coming-soon",
-        icon: Lock,
-        comingSoon: true,
+        title: "User Management",
+        url: "/dashboard/admin/users",
+        icon: Users,
+        roles: ["admin"],
       },
     ],
   },

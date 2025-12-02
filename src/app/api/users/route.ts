@@ -1,8 +1,10 @@
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { Prisma } from "@prisma/client";
 import z from "zod";
 
+import { logAudit, getRequestInfo } from "@/lib/audit-logger";
 import { getSession, hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -57,9 +59,21 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getSession();
+    const headersList = await headers();
+    const { ipAddress, userAgent } = getRequestInfo(headersList);
 
     // Only admin can create users
     if (!session || session.role !== "admin") {
+      await logAudit({
+        userId: session?.userId,
+        action: "CREATE_USER",
+        entityType: "USER",
+        details: { reason: "Unauthorized attempt" },
+        ipAddress,
+        userAgent,
+        success: false,
+        errorMessage: "Unauthorized",
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -74,6 +88,16 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
+      await logAudit({
+        userId: session.userId,
+        action: "CREATE_USER",
+        entityType: "USER",
+        details: { email: validated.email, reason: "Email already exists" },
+        ipAddress,
+        userAgent,
+        success: false,
+        errorMessage: "Email already exists",
+      });
       return NextResponse.json({ error: "Email already exists" }, { status: 400 });
     }
 
@@ -104,6 +128,22 @@ export async function POST(request: Request) {
         avatarColor: true,
         createdAt: true,
       },
+    });
+
+    // Log successful user creation
+    await logAudit({
+      userId: session.userId,
+      action: "CREATE_USER",
+      entityType: "USER",
+      entityId: user.id,
+      details: {
+        email: user.email,
+        fullname: user.fullname,
+        role: user.role,
+      },
+      ipAddress,
+      userAgent,
+      success: true,
     });
 
     return NextResponse.json(user, { status: 201 });

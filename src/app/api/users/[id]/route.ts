@@ -1,8 +1,10 @@
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { Prisma } from "@prisma/client";
 import z from "zod";
 
+import { logAudit, getRequestInfo } from "@/lib/audit-logger";
 import { getSession, hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -22,6 +24,8 @@ interface RouteParams {
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
     const session = await getSession();
+    const headersList = await headers();
+    const { ipAddress, userAgent } = getRequestInfo(headersList);
     console.log("PATCH /api/users/[id] - Session:", session);
 
     // Only admin can edit users
@@ -32,6 +36,16 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         "Role:",
         session?.role
       );
+      await logAudit({
+        userId: session?.userId,
+        action: "UPDATE_USER",
+        entityType: "USER",
+        details: { reason: "Unauthorized attempt" },
+        ipAddress,
+        userAgent,
+        success: false,
+        errorMessage: "Unauthorized",
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -86,6 +100,24 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     });
 
     console.log("PATCH /api/users/[id] - updatedUser:", updatedUser);
+
+    // Log successful user update
+    await logAudit({
+      userId: session.userId,
+      action: "UPDATE_USER",
+      entityType: "USER",
+      entityId: userId,
+      details: {
+        email: updatedUser.email,
+        fullname: updatedUser.fullname,
+        role: updatedUser.role,
+        updatedFields: Object.keys(validated),
+      },
+      ipAddress,
+      userAgent,
+      success: true,
+    });
+
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error updating user:", error);
@@ -113,6 +145,8 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 export async function DELETE(request: Request, { params }: RouteParams) {
   try {
     const session = await getSession();
+    const headersList = await headers();
+    const { ipAddress, userAgent } = getRequestInfo(headersList);
     console.log("DELETE /api/users/[id] - Session:", session);
 
     // Only admin can delete users
@@ -123,6 +157,16 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         "Role:",
         session?.role
       );
+      await logAudit({
+        userId: session?.userId,
+        action: "DELETE_USER",
+        entityType: "USER",
+        details: { reason: "Unauthorized attempt" },
+        ipAddress,
+        userAgent,
+        success: false,
+        errorMessage: "Unauthorized",
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -148,6 +192,22 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     // Delete user (hard delete)
     await prisma.userProfile.delete({
       where: { id: userId },
+    });
+
+    // Log successful user deletion
+    await logAudit({
+      userId: session.userId,
+      action: "DELETE_USER",
+      entityType: "USER",
+      entityId: userId,
+      details: {
+        email: existingUser.email,
+        fullname: existingUser.fullname,
+        role: existingUser.role,
+      },
+      ipAddress,
+      userAgent,
+      success: true,
     });
 
     console.log("DELETE /api/users/[id] - User deleted successfully");

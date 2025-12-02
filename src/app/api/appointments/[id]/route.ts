@@ -3,8 +3,10 @@
  * Re-exports GET, PUT, and DELETE handlers
  */
 
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+import { logAudit, getRequestInfo } from "@/lib/audit-logger";
 import { prisma } from "@/lib/prisma";
 
 import { PUT } from "./_handlers/appointments-id-route-put";
@@ -79,6 +81,23 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
       data: {
         status: "cancelled",
       },
+    });
+
+    // Log appointment cancellation
+    const headersList = await headers();
+    const { ipAddress, userAgent } = getRequestInfo(headersList);
+    await logAudit({
+      userId: existingAppointment.clientId,
+      action: "DELETE_APPOINTMENT",
+      entityType: "APPOINTMENT",
+      entityId: id,
+      details: {
+        title: existingAppointment.title,
+        date: existingAppointment.date.toISOString(),
+      },
+      ipAddress,
+      userAgent,
+      success: true,
     });
 
     return NextResponse.json({ message: "Appointment cancelled successfully" }, { status: 200 });

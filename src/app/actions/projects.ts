@@ -1,12 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // PIC approves a project
 export async function approveProject(projectId: string, approvalNote?: string) {
+  const headersList = await headers();
+  const ipAddress = headersList.get("x-forwarded-for") ?? headersList.get("x-real-ip") ?? "unknown";
+  const userAgent = headersList.get("user-agent") ?? "unknown";
+
   try {
     const user = await getCurrentUser();
     if (!user || user.role !== "pic") {
@@ -42,6 +47,28 @@ export async function approveProject(projectId: string, approvalNote?: string) {
         pic: { select: { email: true, fullname: true } },
       },
     });
+
+    // Log successful project approval
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: "APPROVE_PROJECT",
+          entityType: "PROJECT",
+          entityId: projectId,
+          details: {
+            projectName: updatedProject.name,
+            clientEmail: updatedProject.client.email,
+            approvalNote,
+          },
+          ipAddress,
+          userAgent,
+          success: true,
+        },
+      });
+    } catch (logError) {
+      console.error("[approveProject] Failed to log approval:", logError);
+    }
 
     revalidatePath("/projects");
     revalidatePath("/dashboard");

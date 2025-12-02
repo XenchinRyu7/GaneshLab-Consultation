@@ -46,40 +46,49 @@ export function NavMain({ items }: NavMainProps) {
           <ProjectSelector />
         </SidebarGroupContent>
       </SidebarGroup>
-      {items.map(group => (
-        <SidebarGroup key={group.id}>
-          {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
-          <SidebarGroupContent className="flex flex-col gap-2">
-            <SidebarMenu>
-              {group.items
-                .filter(item => {
-                  if (item.roles && currentUser) {
-                    return item.roles.includes(currentUser.role);
-                  }
-                  return true;
-                })
-                .map(item => {
-                  if (state === "collapsed" && !isMobile) {
-                    if (!item.subItems) {
-                      return <NavItemSimple key={item.title} item={item} isActive={isItemActive} />;
+      {items
+        .filter(group => {
+          if (group.roles && currentUser) {
+            return group.roles.includes(currentUser.role);
+          }
+          return true;
+        })
+        .map(group => (
+          <SidebarGroup key={group.id}>
+            {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+            <SidebarGroupContent className="flex flex-col gap-2">
+              <SidebarMenu>
+                {group.items
+                  .filter(item => {
+                    if (item.roles && currentUser) {
+                      return item.roles.includes(currentUser.role);
+                    }
+                    return true;
+                  })
+                  .map(item => {
+                    if (state === "collapsed" && !isMobile) {
+                      if (!item.subItems) {
+                        return (
+                          <NavItemSimple key={item.title} item={item} isActive={isItemActive} />
+                        );
+                      }
+                      return (
+                        <NavItemCollapsed key={item.title} item={item} isActive={isItemActive} />
+                      );
                     }
                     return (
-                      <NavItemCollapsed key={item.title} item={item} isActive={isItemActive} />
+                      <NavItemExpanded
+                        key={item.title}
+                        item={item}
+                        isActive={isItemActive}
+                        isSubmenuOpen={isSubmenuOpen}
+                      />
                     );
-                  }
-                  return (
-                    <NavItemExpanded
-                      key={item.title}
-                      item={item}
-                      isActive={isItemActive}
-                      isSubmenuOpen={isSubmenuOpen}
-                    />
-                  );
-                })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      ))}
+                  })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
     </>
   );
 }

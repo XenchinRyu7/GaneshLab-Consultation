@@ -36,6 +36,11 @@ export function SearchDialog() {
     }> = [];
 
     sidebarItems.forEach(group => {
+      // Check if group is accessible based on roles
+      if (group.roles && !group.roles.includes(currentUser.role)) {
+        return; // Skip if user doesn't have access to this group
+      }
+
       group.items.forEach(item => {
         // Check if item is accessible based on roles
         if (item.roles && !item.roles.includes(currentUser.role)) {
@@ -82,7 +87,7 @@ export function SearchDialog() {
   const searchItems = generateSearchItems();
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen(open => !open);
       }
@@ -101,7 +106,7 @@ export function SearchDialog() {
         <Search className="size-4" />
         Search
         <kbd className="bg-muted inline-flex h-5 items-center gap-1 rounded border px-1.5 text-[10px] font-medium select-none">
-          <span className="text-xs">⌘</span>J
+          <span className="text-xs">⌘</span>K
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>

@@ -52,12 +52,6 @@ export default function AppointmentPage() {
 
   const currentUser = useUserStore(state => state.currentUser);
 
-  const isProjectAccessible =
-    !activeProject ||
-    activeProject.status === "APPROVED" ||
-    activeProject.status === "ACTIVE" ||
-    activeProject.status === "PENDING"; // Client can book for PENDING too
-
   const canCreateAppointment =
     !activeProject || activeProject.status === "APPROVED" || activeProject.status === "ACTIVE";
 

@@ -18,6 +18,13 @@ export const userColumns = ({
   onDelete,
 }: ColumnOptions): ColumnDef<z.infer<typeof userSchema>>[] => [
   {
+    id: "no",
+    header: "No",
+    cell: ({ row }) => <span>{row.index + 1}</span>,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "email",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
     cell: ({ row }) => <span>{row.original.email}</span>,

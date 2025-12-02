@@ -75,9 +75,8 @@ export function LoginForm() {
 
       // Check if it's a redirect error (Next.js throws this for redirects)
       if (error && typeof error === "object" && "digest" in error) {
-        // This is a Next.js redirect, which is expected
         console.log("[LoginForm] Redirect error (expected):", error);
-        return; // Don't show error for redirect
+        return;
       }
 
       const errorMessage = error instanceof Error ? error.message : "Unknown error";

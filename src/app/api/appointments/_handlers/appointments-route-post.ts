@@ -2,8 +2,10 @@
  * POST handler for /api/appointments
  */
 
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+import { logAudit, getRequestInfo } from "@/lib/audit-logger";
 import { prisma } from "@/lib/prisma";
 
 import { formatAppointment } from "../[id]/_handlers/appointments-id-route-put-format";
@@ -127,6 +129,25 @@ export async function POST(req: NextRequest) {
         // Continue tanpa error - appointment tetap dibuat
       }
     }
+
+    // Log appointment creation
+    const headersList = await headers();
+    const { ipAddress, userAgent } = getRequestInfo(headersList);
+    await logAudit({
+      userId: appointment.clientId,
+      action: "CREATE_APPOINTMENT",
+      entityType: "APPOINTMENT",
+      entityId: appointment.id,
+      details: {
+        title: appointment.title,
+        picId: appointment.picId,
+        date: appointment.date.toISOString(),
+        type: appointment.type,
+      },
+      ipAddress,
+      userAgent,
+      success: true,
+    });
 
     // Format and return response
     const formattedAppointment = formatAppointment({ ...appointment, meetingLink: meetLink });

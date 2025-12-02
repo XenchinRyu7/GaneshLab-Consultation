@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 
 import {
@@ -40,6 +42,7 @@ export function useDataTableInstance<TData, TValue>({
     pageSize: defaultPageSize ?? 10,
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -51,7 +54,12 @@ export function useDataTableInstance<TData, TValue>({
       pagination,
     },
     enableRowSelection,
-    getRowId: getRowId ?? (row => (row as any).id.toString()),
+    getRowId:
+      getRowId ??
+      ((row, index) => {
+        const rowData = row as Record<string, unknown>;
+        return rowData.id ? String(rowData.id) : String(index);
+      }),
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

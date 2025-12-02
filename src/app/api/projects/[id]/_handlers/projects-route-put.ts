@@ -11,7 +11,6 @@ import {
   validateBudgetRange,
   validatePIC,
   validateProgress,
-  validateStatus,
 } from "./projects-route-put-validation";
 
 /**

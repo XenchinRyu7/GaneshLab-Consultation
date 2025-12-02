@@ -289,6 +289,7 @@ model UserProfile {
 
   appointmentsAsClient Appointment[]      @relation("AppointmentClient")
   appointmentsAsPic    Appointment[]      @relation("AppointmentPic")
+  auditLogs            AuditLog[]
   company              Company?
   conversationsAsClient Conversation[]    @relation("ConversationClient")
   conversationsAsPic   Conversation[]     @relation("ConversationPic")
@@ -304,6 +305,29 @@ model UserProfile {
   @@index([role])
   @@index([userId])
   @@map("user_profiles")
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  userId      String?     @map("user_id") // Nullable for system actions
+  action      String      // e.g., "LOGIN", "CREATE_PROJECT", "APPROVE_PROJECT"
+  entityType  String      @map("entity_type") // e.g., "USER", "PROJECT", "APPOINTMENT"
+  entityId    String?     @map("entity_id") // ID of the affected entity
+  details     Json?       // Additional details about the action
+  ipAddress   String?     @map("ip_address")
+  userAgent   String?     @map("user_agent")
+  success     Boolean     @default(true)
+  errorMessage String?    @map("error_message")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  user        UserProfile? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+  @@index([success])
+  @@map("audit_logs")
 }
 
 enum AppointmentStatus {

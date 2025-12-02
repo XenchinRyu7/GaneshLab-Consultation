@@ -2,8 +2,11 @@
  * Project creation function for POST handler
  */
 
+import { headers } from "next/headers";
+
 import type { ProjectType, ProjectComplexity, ProjectPriority } from "@prisma/client";
 
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { formatProject } from "../_helpers/projects-route-helpers";
@@ -98,6 +101,11 @@ function buildProjectData(data: CreateProjectBody, finalCompanyId: string) {
  * Create project in database
  */
 export async function createProject(data: CreateProjectBody, finalCompanyId: string) {
+  const user = await getCurrentUser();
+  const headersList = await headers();
+  const ipAddress = headersList.get("x-forwarded-for") ?? headersList.get("x-real-ip") ?? "unknown";
+  const userAgent = headersList.get("user-agent") ?? "unknown";
+
   const projectData = buildProjectData(data, finalCompanyId);
 
   const project = await prisma.project.create({
@@ -126,6 +134,30 @@ export async function createProject(data: CreateProjectBody, finalCompanyId: str
       },
     },
   });
+
+  // Log successful project creation
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: user?.id,
+        action: "CREATE_PROJECT",
+        entityType: "PROJECT",
+        entityId: project.id,
+        details: {
+          projectName: project.name,
+          clientEmail: project.client.email,
+          picEmail: project.pic.email,
+          estimatedCost: project.estimatedCost,
+          type: project.type,
+        },
+        ipAddress,
+        userAgent,
+        success: true,
+      },
+    });
+  } catch (logError) {
+    console.error("[createProject] Failed to log project creation:", logError);
+  }
 
   return formatProject(project);
 }
