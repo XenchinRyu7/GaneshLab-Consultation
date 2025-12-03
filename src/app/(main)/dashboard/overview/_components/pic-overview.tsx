@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Calendar, Clock, CheckCircle, AlertCircle, TrendingUp } from "lucide-react";
+import { Calendar, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -113,17 +113,10 @@ export function PicOverview() {
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               {stats.activeProjects}
             </CardTitle>
-            <CardAction>
-              <Badge variant="outline">
-                <TrendingUp />+{Math.floor(stats.activeProjects * 0.15)} this week
-              </Badge>
-            </CardAction>
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
             <div className="line-clamp-1 flex gap-2 font-medium">Projects you&apos;re managing</div>
-            <div className="text-muted-foreground">
-              {Math.floor(stats.activeProjects * 0.25)} require attention
-            </div>
+            <div className="text-muted-foreground">Currently active projects</div>
           </CardFooter>
         </Card>
 

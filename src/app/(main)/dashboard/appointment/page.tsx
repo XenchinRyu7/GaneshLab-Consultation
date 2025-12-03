@@ -37,7 +37,10 @@ export default function AppointmentPage() {
     appointmentToDelete,
     projectContext,
     isClient,
+    isPIC,
     activeProject,
+    pics,
+    selectedPicId,
     setAppointments,
     setSelectedDate,
     setSelectedSlot,
@@ -46,6 +49,7 @@ export default function AppointmentPage() {
     setEditingAppointment,
     setDeleteDialogOpen,
     setAppointmentToDelete,
+    setSelectedPicId,
     fetchAppointments,
     fetchAvailability,
   } = useAppointmentPage();
@@ -99,7 +103,12 @@ export default function AppointmentPage() {
     <div className="flex flex-col gap-4 md:gap-6">
       <AppointmentPageHeader
         isClient={isClient}
+        isPIC={isPIC}
         activeProjectName={activeProject?.name ?? null}
+        pics={pics}
+        selectedPicId={selectedPicId}
+        currentUserId={currentUser?.id}
+        onPicChange={setSelectedPicId}
         onCreateAppointment={canCreateAppointment ? handleCreateAppointment : undefined}
       />
 

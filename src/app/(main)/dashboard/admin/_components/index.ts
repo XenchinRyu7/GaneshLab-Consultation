@@ -6,6 +6,7 @@ export { AuditFilters } from "./audit-filters";
 export { AuditLogsTable } from "./audit-logs-table";
 export { AnalyticsCharts } from "./analytics-charts";
 export { RecentActivities } from "./recent-activities";
+export { RecentLogins } from "./recent-logins";
 
 // Tab Components
 export { OverviewTab } from "./overview-tab";

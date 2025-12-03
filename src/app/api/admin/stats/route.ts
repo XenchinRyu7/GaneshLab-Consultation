@@ -72,17 +72,6 @@ export async function GET() {
       },
     });
 
-    // Calculate total revenue (sum of estimated costs from completed projects)
-    const totalRevenueResult = await prisma.project.aggregate({
-      _sum: {
-        estimatedCost: true,
-      },
-      where: {
-        status: "COMPLETED",
-      },
-    });
-    const totalRevenue = Number(totalRevenueResult._sum.estimatedCost ?? 0);
-
     // System health (placeholder - could be calculated based on uptime or error rates)
     const systemHealth = 99.8;
 
@@ -109,41 +98,8 @@ export async function GET() {
                 : "#6b7280",
     }));
 
-    // Get monthly revenue data for the last 6 months
-    const revenueChartData = [];
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      date.setDate(1);
-      date.setHours(0, 0, 0, 0);
-
-      const endOfMonth = new Date(date);
-      endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-      endOfMonth.setDate(0);
-      endOfMonth.setHours(23, 59, 59, 999);
-
-      const revenue = await prisma.project.aggregate({
-        _sum: {
-          estimatedCost: true,
-        },
-        where: {
-          status: "COMPLETED",
-          updatedAt: {
-            gte: date,
-            lte: endOfMonth,
-          },
-        },
-      });
-
-      revenueChartData.push({
-        month: date.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
-        revenue: Number(revenue._sum.estimatedCost ?? 0),
-      });
-    }
-
     const stats = {
       totalUsers,
-      totalRevenue,
       activeProjects,
       systemHealth,
       activePics,
@@ -153,7 +109,6 @@ export async function GET() {
       completedThisMonth,
       pendingApprovals,
       projectChartData,
-      revenueChartData,
     };
 
     return NextResponse.json(stats);

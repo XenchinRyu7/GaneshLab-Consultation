@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
     const start = new Date(startDate);
     start.setHours(0, 0, 0, 0);
 
+    const endDate = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
+
     // Get PIC IDs
     const picIds = await getPicIds(picId);
     if (picIds.length === 0) {
@@ -38,13 +40,9 @@ export async function GET(req: NextRequest) {
 
     // Get all required data in parallel
     const [picAvailabilities, blockedSlots, appointments, picMap] = await Promise.all([
-      getPicAvailabilities(picIds),
-      getBlockedSlots(picIds, start, new Date(start.getTime() + days * 24 * 60 * 60 * 1000)),
-      getExistingAppointments(
-        picIds,
-        start,
-        new Date(start.getTime() + days * 24 * 60 * 60 * 1000)
-      ),
+      getPicAvailabilities(picIds, start, endDate),
+      getBlockedSlots(picIds, start, endDate),
+      getExistingAppointments(picIds, start, endDate),
       getPicNamesMap(picIds),
     ]);
 

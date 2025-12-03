@@ -39,12 +39,20 @@ export function GuestAppointmentForm() {
     setIsSubmitting(true);
 
     try {
+      // Convert Date object to YYYY-MM-DD string in local timezone
+      const dateStr = values.preferredDate
+        ? `${values.preferredDate.getFullYear()}-${String(values.preferredDate.getMonth() + 1).padStart(2, "0")}-${String(values.preferredDate.getDate()).padStart(2, "0")}`
+        : "";
+
       const response = await fetch("/api/appointments/guest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          preferredDate: dateStr,
+        }),
       });
 
       const data = await response.json();
@@ -54,14 +62,15 @@ export function GuestAppointmentForm() {
       }
 
       toast.success(
-        "Permintaan janji temu Anda telah dikirim. Admin akan segera menghubungi Anda."
+        "Permintaan janji temu Anda telah dikirim. Admin akan segera menghubungi Anda.",
+        { duration: 3000 }
       );
 
       form.reset();
 
       setTimeout(() => {
         router.push("/");
-      }, 2000);
+      }, 3500);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Terjadi kesalahan");
     } finally {

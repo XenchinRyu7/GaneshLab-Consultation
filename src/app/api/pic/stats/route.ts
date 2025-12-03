@@ -78,25 +78,22 @@ export async function GET() {
 
     // Calculate available slots (count availability slots for next 30 days)
     const now = new Date();
-    const thirtyDaysFromNow = new Date();
+    now.setHours(0, 0, 0, 0);
+    const thirtyDaysFromNow = new Date(now);
     thirtyDaysFromNow.setDate(now.getDate() + 30);
 
-    // Get all availability slots for this PIC
+    // Get all availability slots for this PIC in the next 30 days
     const availabilities = await prisma.picAvailability.findMany({
       where: {
         picId: userId,
+        date: {
+          gte: now,
+          lt: thirtyDaysFromNow,
+        },
       },
     });
 
-    let availableSlots = 0;
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(now);
-      date.setDate(now.getDate() + i);
-      const dayOfWeek = date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase() as any;
-
-      const dayAvailability = availabilities.filter(a => a.dayOfWeek === dayOfWeek);
-      availableSlots += dayAvailability.length;
-    }
+    let availableSlots = availabilities.length;
 
     // Subtract blocked slots
     const blockedSlots = await prisma.picBlockedSlot.count({

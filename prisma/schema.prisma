@@ -174,7 +174,7 @@ model Message {
 model PicAvailability {
   id          String      @id @default(cuid())
   picId       String      @map("pic_id")
-  dayOfWeek   DayOfWeek   @map("day_of_week")
+  date        DateTime    @db.Date // Specific date for availability
   startTime   String      @map("start_time")
   endTime     String      @map("end_time")
   createdAt   DateTime    @default(now()) @map("created_at")
@@ -183,8 +183,8 @@ model PicAvailability {
 
   pic         UserProfile @relation(fields: [picId], references: [id], onDelete: Cascade)
 
-  @@index([dayOfWeek])
-  @@index([picId, dayOfWeek])
+  @@index([date])
+  @@index([picId, date])
   @@index([picId])
   @@map("pic_availabilities")
 }
@@ -343,16 +343,6 @@ enum AppointmentStatus {
   confirmed
   cancelled
   completed
-}
-
-enum DayOfWeek {
-  monday
-  tuesday
-  wednesday
-  thursday
-  friday
-  saturday
-  sunday
 }
 
 enum KanbanTaskPriority {

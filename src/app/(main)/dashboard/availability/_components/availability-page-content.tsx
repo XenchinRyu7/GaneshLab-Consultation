@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { AvailabilitySlot } from "../_hooks/availability-page-hooks";
 
 import { AvailabilityDaySection } from "./availability-day-section";
-import { AvailabilityPICSelector } from "./availability-pic-selector";
 import { GoogleCalendarStatus } from "./google-calendar-status";
 
 const DAYS_OF_WEEK = [
@@ -26,11 +25,6 @@ const DAYS_OF_WEEK = [
 interface AvailabilityPageContentProps {
   availabilities: Record<string, AvailabilitySlot[]>;
   isViewingOwnSchedule: boolean;
-  viewingPicName: string | null;
-  pics: Array<{ id: string; fullname: string; email: string; avatarColor?: string | null }>;
-  selectedPicId: string | null;
-  currentUserId: string;
-  onPicChange: (picId: string | null) => void;
   onAddSlot: (dayOfWeek: string) => void;
   onUpdateSlot: (
     dayOfWeek: string,
@@ -46,11 +40,6 @@ interface AvailabilityPageContentProps {
 export function AvailabilityPageContent({
   availabilities,
   isViewingOwnSchedule,
-  viewingPicName,
-  pics,
-  selectedPicId,
-  currentUserId,
-  onPicChange,
   onAddSlot,
   onUpdateSlot,
   onRemoveSlot,
@@ -63,31 +52,23 @@ export function AvailabilityPageContent({
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Availability Schedule</h1>
           <p className="text-muted-foreground mt-2">
-            {isViewingOwnSchedule
-              ? "Set your weekly working hours with multiple time slots per day. Each slot can be online or offline."
-              : `Viewing ${viewingPicName ?? "PIC"}'s schedule. You can view other PICs' schedules to coordinate meetings.`}
+            Set your weekly working hours with multiple time slots per day. Each slot can be online
+            or offline.
           </p>
         </div>
-        <AvailabilityPICSelector
-          pics={pics}
-          selectedPicId={selectedPicId}
-          currentUserId={currentUserId}
-          onPicChange={onPicChange}
-        />
       </div>
 
-      {isViewingOwnSchedule && currentUserId && <GoogleCalendarStatus picId={currentUserId} />}
+      <GoogleCalendarStatus picId={""} />
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Weekly Schedule {viewingPicName && !isViewingOwnSchedule && `- ${viewingPicName}`}
+            Weekly Schedule
           </CardTitle>
           <CardDescription>
-            {isViewingOwnSchedule
-              ? "Configure your availability for each day of the week. You can add multiple time slots per day with different meeting types (online/offline)."
-              : `Viewing ${viewingPicName ?? "PIC"}'s availability schedule. Card colors indicate meeting type: Blue for Online, Orange for Offline.`}
+            Configure your availability for each day of the week. You can add multiple time slots
+            per day with different meeting types (online/offline).
           </CardDescription>
         </CardHeader>
         <CardContent>

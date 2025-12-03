@@ -1,18 +1,41 @@
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getInitials } from "@/lib/utils";
 
 interface AppointmentPageHeaderProps {
   isClient: boolean;
+  isPIC?: boolean;
   activeProjectName: string | null;
+  pics?: Array<{ id: string; fullname: string; avatarColor?: string | null }>;
+  selectedPicId?: string | null;
+  currentUserId?: string;
+  onPicChange?: (picId: string) => void;
   onCreateAppointment?: () => void;
 }
 
 export function AppointmentPageHeader({
   isClient,
+  isPIC,
   activeProjectName,
+  pics = [],
+  selectedPicId,
+  currentUserId,
+  onPicChange,
   onCreateAppointment,
 }: AppointmentPageHeaderProps) {
+  const selectedPic = pics.find(p => p.id === selectedPicId);
+  const isViewingOwnSchedule = selectedPicId === currentUserId;
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -22,15 +45,53 @@ export function AppointmentPageHeader({
             ? activeProjectName
               ? `Schedule meetings with your PIC for project "${activeProjectName}" (available for 1 week or 1 month ahead)`
               : "Search and book appointments with available PICs (1 week or 1 month ahead)"
-            : "Manage appointments and meetings"}
+            : isPIC && selectedPic
+              ? isViewingOwnSchedule
+                ? "Manage appointments and meetings"
+                : `Viewing ${selectedPic.fullname}'s appointments`
+              : "Manage appointments and meetings"}
         </p>
       </div>
-      {isClient && onCreateAppointment && (
-        <Button onClick={onCreateAppointment} className="gap-2">
-          <Plus className="size-4" />
-          <span>Create Appointment</span>
-        </Button>
-      )}
+      <div className="flex items-center gap-3">
+        {isPIC && pics.length > 0 && onPicChange && (
+          <div className="flex items-center gap-2">
+            <Users className="text-muted-foreground h-5 w-5" />
+            <Select value={selectedPicId ?? ""} onValueChange={onPicChange}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Select PIC" />
+              </SelectTrigger>
+              <SelectContent>
+                {pics.map(pic => (
+                  <SelectItem key={pic.id} value={pic.id}>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-6 w-6">
+                        <AvatarFallback
+                          className="text-xs text-white"
+                          style={{ backgroundColor: pic.avatarColor ?? "#3b82f6" }}
+                        >
+                          {getInitials(pic.fullname)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{pic.fullname}</span>
+                      {pic.id === currentUserId && (
+                        <Badge variant="secondary" className="ml-2 text-xs">
+                          You
+                        </Badge>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {isClient && onCreateAppointment && (
+          <Button onClick={onCreateAppointment} className="gap-2">
+            <Plus className="size-4" />
+            <span>Create Appointment</span>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import type { Appointment, MeetingType, AppointmentStatus } from "./calendar-config";
 
@@ -17,6 +17,25 @@ export function useAppointmentForm({ appointment }: UseAppointmentFormProps) {
   const [meetingLink, setMeetingLink] = useState(appointment?.meetingLink ?? "");
   const [location, setLocation] = useState(appointment?.location ?? "");
   const [notes, setNotes] = useState(appointment?.notes ?? "");
+
+  useEffect(() => {
+    if (appointment) {
+      const timeoutId = setTimeout(() => {
+        setTitle(appointment.title);
+        setDescription(appointment.description ?? "");
+        setDate(appointment.date);
+        setStartTime(appointment.startTime);
+        setEndTime(appointment.endTime);
+        setType(appointment.type);
+        setStatus(appointment.status);
+        setMeetingLink(appointment.meetingLink ?? "");
+        setLocation(appointment.location ?? "");
+        setNotes(appointment.notes ?? "");
+      }, 0);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [appointment]);
 
   return {
     title,

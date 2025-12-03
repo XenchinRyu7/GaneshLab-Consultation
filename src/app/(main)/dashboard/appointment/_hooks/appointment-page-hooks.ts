@@ -20,10 +20,13 @@ export function useAppointmentPage() {
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [pics, setPics] = useState<Array<{ id: string; fullname: string }>>([]);
+  const [selectedPicId, setSelectedPicId] = useState<string | null>(null);
 
   const currentUser = useUserStore(state => state.currentUser);
   const activeProject = useProjectStore(state => state.activeProject);
   const isClient = currentUser?.role === "client";
+  const isPIC = currentUser?.role === "pic";
 
   const projectContext: ProjectContext | undefined = useMemo(() => {
     if (!activeProject) {
@@ -42,7 +45,7 @@ export function useAppointmentPage() {
 
     try {
       setLoading(true);
-      const userId = currentUser.id;
+      const userId = isPIC && selectedPicId ? selectedPicId : currentUser.id;
       const role = currentUser.role;
 
       const response = await fetch(`/api/appointments?userId=${userId}&role=${role}`);
@@ -56,6 +59,21 @@ export function useAppointmentPage() {
       console.error("Error fetching appointments:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchPICs() {
+    if (!isPIC) return;
+
+    try {
+      const response = await fetch("/api/projects/pics");
+      if (!response.ok) {
+        throw new Error("Failed to fetch PICs");
+      }
+      const data = await response.json();
+      setPics(data.pics ?? []);
+    } catch (error) {
+      console.error("Error fetching PICs:", error);
     }
   }
 
@@ -90,9 +108,16 @@ export function useAppointmentPage() {
       if (isClient) {
         fetchAvailability();
       }
+      if (isPIC) {
+        fetchPICs();
+        // Set default to current user if not set
+        if (!selectedPicId) {
+          setSelectedPicId(currentUser.id);
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, activeProject, isClient]);
+  }, [currentUser, activeProject, isClient, isPIC, selectedPicId]);
 
   useEffect(() => {
     setSelectedDate(new Date());
@@ -111,7 +136,10 @@ export function useAppointmentPage() {
     appointmentToDelete,
     projectContext,
     isClient,
+    isPIC,
     activeProject,
+    pics,
+    selectedPicId,
     setAppointments,
     setSelectedDate,
     setSelectedSlot,
@@ -120,6 +148,7 @@ export function useAppointmentPage() {
     setEditingAppointment,
     setDeleteDialogOpen,
     setAppointmentToDelete,
+    setSelectedPicId,
     fetchAppointments,
     fetchAvailability,
   };

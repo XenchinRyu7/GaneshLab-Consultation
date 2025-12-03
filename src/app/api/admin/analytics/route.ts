@@ -74,15 +74,6 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    // Revenue statistics
-    const revenueData = await prisma.project.aggregate({
-      where: {
-        status: { in: ["COMPLETED", "ACTIVE", "ON_MAINTAIN"] },
-        estimatedCost: { not: null },
-      },
-      _sum: { estimatedCost: true },
-    });
-
     // Appointment statistics
     const [totalAppointments, completedAppointments] = await Promise.all([
       prisma.appointment.count({
@@ -96,19 +87,61 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    // User activity trends (last 30 days) - count unique users who logged in each day
-    const userActivityData = await prisma.$queryRaw`
-      SELECT
-        DATE(created_at) as date,
-        COUNT(DISTINCT user_id) as active_users
-      FROM audit_logs
-      WHERE created_at >= ${startDate}
-        AND action = 'LOGIN'
-        AND success = true
-        AND user_id IS NOT NULL
-      GROUP BY DATE(created_at)
-      ORDER BY date
-    `;
+    const anyLoginData = await prisma.auditLog.count({
+      where: {
+        action: "LOGIN",
+        success: true,
+      },
+    });
+    console.log("Total LOGIN audit logs in database:", anyLoginData);
+
+    const allActions = await prisma.auditLog.findMany({
+      select: {
+        action: true,
+        success: true,
+        createdAt: true,
+      },
+      take: 10,
+      orderBy: { createdAt: "desc" },
+    });
+    console.log("Sample audit log actions:", JSON.stringify(allActions, null, 2));
+
+    const userActivityData = await prisma.$queryRaw<Array<{ date: Date; active_users: number }>>`
+        SELECT
+          created_at::date as date,
+          COUNT(DISTINCT user_id)::int as active_users
+        FROM audit_logs
+        WHERE action = 'LOGIN'
+          AND success = true
+          AND user_id IS NOT NULL
+        GROUP BY created_at::date
+        ORDER BY date DESC
+        LIMIT 30
+      `;
+
+    console.log("User activity data count:", userActivityData.length);
+    console.log(
+      "User activity data sample:",
+      JSON.stringify(userActivityData.slice(0, 3), null, 2)
+    );
+
+    const recentLogins = await prisma.auditLog.findMany({
+      where: {
+        action: "LOGIN",
+        success: true,
+      },
+      include: {
+        user: {
+          select: {
+            fullname: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
 
     // Project status distribution
     const projectStatusData = await prisma.project.groupBy({
@@ -116,43 +149,64 @@ export async function GET(request: NextRequest) {
       _count: { status: true },
     });
 
-    // Revenue by month (last 12 months)
-    const revenueByMonth = await prisma.$queryRaw`
-      SELECT
-        DATE_TRUNC('month', created_at) as month,
-        SUM(estimated_cost) as revenue
-      FROM projects
-      WHERE status IN ('COMPLETED', 'ACTIVE', 'ON_MAINTAIN')
-        AND estimated_cost IS NOT NULL
-        AND created_at >= ${new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)}
-      GROUP BY DATE_TRUNC('month', created_at)
-      ORDER BY month
-    `;
-
-    // Top PICs by project count
-    const topPics = await prisma.userProfile.findMany({
-      where: { role: "pic" },
-      select: {
-        id: true,
-        fullname: true,
-        email: true,
-        _count: {
-          select: {
-            projectsAsPic: {
-              where: { status: { in: ["ACTIVE", "COMPLETED"] } },
-            },
-          },
-        },
+    const totalProjectsCount = await prisma.project.count();
+    const activeCompletedCount = await prisma.project.count({
+      where: {
+        status: { in: ["ACTIVE", "COMPLETED"] },
       },
+    });
+    console.log("Total projects in database:", totalProjectsCount);
+    console.log("ACTIVE or COMPLETED projects:", activeCompletedCount);
+
+    // If no ACTIVE/COMPLETED, get all projects instead
+    const topPicsData = await prisma.project.groupBy({
+      by: ["picId"],
+      _count: {
+        id: true,
+      },
+      where:
+        activeCompletedCount > 0
+          ? {
+              status: { in: ["ACTIVE", "COMPLETED"] },
+            }
+          : undefined,
       orderBy: {
-        projectsAsPic: {
-          _count: "desc",
+        _count: {
+          id: "desc",
         },
       },
       take: 10,
     });
+    console.log("Top PICs raw data count:", topPicsData.length);
+    console.log("Top PICs raw data:", JSON.stringify(topPicsData, null, 2));
 
-    // Recent audit logs summary
+    const picIds = topPicsData.map(item => item.picId);
+    console.log("PIC IDs to fetch:", picIds);
+    const picProfiles = await prisma.userProfile.findMany({
+      where: {
+        id: { in: picIds },
+      },
+      select: {
+        id: true,
+        fullname: true,
+        email: true,
+      },
+    });
+    console.log("PIC profiles found:", picProfiles.length);
+
+    const topPics = topPicsData.map(item => {
+      const profile = picProfiles.find(p => p.id === item.picId);
+      return {
+        id: item.picId,
+        fullname: profile?.fullname ?? "Unknown",
+        email: profile?.email ?? "unknown@email.com",
+        _count: {
+          projectsAsPic: item._count.id,
+        },
+      };
+    });
+    console.log("Top PICs final data:", JSON.stringify(topPics, null, 2));
+
     const recentActivities = await prisma.auditLog.findMany({
       take: 10,
       include: {
@@ -166,7 +220,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({
+    const response = {
       overview: {
         totalUsers,
         newUsers,
@@ -174,18 +228,19 @@ export async function GET(request: NextRequest) {
         totalProjects,
         newProjects,
         completedProjects,
-        totalRevenue: revenueData._sum.estimatedCost ?? 0,
         totalAppointments,
         completedAppointments,
       },
       charts: {
         userActivity: userActivityData,
         projectStatus: projectStatusData,
-        revenueByMonth,
       },
       topPics,
       recentActivities,
-    });
+      recentLogins,
+    };
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error fetching analytics:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

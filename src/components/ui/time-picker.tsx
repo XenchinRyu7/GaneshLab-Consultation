@@ -45,11 +45,11 @@ export function TimePicker({
     const parts = val.split(":");
     const hour = parts[0]?.padStart(2, "0") || "09";
     const minute = parts[1]?.padStart(2, "0") || "00";
-    
+
     // Validate hour (00-23) and minute (00-59)
     const validHour = parseInt(hour) >= 0 && parseInt(hour) <= 23 ? hour : "09";
     const validMinute = parseInt(minute) >= 0 && parseInt(minute) <= 59 ? minute : "00";
-    
+
     return [validHour, validMinute];
   };
 

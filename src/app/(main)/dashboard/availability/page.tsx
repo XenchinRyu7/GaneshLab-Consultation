@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { Loader2 } from "lucide-react";
 
 import { AvailabilityPageContent } from "./_components/availability-page-content";
@@ -12,27 +10,16 @@ import {
 import {
   useAvailabilityAuthorization,
   useAvailabilities,
-  usePICs,
 } from "./_hooks/availability-page-data-hooks";
 
 export default function AvailabilityPage() {
-  const { currentUser, selectedPicId, setSelectedPicId, isViewingOwnSchedule } =
-    useAvailabilityAuthorization();
-  const { pics, fetchPICs } = usePICs();
-  const { availabilities, loading, viewingPicName, setAvailabilities } =
-    useAvailabilities(selectedPicId);
+  const { currentUser, isViewingOwnSchedule } = useAvailabilityAuthorization();
+  const { availabilities, loading, setAvailabilities } = useAvailabilities(currentUser?.id ?? null);
   const { addSlot, removeSlot, updateSlot } = useAvailabilitySlots(
     availabilities,
     setAvailabilities
   );
   const { saving, handleSave } = useSaveAvailability(availabilities, setAvailabilities);
-
-  useEffect(() => {
-    if (currentUser) {
-      fetchPICs();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
 
   if (loading) {
     return (
@@ -50,11 +37,6 @@ export default function AvailabilityPage() {
     <AvailabilityPageContent
       availabilities={availabilities}
       isViewingOwnSchedule={isViewingOwnSchedule}
-      viewingPicName={viewingPicName}
-      pics={pics}
-      selectedPicId={selectedPicId}
-      currentUserId={currentUser.id}
-      onPicChange={setSelectedPicId}
       onAddSlot={addSlot}
       onUpdateSlot={updateSlot}
       onRemoveSlot={removeSlot}

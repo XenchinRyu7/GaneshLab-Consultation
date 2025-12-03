@@ -3,18 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Users, Building2, TrendingUp, Activity } from "lucide-react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,7 +17,6 @@ import {
 
 interface AdminStats {
   totalUsers: number;
-  totalRevenue: number;
   activeProjects: number;
   systemHealth: number;
   activePics: number;
@@ -41,10 +29,6 @@ interface AdminStats {
     name: string;
     value: number;
     fill: string;
-  }>;
-  revenueChartData: Array<{
-    month: string;
-    revenue: number;
   }>;
 }
 
@@ -104,41 +88,27 @@ export function AdminOverview() {
 
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>Total Revenue</CardDescription>
+            <CardDescription>Active Projects</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-              ${stats.totalRevenue.toLocaleString()}
+              {stats.activeProjects}
             </CardTitle>
-            <CardAction>
-              <Badge variant="outline">
-                <TrendingUp />
-                +12.5%
-              </Badge>
-            </CardAction>
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
-            <div className="line-clamp-1 flex gap-2 font-medium">
-              Revenue growth <TrendingUp className="size-4" />
-            </div>
-            <div className="text-muted-foreground">Monthly recurring revenue</div>
+            <div className="line-clamp-1 flex gap-2 font-medium">Projects currently active</div>
+            <div className="text-muted-foreground">Across all PICs and clients</div>
           </CardFooter>
         </Card>
 
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>Active Projects</CardDescription>
+            <CardDescription>Total Companies</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-              {stats.activeProjects}
+              {stats.totalCompanies}
             </CardTitle>
-            <CardAction>
-              <Badge variant="outline">
-                <Activity />
-                {Math.floor(stats.activeProjects * 0.13)} in progress
-              </Badge>
-            </CardAction>
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
-            <div className="line-clamp-1 flex gap-2 font-medium">Projects currently active</div>
-            <div className="text-muted-foreground">Across all PICs and clients</div>
+            <div className="line-clamp-1 flex gap-2 font-medium">Registered companies</div>
+            <div className="text-muted-foreground">Business clients</div>
           </CardFooter>
         </Card>
 
@@ -163,59 +133,35 @@ export function AdminOverview() {
       </div>
 
       {/* Charts section */}
-      <div className="grid grid-cols-1 gap-6 @xl/main:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Project Status Distribution</CardTitle>
-            <CardDescription>Overview of projects by status</CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats.projectChartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {stats.projectChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Revenue</CardTitle>
-            <CardDescription>
-              Revenue from completed projects over the last 6 months
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.revenueChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={value => [`$${value.toLocaleString()}`, "Revenue"]} />
-                  <Bar dataKey="revenue" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Project Status Distribution</CardTitle>
+          <CardDescription>Overview of projects by status</CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.projectChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {stats.projectChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </CardFooter>
+      </Card>
 
       {/* Admin-specific sections */}
       <div className="grid grid-cols-1 gap-6 @xl/main:grid-cols-2">

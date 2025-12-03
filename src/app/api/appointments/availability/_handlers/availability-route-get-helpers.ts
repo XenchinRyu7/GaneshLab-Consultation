@@ -25,16 +25,20 @@ export async function getPicIds(picId: string | null): Promise<string[]> {
 }
 
 /**
- * Get PIC availability data
+ * Get PIC availability data for date range
  */
-export async function getPicAvailabilities(picIds: string[]) {
+export async function getPicAvailabilities(picIds: string[], start: Date, endDate: Date) {
   return prisma.picAvailability.findMany({
     where: {
       picId: {
         in: picIds,
       },
+      date: {
+        gte: start,
+        lt: endDate,
+      },
     },
-    orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+    orderBy: [{ date: "asc" }, { startTime: "asc" }],
   });
 }
 

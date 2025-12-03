@@ -14,7 +14,7 @@ interface AvailabilitySlot {
 
 interface PICAvailability {
   picId: string;
-  dayOfWeek: string;
+  date: Date;
   startTime: string;
   endTime: string;
   meetingType: "online" | "offline";
@@ -28,21 +28,11 @@ interface BlockedSlot {
 }
 
 interface Appointment {
-  picId: string;
+  picId: string | null;
   date: Date;
   startTime: string;
   endTime: string;
 }
-
-const DAY_OF_WEEK_MAP: Record<number, string> = {
-  0: "sunday",
-  1: "monday",
-  2: "tuesday",
-  3: "wednesday",
-  4: "thursday",
-  5: "friday",
-  6: "saturday",
-};
 
 /**
  * Check if slot is blocked
@@ -88,7 +78,6 @@ function hasAppointmentInSlot(
 function generateSlotsForDayAndPIC(
   picId: string,
   dateStr: string,
-  dayOfWeek: string,
   dayAvailabilities: PICAvailability[],
   blockedSlots: BlockedSlot[],
   appointments: Appointment[],
@@ -146,11 +135,10 @@ export function generateAvailableSlots(
     const currentDate = new Date(start);
     currentDate.setDate(currentDate.getDate() + dayOffset);
     const dateStr = currentDate.toISOString().split("T")[0];
-    const dayOfWeek = DAY_OF_WEEK_MAP[currentDate.getDay()];
 
     for (const picId of picIds) {
       const dayAvailabilities = picAvailabilities.filter(
-        avail => avail.picId === picId && avail.dayOfWeek === dayOfWeek
+        avail => avail.picId === picId && avail.date.toISOString().split("T")[0] === dateStr
       );
 
       if (dayAvailabilities.length === 0) {
@@ -161,7 +149,6 @@ export function generateAvailableSlots(
       const daySlots = generateSlotsForDayAndPIC(
         picId,
         dateStr,
-        dayOfWeek,
         dayAvailabilities,
         blockedSlots,
         appointments,

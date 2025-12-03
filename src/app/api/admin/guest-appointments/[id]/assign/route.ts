@@ -15,11 +15,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userProfile = await prisma.userProfile.findUnique({
-      where: { userId: session.id },
-    });
+    console.log("[assign-pic] User role:", session.role);
 
-    if (userProfile?.role !== "admin") {
+    if (session.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -68,7 +66,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // Log audit
     const requestInfo = getRequestInfo(req.headers);
     await logAudit({
-      userId: userProfile.id,
+      userId: session.id,
       action: "ASSIGN_PIC_TO_GUEST",
       entityType: "APPOINTMENT",
       entityId: id,

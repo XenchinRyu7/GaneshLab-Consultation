@@ -10,11 +10,6 @@ export interface ProjectStatusData {
   };
 }
 
-export interface RevenueByMonthData {
-  month: string;
-  revenue: number | null;
-}
-
 export interface TopPicData {
   id: string;
   fullname: string;
@@ -47,17 +42,25 @@ export interface AnalyticsData {
     totalProjects: number;
     newProjects: number;
     completedProjects: number;
-    totalRevenue: number;
     totalAppointments: number;
     completedAppointments: number;
   };
   charts: {
     userActivity: UserActivityData[];
     projectStatus: ProjectStatusData[];
-    revenueByMonth: RevenueByMonthData[];
   };
   topPics: TopPicData[];
   recentActivities: RecentActivityData[];
+  recentLogins: Array<{
+    id: string;
+    action: string;
+    createdAt: Date;
+    user: {
+      fullname: string;
+      email: string;
+      role: string;
+    } | null;
+  }>;
 }
 
 export interface AuditLog {

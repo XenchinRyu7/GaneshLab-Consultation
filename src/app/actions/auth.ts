@@ -43,7 +43,6 @@ export async function signIn(email: string, password: string, rememberMe: boolea
 
     console.log("[signIn] Login successful for user:", result.user.email);
 
-    // Log successful login
     try {
       await prisma.auditLog.create({
         data: {
@@ -57,8 +56,10 @@ export async function signIn(email: string, password: string, rememberMe: boolea
           success: true,
         },
       });
+      console.log("[signIn] Audit log created successfully for user:", result.user.id);
     } catch (logError) {
       console.error("[signIn] Failed to log successful login:", logError);
+      // Continue even if audit log fails
     }
 
     revalidatePath("/", "layout");
@@ -141,6 +142,19 @@ export async function signOut() {
     revalidatePath("/", "layout");
     redirect("/auth/login");
   } catch (error) {
+    // Check if it's a redirect error (Next.js throws this for redirects)
+    if (
+      error &&
+      typeof error === "object" &&
+      "digest" in error &&
+      typeof error.digest === "string" &&
+      error.digest.includes("NEXT_REDIRECT")
+    ) {
+      // This is a Next.js redirect, which is expected - re-throw it
+      throw error;
+    }
+
+    // Only log actual unexpected errors
     console.error("[signOut] Error during logout:", error);
     // Still proceed with logout even if logging fails
     await logout();

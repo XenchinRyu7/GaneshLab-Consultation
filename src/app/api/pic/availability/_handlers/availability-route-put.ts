@@ -8,192 +8,10 @@ import { getCurrentUser } from "@/app/actions/auth";
 import { prisma } from "@/lib/prisma";
 
 import {
-  DAYS_OF_WEEK,
-  type DayOfWeek,
-  groupAvailabilitiesByDay,
-} from "../_helpers/availability-route-helpers";
-
-/**
- * Validate user authorization for PUT
- */
-function validatePutAuthorization(user: { role: string } | null): NextResponse | null {
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (user.role !== "pic") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  return null;
-}
-
-/**
- * Validate slot object structure
- */
-function validateSlotStructure(
-  slot: unknown,
-  day: string
-): { isValid: boolean; slotObj?: Record<string, unknown>; error?: NextResponse } {
-  if (typeof slot !== "object" || slot === null) {
-    return {
-      isValid: false,
-      error: NextResponse.json({ error: `Invalid slot format for ${day}` }, { status: 400 }),
-    };
-  }
-  return { isValid: true, slotObj: slot as Record<string, unknown> };
-}
-
-/**
- * Validate day of week
- */
-function validateDayOfWeek(dayOfWeek: unknown): NextResponse | null {
-  if (!DAYS_OF_WEEK.includes(dayOfWeek as DayOfWeek)) {
-    return NextResponse.json({ error: `Invalid dayOfWeek: ${dayOfWeek}` }, { status: 400 });
-  }
-  return null;
-}
-
-/**
- * Validate time format
- */
-function validateTimeFormat(time: unknown, fieldName: string): NextResponse | null {
-  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-  if (!time || typeof time !== "string" || !timeRegex.test(time)) {
-    return NextResponse.json(
-      { error: `Invalid ${fieldName} format: ${time}. Use HH:MM format` },
-      { status: 400 }
-    );
-  }
-  return null;
-}
-
-/**
- * Validate time range
- */
-function validateTimeRange(
-  startTime: string,
-  endTime: string,
-  dayOfWeek: string
-): NextResponse | null {
-  if (startTime >= endTime) {
-    return NextResponse.json(
-      { error: `startTime must be before endTime for ${dayOfWeek}` },
-      { status: 400 }
-    );
-  }
-  return null;
-}
-
-/**
- * Validate meeting type
- */
-function validateMeetingType(meetingType: unknown): NextResponse | null {
-  if (!meetingType || !["online", "offline"].includes(meetingType as string)) {
-    return NextResponse.json(
-      { error: `Invalid meetingType: ${meetingType}. Must be "online" or "offline"` },
-      { status: 400 }
-    );
-  }
-  return null;
-}
-
-/**
- * Validate availability slot
- */
-function validateSlot(slot: unknown, day: string): NextResponse | null {
-  const { isValid, slotObj, error } = validateSlotStructure(slot, day);
-  if (!isValid || !slotObj) return error ?? null;
-
-  const dayError = validateDayOfWeek(slotObj.dayOfWeek);
-  if (dayError) return dayError;
-
-  const startTimeError = validateTimeFormat(slotObj.startTime, "startTime");
-  if (startTimeError) return startTimeError;
-
-  const endTimeError = validateTimeFormat(slotObj.endTime, "endTime");
-  if (endTimeError) return endTimeError;
-
-  const timeRangeError = validateTimeRange(
-    slotObj.startTime as string,
-    slotObj.endTime as string,
-    slotObj.dayOfWeek as string
-  );
-  if (timeRangeError) return timeRangeError;
-
-  const meetingTypeError = validateMeetingType(slotObj.meetingType);
-  if (meetingTypeError) return meetingTypeError;
-
-  return null;
-}
-
-/**
- * Validate all availability slots
- */
-function validateAllSlots(availabilities: unknown): NextResponse | null {
-  if (typeof availabilities !== "object" || availabilities === null) {
-    return NextResponse.json({ error: "Availabilities object is required" }, { status: 400 });
-  }
-
-  const availObj = availabilities as Record<string, unknown>;
-
-  for (const day of DAYS_OF_WEEK) {
-    const slots = availObj[day] ?? [];
-    if (!Array.isArray(slots)) {
-      return NextResponse.json(
-        { error: `Invalid slots format for ${day}. Must be an array.` },
-        { status: 400 }
-      );
-    }
-
-    for (const slot of slots) {
-      const error = validateSlot(slot, day);
-      if (error) return error;
-    }
-  }
-
-  return null;
-}
-
-/**
- * Build slots to create from availabilities
- */
-function buildSlotsToCreate(
-  availabilities: Record<string, unknown[]>,
-  userId: string
-): Array<{
-  picId: string;
-  dayOfWeek: DayOfWeek;
-  startTime: string;
-  endTime: string;
-  meetingType: "online" | "offline";
-}> {
-  const slotsToCreate: Array<{
-    picId: string;
-    dayOfWeek: DayOfWeek;
-    startTime: string;
-    endTime: string;
-    meetingType: "online" | "offline";
-  }> = [];
-
-  for (const day of DAYS_OF_WEEK) {
-    const slots = availabilities[day] ?? [];
-    for (const slot of slots) {
-      const slotObj = slot as Record<string, unknown>;
-      if (DAYS_OF_WEEK.includes(slotObj.dayOfWeek as DayOfWeek)) {
-        slotsToCreate.push({
-          picId: userId,
-          dayOfWeek: slotObj.dayOfWeek as DayOfWeek,
-          startTime: slotObj.startTime as string,
-          endTime: slotObj.endTime as string,
-          meetingType: slotObj.meetingType as "online" | "offline",
-        });
-      }
-    }
-  }
-
-  return slotsToCreate;
-}
+  buildSlotsToCreateWithDates,
+  convertToAvailabilityByDay,
+} from "./availability-put-helpers";
+import { validateAllSlots, validatePutAuthorization } from "./availability-put-validators";
 
 /**
  * PUT /api/pic/availability - Update PIC availability schedule
@@ -212,15 +30,48 @@ export async function PUT(req: NextRequest) {
     const validationError = validateAllSlots(availabilities);
     if (validationError) return validationError;
 
-    // Delete all existing availabilities for this PIC
+    // Get start of current week (Monday)
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+    const startOfWeek = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + diff,
+      0,
+      0,
+      0,
+      0
+    );
+
+    const endOfWeek = new Date(
+      startOfWeek.getFullYear(),
+      startOfWeek.getMonth(),
+      startOfWeek.getDate() + 6,
+      23,
+      59,
+      59,
+      999
+    );
+
+    // Delete existing availabilities for this week only
     await prisma.picAvailability.deleteMany({
       where: {
         picId: user.id,
+        date: {
+          gte: startOfWeek,
+          lte: endOfWeek,
+        },
       },
     });
 
-    // Create new availabilities
-    const slotsToCreate = buildSlotsToCreate(availabilities as Record<string, unknown[]>, user.id);
+    // Create slots with specific dates for current week
+    const slotsToCreate = buildSlotsToCreateWithDates(
+      availabilities as Record<string, unknown[]>,
+      user.id,
+      startOfWeek
+    );
 
     if (slotsToCreate.length > 0) {
       await prisma.picAvailability.createMany({
@@ -228,16 +79,20 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    // Fetch updated availabilities
+    // Fetch updated availabilities for current week
     const updatedAvailabilities = await prisma.picAvailability.findMany({
       where: {
         picId: user.id,
+        date: {
+          gte: startOfWeek,
+          lte: endOfWeek,
+        },
       },
-      orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+      orderBy: [{ date: "asc" }, { startTime: "asc" }],
     });
 
-    // Format response
-    const availabilityByDay = groupAvailabilitiesByDay(updatedAvailabilities);
+    // Convert date-based slots back to day-of-week format for UI compatibility
+    const availabilityByDay = convertToAvailabilityByDay(updatedAvailabilities);
 
     return NextResponse.json(
       {

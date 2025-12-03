@@ -90,8 +90,7 @@ export function useAvailabilities(selectedPicId: string | null) {
 export function useAvailabilityAuthorization() {
   const router = useRouter();
   const currentUser = useUserStore(state => state.currentUser);
-  const [selectedPicId, setSelectedPicId] = useState<string | null>(() => currentUser?.id ?? null);
-  const isViewingOwnSchedule = selectedPicId === currentUser?.id;
+  const isViewingOwnSchedule = true;
 
   useEffect(() => {
     if (currentUser && currentUser.role !== "pic" && currentUser.role !== "admin") {
@@ -101,16 +100,5 @@ export function useAvailabilityAuthorization() {
     }
   }, [currentUser, router]);
 
-  // Initialize selectedPicId when currentUser becomes available
-  useEffect(() => {
-    if (currentUser?.id && !selectedPicId) {
-      // Use setTimeout to avoid synchronous setState in effect
-      const timeoutId = setTimeout(() => {
-        setSelectedPicId(currentUser.id);
-      }, 0);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [currentUser?.id, selectedPicId]);
-
-  return { currentUser, selectedPicId, setSelectedPicId, isViewingOwnSchedule };
+  return { currentUser, isViewingOwnSchedule };
 }

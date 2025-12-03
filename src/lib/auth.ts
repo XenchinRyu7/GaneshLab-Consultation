@@ -26,7 +26,6 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 }
 
 export async function encrypt(payload: User): Promise<string> {
-  // Default expiration is 7 days
   return encryptWithExpiration(payload, 7);
 }
 
@@ -35,7 +34,6 @@ export async function decrypt(input: string): Promise<User | null> {
     const { payload } = await jwtVerify(input, key, {
       algorithms: ["HS256"],
     });
-    // Type assertion after verifying the payload structure
     return payload as unknown as User;
   } catch {
     return null;
@@ -115,8 +113,6 @@ async function verifyUserCredentials(email: string, password: string) {
     return null;
   }
 
-  console.log("[login] User found, verifying password...");
-  // Type assertion to access password field (exists in database but Prisma types may be stale)
   const userWithPassword = user as typeof user & { password: string; fullname: string };
   const isValidPassword = await verifyPassword(password, userWithPassword.password);
 
@@ -144,15 +140,12 @@ export async function login(
     const userData: User = {
       id: userWithPassword.id,
       email: userWithPassword.email,
-      name: userWithPassword.fullname, // Map fullname from database to name for session
+      name: userWithPassword.fullname,
       role: userWithPassword.role as UserRole,
       avatar: userWithPassword.avatarColor ?? undefined,
     };
 
-    console.log("[login] Creating session for user:", userData.email, "rememberMe:", rememberMe);
     await createSession(userData, rememberMe);
-    console.log("[login] Session created successfully");
-
     return { user: userData };
   } catch (error) {
     return await handleLoginError(error);
@@ -167,5 +160,4 @@ export async function getCurrentUser(): Promise<User | null> {
   return await getSession();
 }
 
-// Alias for getCurrentUser for consistency with other Next.js auth patterns
 export const auth = getCurrentUser;

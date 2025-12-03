@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { TimePicker } from "@/components/ui/time-picker";
 import { cn } from "@/lib/utils";
 
 export function AppointmentDetailsSection({ control }: { control: any }) {
@@ -79,9 +80,19 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
                   <SelectValue placeholder="Pilih tipe pertemuan" />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
-                <SelectItem value="online">Online (Video Call)</SelectItem>
-                <SelectItem value="offline">Offline (Tatap Muka)</SelectItem>
+              <SelectContent className="border-zinc-700 bg-zinc-900">
+                <SelectItem
+                  value="online"
+                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
+                >
+                  Online (Video Call)
+                </SelectItem>
+                <SelectItem
+                  value="offline"
+                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
+                >
+                  Offline (Tatap Muka)
+                </SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
@@ -113,13 +124,14 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto border-zinc-700 bg-zinc-900 p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={field.value}
                   onSelect={field.onChange}
                   disabled={date => date < new Date() || date < new Date("1900-01-01")}
                   initialFocus
+                  className="border-zinc-700 bg-zinc-900 text-zinc-100"
                 />
               </PopoverContent>
             </Popover>
@@ -134,14 +146,14 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-2 text-zinc-300">
-              <Clock size={14} />
+              <Clock size={14} className="text-zinc-300" />
               Waktu Preferensi *
             </FormLabel>
             <FormControl>
-              <Input
-                type="time"
-                className="border-zinc-700 bg-zinc-800/50 text-zinc-100 focus:border-transparent focus:ring-2 focus:ring-zinc-500"
-                {...field}
+              <TimePicker
+                value={field.value}
+                onChange={field.onChange}
+                className="[&_.w-20]:border-zinc-700 [&_.w-20]:bg-zinc-800/50 [&_.w-20]:text-zinc-100 [&_.w-20]:focus:border-transparent [&_.w-20]:focus:ring-2 [&_.w-20]:focus:ring-zinc-500 [&_span]:text-zinc-400"
               />
             </FormControl>
             <FormDescription className="text-zinc-500">
@@ -164,11 +176,31 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
                   <SelectValue placeholder="Pilih durasi" />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
-                <SelectItem value="30">30 menit</SelectItem>
-                <SelectItem value="60">1 jam</SelectItem>
-                <SelectItem value="90">1.5 jam</SelectItem>
-                <SelectItem value="120">2 jam</SelectItem>
+              <SelectContent className="border-zinc-700 bg-zinc-900">
+                <SelectItem
+                  value="30"
+                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
+                >
+                  30 menit
+                </SelectItem>
+                <SelectItem
+                  value="60"
+                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
+                >
+                  1 jam
+                </SelectItem>
+                <SelectItem
+                  value="90"
+                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
+                >
+                  1.5 jam
+                </SelectItem>
+                <SelectItem
+                  value="120"
+                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
+                >
+                  2 jam
+                </SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />

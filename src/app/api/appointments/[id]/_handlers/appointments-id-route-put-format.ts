@@ -9,8 +9,8 @@ export function formatAppointment(appointment: {
   id: string;
   title: string;
   description: string | null;
-  clientId: string;
-  picId: string;
+  clientId: string | null;
+  picId: string | null;
   projectId: string | null;
   date: Date;
   startTime: string;
@@ -25,10 +25,10 @@ export function formatAppointment(appointment: {
   updatedAt: Date;
   client: {
     fullname: string;
-  };
+  } | null;
   pic: {
     fullname: string;
-  };
+  } | null;
   project: {
     name: string;
   } | null;
@@ -38,13 +38,13 @@ export function formatAppointment(appointment: {
     title: appointment.title,
     description: appointment.description,
     clientId: appointment.clientId,
-    clientName: appointment.client.fullname,
+    clientName: appointment.client?.fullname ?? null,
     picId: appointment.picId,
     pmId: appointment.picId,
-    pmName: appointment.pic.fullname,
-    picName: appointment.pic.fullname,
+    pmName: appointment.pic?.fullname ?? null,
+    picName: appointment.pic?.fullname ?? null,
     projectId: appointment.projectId,
-    projectName: appointment.project?.name,
+    projectName: appointment.project?.name ?? null,
     date: appointment.date.toISOString().split("T")[0],
     startTime: appointment.startTime,
     endTime: appointment.endTime,

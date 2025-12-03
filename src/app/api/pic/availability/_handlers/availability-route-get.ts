@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+      orderBy: [{ date: "asc" }, { startTime: "asc" }],
     });
 
     // Group by day of week

@@ -10,10 +10,24 @@ export function useAnalytics() {
 
   const fetchAnalytics = async () => {
     try {
+      console.log("Fetching analytics from /api/admin/analytics...");
       const response = await fetch("/api/admin/analytics");
+      console.log("Response status:", response.status, response.statusText);
       if (response.ok) {
         const data = await response.json();
+        console.log("Analytics data received:");
+        console.log("- Overview:", data.overview);
+        console.log("- Charts.userActivity count:", data.charts?.userActivity?.length ?? 0);
+        console.log("- Charts.userActivity sample:", data.charts?.userActivity?.slice(0, 2));
+        console.log("- Charts.projectStatus count:", data.charts?.projectStatus?.length ?? 0);
+        console.log("- TopPics count:", data.topPics?.length ?? 0);
+        console.log("- TopPics data:", data.topPics);
+        console.log("- RecentActivities count:", data.recentActivities?.length ?? 0);
         setAnalytics(data);
+      } else {
+        console.error("Failed to fetch analytics:", response.status, response.statusText);
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
       }
     } catch (error) {
       console.error("Error fetching analytics:", error);

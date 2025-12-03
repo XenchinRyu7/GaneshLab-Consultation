@@ -67,7 +67,6 @@ export default function AdminDashboard() {
       ["Total Projects", data.overview.totalProjects],
       ["New Projects", data.overview.newProjects],
       ["Completed Projects", data.overview.completedProjects],
-      ["Total Revenue", `$${data.overview.totalRevenue}`],
       ["Total Appointments", data.overview.totalAppointments],
       ["Completed Appointments", data.overview.completedAppointments],
     ];
