@@ -100,7 +100,12 @@ export async function POST(req: NextRequest) {
 
     // Auto-generate Google Meet link jika tipe online dan PIC sudah connect calendar
     let meetLink = null;
-    if (appointment.type === "online" && appointment.pic.googleAccessToken) {
+    if (
+      appointment.type === "online" &&
+      appointment.pic &&
+      appointment.pic.googleAccessToken &&
+      appointment.client
+    ) {
       try {
         const { createCalendarEventWithMeet } = await import("@/lib/google-calendar");
 
@@ -134,13 +139,13 @@ export async function POST(req: NextRequest) {
     const headersList = await headers();
     const { ipAddress, userAgent } = getRequestInfo(headersList);
     await logAudit({
-      userId: appointment.clientId,
+      userId: appointment.clientId ?? undefined,
       action: "CREATE_APPOINTMENT",
       entityType: "APPOINTMENT",
       entityId: appointment.id,
       details: {
         title: appointment.title,
-        picId: appointment.picId,
+        picId: appointment.picId ?? undefined,
         date: appointment.date.toISOString(),
         type: appointment.type,
       },

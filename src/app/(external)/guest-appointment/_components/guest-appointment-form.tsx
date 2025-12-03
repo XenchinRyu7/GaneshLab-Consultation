@@ -40,8 +40,8 @@ export function GuestAppointmentForm() {
 
     try {
       // Convert Date object to YYYY-MM-DD string in local timezone
-      const dateStr = values.preferredDate
-        ? `${values.preferredDate.getFullYear()}-${String(values.preferredDate.getMonth() + 1).padStart(2, "0")}-${String(values.preferredDate.getDate()).padStart(2, "0")}`
+      const dateStr = values.date
+        ? `${values.date.getFullYear()}-${String(values.date.getMonth() + 1).padStart(2, "0")}-${String(values.date.getDate()).padStart(2, "0")}`
         : "";
 
       const response = await fetch("/api/appointments/guest", {
@@ -52,6 +52,7 @@ export function GuestAppointmentForm() {
         body: JSON.stringify({
           ...values,
           preferredDate: dateStr,
+          date: dateStr,
         }),
       });
 

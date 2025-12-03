@@ -87,7 +87,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     const headersList = await headers();
     const { ipAddress, userAgent } = getRequestInfo(headersList);
     await logAudit({
-      userId: existingAppointment.clientId,
+      userId: existingAppointment.clientId ?? undefined,
       action: "DELETE_APPOINTMENT",
       entityType: "APPOINTMENT",
       entityId: id,

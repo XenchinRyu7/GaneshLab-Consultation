@@ -73,7 +73,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         },
       });
 
-      if (pic?.googleAccessToken) {
+      if (pic?.googleAccessToken && appointment.client) {
         const [startHour, startMin] = body.newStartTime.split(":").map(Number);
         const [endHour, endMin] = body.newEndTime.split(":").map(Number);
 

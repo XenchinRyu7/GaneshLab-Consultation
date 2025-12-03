@@ -116,7 +116,7 @@ export async function GET() {
       unreadMessages,
       overallProgress,
       nextAppointmentDate,
-      nextAppointmentPIC: nextAppointment.pic.fullname,
+      nextAppointmentPIC: nextAppointment.pic?.fullname ?? "TBD",
     };
 
     // Format projects for frontend
@@ -139,7 +139,7 @@ export async function GET() {
       time: appointment.startTime,
       title: appointment.title,
       status: appointment.status,
-      picName: appointment.pic.fullname,
+      picName: appointment.pic?.fullname ?? "TBD",
     }));
 
     return NextResponse.json({

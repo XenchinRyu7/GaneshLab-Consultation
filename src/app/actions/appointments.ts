@@ -107,7 +107,21 @@ export async function createAppointment(formData: FormData) {
       },
     });
 
-    await createCalendarEventForAppointment(appointment);
+    // Only create calendar event if client and pic exist (non-guest appointments)
+    if (appointment.client && appointment.pic && appointment.picId) {
+      await createCalendarEventForAppointment({
+        title: appointment.title,
+        description: appointment.description,
+        client: appointment.client,
+        picId: appointment.picId,
+        date: appointment.date,
+        startTime: appointment.startTime,
+        endTime: appointment.endTime,
+        type: appointment.type,
+        meetingLink: appointment.meetingLink,
+        location: appointment.location,
+      });
+    }
 
     revalidatePath("/appointments");
     revalidatePath("/dashboard");

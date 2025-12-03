@@ -108,7 +108,7 @@ export async function checkAppointmentConflictForCreate(
           error: `Schedule conflict detected. PIC already has an appointment at this time.`,
           conflict: {
             title: existing.title,
-            client: existing.client.fullname,
+            client: existing.client?.fullname ?? "Guest",
             time: `${existingStart} - ${existingEnd}`,
             message: `The requested time slot (${startTime} - ${endTime}) overlaps with existing appointment "${existing.title}" scheduled from ${existingStart} to ${existingEnd}.`,
           },

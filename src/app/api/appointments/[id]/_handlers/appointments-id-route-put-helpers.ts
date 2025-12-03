@@ -36,11 +36,17 @@ export async function validateAppointmentExists(
  */
 export async function validateAppointmentConflicts(
   body: { date?: string; startTime?: string; endTime?: string; picId?: string },
-  existingAppointment: { picId: string; date: Date; startTime: string; endTime: string },
+  existingAppointment: { picId: string | null; date: Date; startTime: string; endTime: string },
   appointmentId: string
 ) {
   if (body.date || body.startTime || body.endTime) {
     const picId = body.picId ?? existingAppointment.picId;
+
+    // Skip conflict check for guest appointments (no picId)
+    if (!picId) {
+      return { hasConflict: false, error: null };
+    }
+
     const date = body.date ? new Date(body.date) : existingAppointment.date;
     const startTime = body.startTime ?? existingAppointment.startTime;
     const endTime = body.endTime ?? existingAppointment.endTime;
