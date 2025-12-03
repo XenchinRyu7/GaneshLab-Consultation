@@ -2,7 +2,8 @@ import bcrypt from "bcryptjs";
 
 import transporter from "@/lib/email";
 import { prisma } from "@/lib/prisma";
-import { getLoginUrl } from "@/lib/utils";
+
+import { generateWelcomeEmailTemplate } from "./_helpers/email-template";
 
 type RequestBody = {
   fullname: string;
@@ -17,31 +18,7 @@ export async function POST(req: Request) {
     const password = Math.random().toString(36).slice(-8);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const loginUrl = getLoginUrl();
-
-    const htmlContent = `
-      <div style="font-family: 'Segoe UI', Arial; background-color: #f9f9f9; padding: 20px;">
-        <div style="max-width: 500px; margin: auto; background: #fff; border-radius: 8px; overflow: hidden;">
-          <div style="background-color: #004aad; color: white; padding: 16px;">
-            <h2>Selamat Datang, ${fullname}!</h2>
-          </div>
-          <div style="padding: 16px;">
-            <p>Akun kamu telah dibuat dengan detail berikut:</p>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
-              <tr><td><strong>Password:</strong></td><td>${password}</td></tr>
-            </table>
-            <a href="${loginUrl}"
-              style="display:inline-block;margin-top:20px;padding:10px 20px;
-              background-color:#004aad;color:white;text-decoration:none;
-              border-radius:5px;">Login Sekarang</a>
-            <p style="margin-top:20px;font-size:12px;color:#888;">
-              Jika kamu tidak merasa mendaftar, abaikan email ini.
-            </p>
-          </div>
-        </div>
-      </div>
-    `;
+    const htmlContent = generateWelcomeEmailTemplate({ fullname, email, password });
 
     const mailOptions = {
       from: `"GaneshLab Consultation" <${process.env.SMTP_USER}>`,
