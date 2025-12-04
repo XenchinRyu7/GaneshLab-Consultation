@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AlertCircle, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -54,6 +55,9 @@ export function DeleteUserDialog({
         console.error("Delete API error response:", errorData, "Status:", response.status);
         const errorMessage = errorData.error ?? errorData.message ?? "Failed to delete user";
         setError(errorMessage);
+        toast.error("Failed to delete user", {
+          description: errorMessage,
+        });
         onError?.(errorMessage);
         setLoading(false);
         return;
@@ -61,12 +65,18 @@ export function DeleteUserDialog({
 
       const data = await response.json();
       console.log("Delete API success:", data);
+      toast.success("User deleted successfully", {
+        description: `${userName ?? userEmail} has been removed from the system.`,
+      });
       onSuccess?.();
       onOpenChange(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
       console.error("Delete dialog error:", message);
       setError(message);
+      toast.error("Failed to delete user", {
+        description: message,
+      });
       onError?.(message);
     } finally {
       setLoading(false);

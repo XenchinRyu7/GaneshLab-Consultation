@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AlertCircle } from "lucide-react";
 import z from "zod";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -160,6 +161,9 @@ export function CreateUserForm({ onSuccess, onError }: CreateUserFormProps) {
       setGeneratedPassword(null);
       setAutoPassword(true);
 
+      toast.success("User created successfully", {
+        description: `${validated.fullname} (${validated.email}) has been added to the system.`,
+      });
       onSuccess?.();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -173,6 +177,9 @@ export function CreateUserForm({ onSuccess, onError }: CreateUserFormProps) {
         setErrors(fieldErrors);
       } else {
         const message = error instanceof Error ? error.message : "An error occurred";
+        toast.error("Failed to create user", {
+          description: message,
+        });
         onError?.(message);
         setErrors({ submit: message });
       }

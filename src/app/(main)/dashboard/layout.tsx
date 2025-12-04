@@ -6,6 +6,7 @@ import { AppSidebar } from "@/app/(main)/dashboard/_components/sidebar/app-sideb
 import { getCurrentUser } from "@/app/actions/auth";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 import { UserStoreProvider } from "@/stores/user/user-provider";
@@ -71,7 +72,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
 
   return (
     <UserStoreProvider initialUser={initialUser}>
-      <SidebarProvider defaultOpen={defaultOpen}>
+      <SidebarProvider defaultOpen={defaultOpen} suppressHydrationWarning>
         <AppSidebar variant={sidebarVariant} collapsible={sidebarCollapsible} />
         <SidebarInset
           data-content-layout={contentLayout}
@@ -109,6 +110,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
           <div className="h-full p-4 md:p-6">{children}</div>
         </SidebarInset>
       </SidebarProvider>
+      <Toaster position="top-right" richColors />
     </UserStoreProvider>
   );
 }
