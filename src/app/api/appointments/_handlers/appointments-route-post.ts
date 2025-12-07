@@ -154,6 +154,38 @@ export async function POST(req: NextRequest) {
       success: true,
     });
 
+    // Create notifications for client and PIC
+    try {
+      // Notify client
+      if (appointment.clientId) {
+        await prisma.notification.create({
+          data: {
+            userId: appointment.clientId,
+            title: "Appointment Confirmed",
+            message: `Your appointment "${appointment.title}" is scheduled for ${appointment.date.toLocaleDateString()} at ${appointment.startTime}`,
+            type: "APPOINTMENT",
+            actionUrl: `/dashboard/appointment`,
+          },
+        });
+      }
+
+      // Notify PIC
+      if (appointment.picId) {
+        await prisma.notification.create({
+          data: {
+            userId: appointment.picId,
+            title: "New Appointment",
+            message: `New appointment "${appointment.title}" with ${appointment.client?.fullname || "Client"}`,
+            type: "APPOINTMENT",
+            actionUrl: `/dashboard/appointment`,
+          },
+        });
+      }
+    } catch (notifError) {
+      console.error("Error creating notifications:", notifError);
+      // Don't fail the request if notification creation fails
+    }
+
     // Format and return response
     const formattedAppointment = formatAppointment({ ...appointment, meetingLink: meetLink });
     return NextResponse.json({ appointment: formattedAppointment }, { status: 201 });

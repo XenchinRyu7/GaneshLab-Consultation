@@ -89,7 +89,7 @@ export function NavUser({
                 <CircleUser />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/notifications")}>
                 <MessageSquareDot />
                 Notifications
               </DropdownMenuItem>

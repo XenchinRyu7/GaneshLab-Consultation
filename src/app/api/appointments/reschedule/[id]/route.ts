@@ -75,6 +75,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       });
     }
 
+    // Send notification to the requester
+    try {
+      const notificationType = body.action === "approve" ? "SUCCESS" : "ERROR";
+      const statusText = body.action === "approve" ? "Approved" : "Rejected";
+
+      await prisma.notification.create({
+        data: {
+          userId: rescheduleRequest.requestedById,
+          title: `Reschedule Request ${statusText}`,
+          message: `Your reschedule request has been ${statusText.toLowerCase()}`,
+          type: notificationType,
+          actionUrl: `/dashboard/appointment`,
+        },
+      });
+    } catch (notifError) {
+      console.error("Error creating notification:", notifError);
+      // Don't fail the request
+    }
+
     return NextResponse.json({
       message: `Reschedule request ${newStatus}`,
       status: body.action === "approve" ? "completed" : newStatus,

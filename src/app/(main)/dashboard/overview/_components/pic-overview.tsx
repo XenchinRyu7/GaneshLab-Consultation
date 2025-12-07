@@ -207,7 +207,7 @@ export function PicOverview() {
                         {appointment.startTime} - {appointment.title}
                       </div>
                       <div className="text-muted-foreground text-sm">
-                        Client: {appointment.client.fullname}
+                        Client: {appointment.client?.fullname || "Unknown Client"}
                       </div>
                     </div>
                     <Badge

@@ -113,6 +113,53 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       },
     });
 
+    // Create notification for client on status change
+    try {
+      const statusMessages: Record<string, { title: string; type: string } | undefined> = {
+        APPROVED: { title: "Project Approved", type: "SUCCESS" },
+        DECLINED: { title: "Project Declined", type: "ERROR" },
+        ACTIVE: { title: "Project Active", type: "INFO" },
+        COMPLETED: { title: "Project Completed", type: "SUCCESS" },
+        PENDING: { title: "Project Pending", type: "INFO" },
+      };
+
+      const statusInfo = statusMessages[project.status];
+
+      if (statusInfo && project.clientId) {
+        await prisma.notification.create({
+          data: {
+            userId: project.clientId,
+            title: statusInfo.title,
+            message: `Your project "${project.name}" status: ${project.status}`,
+            type: statusInfo.type as
+              | "INFO"
+              | "SUCCESS"
+              | "WARNING"
+              | "ERROR"
+              | "APPOINTMENT"
+              | "MESSAGE"
+              | "SYSTEM",
+            actionUrl: `/dashboard/projects/${project.id}`,
+          },
+        });
+      }
+
+      if (project.picId && body.picId && body.picId !== existingProject.picId) {
+        await prisma.notification.create({
+          data: {
+            userId: project.picId,
+            title: "Assigned as Project PIC",
+            message: `You have been assigned as PIC for project "${project.name}"`,
+            type: "INFO",
+            actionUrl: `/dashboard/projects/${project.id}`,
+          },
+        });
+      }
+    } catch (notifError) {
+      console.error("Error creating project notification:", notifError);
+      // Don't fail the main operation if notification fails
+    }
+
     return NextResponse.json({ project: formatProject(project) }, { status: 200 });
   } catch (error) {
     console.error("Error updating project:", error);

@@ -3,39 +3,36 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 model Appointment {
-  id                String                @id @default(cuid())
-  title             String
-  description       String?
-  clientId          String?               @map("client_id")
-  picId             String?               @map("pic_id")
-  projectId         String?               @map("project_id")
-  date              DateTime              @db.Date
-  startTime         String                @map("start_time")
-  endTime           String                @map("end_time")
-  duration          Int
-  type              MeetingType           @default(online)
-  meetingLink       String?               @map("meeting_link")
-  location          String?
-  status            AppointmentStatus     @default(pending)
-  notes             String?
-  createdAt         DateTime              @default(now()) @map("created_at")
-  updatedAt         DateTime              @updatedAt @map("updated_at")
-
-  // Guest appointment fields
-  isGuestAppointment Boolean              @default(false) @map("is_guest_appointment")
-  guestName         String?               @map("guest_name")
-  guestEmail        String?               @map("guest_email")
-  guestPhone        String?               @map("guest_phone")
-  guestPurpose      String?               @map("guest_purpose")
-  guestOrganization String?               @map("guest_organization")
-
-  client            UserProfile?          @relation("AppointmentClient", fields: [clientId], references: [id], onDelete: Cascade)
-  pic               UserProfile?          @relation("AppointmentPic", fields: [picId], references: [id], onDelete: Cascade)
-  project           Project?              @relation(fields: [projectId], references: [id])
+  id                 String              @id @default(cuid())
+  title              String
+  description        String?
+  clientId           String?             @map("client_id")
+  picId              String?             @map("pic_id")
+  projectId          String?             @map("project_id")
+  date               DateTime            @db.Date
+  startTime          String              @map("start_time")
+  endTime            String              @map("end_time")
+  duration           Int
+  type               MeetingType         @default(online)
+  meetingLink        String?             @map("meeting_link")
+  location           String?
+  status             AppointmentStatus   @default(pending)
+  notes              String?
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  guestEmail         String?             @map("guest_email")
+  guestName          String?             @map("guest_name")
+  guestOrganization  String?             @map("guest_organization")
+  guestPhone         String?             @map("guest_phone")
+  guestPurpose       String?             @map("guest_purpose")
+  isGuestAppointment Boolean             @default(false) @map("is_guest_appointment")
+  client             UserProfile?        @relation("AppointmentClient", fields: [clientId], references: [id], onDelete: Cascade)
+  pic                UserProfile?        @relation("AppointmentPic", fields: [picId], references: [id], onDelete: Cascade)
+  project            Project?            @relation(fields: [projectId], references: [id])
   rescheduleRequests RescheduleRequest[]
 
   @@index([clientId])
@@ -69,7 +66,6 @@ model Company {
   isVerified    Boolean     @default(false) @map("is_verified")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
-
   user          UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
   projects      Project[]
 
@@ -79,20 +75,19 @@ model Company {
 }
 
 model Conversation {
-  id                 String      @id @default(cuid())
-  clientId           String      @map("client_id")
-  picId              String      @map("pic_id")
-  projectId          String?     @map("project_id")
-  lastMessageAt      DateTime?   @map("last_message_at")
-  createdAt          DateTime    @default(now()) @map("created_at")
-  updatedAt          DateTime    @updatedAt @map("updated_at")
-  clearedByClientAt  DateTime?   @map("cleared_by_client_at")
-  clearedByPicAt     DateTime?   @map("cleared_by_pic_at")
-
-  client             UserProfile @relation("ConversationClient", fields: [clientId], references: [id], onDelete: Cascade)
-  pic                UserProfile @relation("ConversationPic", fields: [picId], references: [id], onDelete: Cascade)
-  project            Project?    @relation(fields: [projectId], references: [id])
-  messages           Message[]
+  id                String      @id @default(cuid())
+  clientId          String      @map("client_id")
+  picId             String      @map("pic_id")
+  projectId         String?     @map("project_id")
+  lastMessageAt     DateTime?   @map("last_message_at")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+  clearedByClientAt DateTime?   @map("cleared_by_client_at")
+  clearedByPicAt    DateTime?   @map("cleared_by_pic_at")
+  client            UserProfile @relation("ConversationClient", fields: [clientId], references: [id], onDelete: Cascade)
+  pic               UserProfile @relation("ConversationPic", fields: [picId], references: [id], onDelete: Cascade)
+  project           Project?    @relation(fields: [projectId], references: [id])
+  messages          Message[]
 
   @@index([clientId])
   @@index([lastMessageAt])
@@ -102,16 +97,15 @@ model Conversation {
 }
 
 model KanbanBoard {
-  id          String       @id @default(cuid())
-  title       String
-  color       String       @default("#3b82f6")
-  position    Int          // Order of boards
-  projectId   String       @map("project_id")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-
-  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  tasks       KanbanTask[]
+  id        String       @id @default(cuid())
+  title     String
+  color     String       @default("#3b82f6")
+  position  Int
+  projectId String       @map("project_id")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     KanbanTask[]
 
   @@unique([projectId, position])
   @@index([projectId])
@@ -123,8 +117,6 @@ model KanbanTask {
   id             String             @id @default(cuid())
   title          String
   description    String?
-  boardId        String             @map("board_id") // Changed from status to boardId
-  position       Int                // Position within board for ordering
   priority       KanbanTaskPriority @default(MEDIUM)
   assigneeId     String?            @map("assignee_id")
   projectId      String             @map("project_id")
@@ -136,7 +128,8 @@ model KanbanTask {
   createdAt      DateTime           @default(now()) @map("created_at")
   updatedAt      DateTime           @updatedAt @map("updated_at")
   createdBy      String             @map("created_by")
-
+  boardId        String             @map("board_id")
+  position       Int
   assignee       UserProfile?       @relation(fields: [assigneeId], references: [id])
   board          KanbanBoard        @relation(fields: [boardId], references: [id], onDelete: Cascade)
   project        Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -160,7 +153,6 @@ model Message {
   updatedAt      DateTime     @updatedAt @map("updated_at")
   editedAt       DateTime?    @map("edited_at")
   isDeleted      Boolean      @default(false) @map("is_deleted")
-
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender         UserProfile  @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
@@ -174,13 +166,12 @@ model Message {
 model PicAvailability {
   id          String      @id @default(cuid())
   picId       String      @map("pic_id")
-  date        DateTime    @db.Date // Specific date for availability
   startTime   String      @map("start_time")
   endTime     String      @map("end_time")
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   meetingType MeetingType @default(online) @map("meeting_type")
-
+  date        DateTime    @db.Date
   pic         UserProfile @relation(fields: [picId], references: [id], onDelete: Cascade)
 
   @@index([date])
@@ -198,7 +189,6 @@ model PicBlockedSlot {
   reason    String?
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
-
   pic       UserProfile @relation(fields: [picId], references: [id], onDelete: Cascade)
 
   @@index([date])
@@ -214,15 +204,15 @@ model Project {
   picId           String            @map("pic_id")
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
-  budgetMax       Decimal?          @db.Decimal(15, 2) @map("budget_max")
-  budgetMin       Decimal?          @db.Decimal(15, 2) @map("budget_min")
+  budgetMax       Decimal?          @map("budget_max") @db.Decimal(15, 2)
+  budgetMin       Decimal?          @map("budget_min") @db.Decimal(15, 2)
   category        String?
   clientNotes     String?           @map("client_notes")
   complexity      ProjectComplexity @default(MEDIUM)
   deletedAt       DateTime?         @map("deleted_at")
   deliverables    String?
   endDate         DateTime?         @map("end_date")
-  estimatedCost   Decimal?          @db.Decimal(15, 2) @map("estimated_cost")
+  estimatedCost   Decimal?          @map("estimated_cost") @db.Decimal(15, 2)
   features        String?
   notes           String?
   priority        ProjectPriority   @default(MEDIUM)
@@ -237,7 +227,6 @@ model Project {
   picApprovedAt   DateTime?         @map("pic_approved_at")
   picDeclinedAt   DateTime?         @map("pic_declined_at")
   status          ProjectStatus     @default(PENDING)
-
   appointments    Appointment[]
   conversations   Conversation[]
   kanbanBoards    KanbanBoard[]
@@ -265,12 +254,11 @@ model RescheduleRequest {
   newDate        DateTime         @map("new_date")
   newStartTime   String           @map("new_start_time")
   newEndTime     String           @map("new_end_time")
-  newMeetingLink String?          @map("new_meeting_link") @db.Text
-  reason         String?          @db.Text
+  reason         String?
   status         RescheduleStatus @default(pending)
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
-
+  newMeetingLink String?          @map("new_meeting_link")
   appointment    Appointment      @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   requestedBy    UserProfile      @relation(fields: [requestedById], references: [id], onDelete: Cascade)
 
@@ -281,33 +269,33 @@ model RescheduleRequest {
 }
 
 model UserProfile {
-  id                  String              @id @default(cuid())
-  userId              String              @unique @map("user_id")
-  email               String              @unique
-  password            String
-  fullname            String
-  role                UserRole            @default(client)
-  avatarColor         String?             @map("avatar_color")
-  phone               String?
-  createdAt           DateTime            @default(now()) @map("created_at")
-  updatedAt           DateTime            @updatedAt @map("updated_at")
-  googleAccessToken   String?             @map("google_access_token")
-  googleRefreshToken  String?             @map("google_refresh_token")
-  googleTokenExpiry   DateTime?           @map("google_token_expiry")
-
-  appointmentsAsClient Appointment[]      @relation("AppointmentClient")
-  appointmentsAsPic    Appointment[]      @relation("AppointmentPic")
-  auditLogs            AuditLog[]
-  company              Company?
-  conversationsAsClient Conversation[]    @relation("ConversationClient")
-  conversationsAsPic   Conversation[]     @relation("ConversationPic")
-  kanbanTasks          KanbanTask[]
-  messages             Message[]
-  picAvailabilities    PicAvailability[]
-  picBlockedSlots      PicBlockedSlot[]
-  projectsAsClient     Project[]          @relation("ProjectClient")
-  projectsAsPic        Project[]          @relation("ProjectPic")
-  rescheduleRequests   RescheduleRequest[]
+  id                    String              @id @default(cuid())
+  userId                String              @unique @map("user_id")
+  email                 String              @unique
+  password              String
+  fullname              String
+  role                  UserRole            @default(client)
+  avatarColor           String?             @map("avatar_color")
+  phone                 String?
+  createdAt             DateTime            @default(now()) @map("created_at")
+  updatedAt             DateTime            @updatedAt @map("updated_at")
+  googleAccessToken     String?             @map("google_access_token")
+  googleRefreshToken    String?             @map("google_refresh_token")
+  googleTokenExpiry     DateTime?           @map("google_token_expiry")
+  appointmentsAsClient  Appointment[]       @relation("AppointmentClient")
+  appointmentsAsPic     Appointment[]       @relation("AppointmentPic")
+  auditLogs             AuditLog[]
+  company               Company?
+  conversationsAsClient Conversation[]      @relation("ConversationClient")
+  conversationsAsPic    Conversation[]      @relation("ConversationPic")
+  kanbanTasks           KanbanTask[]
+  messages              Message[]
+  notifications         Notification[]
+  picAvailabilities     PicAvailability[]
+  picBlockedSlots       PicBlockedSlot[]
+  projectsAsClient      Project[]           @relation("ProjectClient")
+  projectsAsPic         Project[]           @relation("ProjectPic")
+  rescheduleRequests    RescheduleRequest[]
 
   @@index([email])
   @@index([role])
@@ -316,19 +304,18 @@ model UserProfile {
 }
 
 model AuditLog {
-  id          String      @id @default(cuid())
-  userId      String?     @map("user_id") // Nullable for system actions
-  action      String      // e.g., "LOGIN", "CREATE_PROJECT", "APPROVE_PROJECT"
-  entityType  String      @map("entity_type") // e.g., "USER", "PROJECT", "APPOINTMENT"
-  entityId    String?     @map("entity_id") // ID of the affected entity
-  details     Json?       // Additional details about the action
-  ipAddress   String?     @map("ip_address")
-  userAgent   String?     @map("user_agent")
-  success     Boolean     @default(true)
-  errorMessage String?    @map("error_message")
-  createdAt   DateTime    @default(now()) @map("created_at")
-
-  user        UserProfile? @relation(fields: [userId], references: [id])
+  id           String       @id @default(cuid())
+  userId       String?      @map("user_id")
+  action       String
+  entityType   String       @map("entity_type")
+  entityId     String?      @map("entity_id")
+  details      Json?
+  ipAddress    String?      @map("ip_address")
+  userAgent    String?      @map("user_agent")
+  success      Boolean      @default(true)
+  errorMessage String?      @map("error_message")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  user         UserProfile? @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([action])
@@ -336,6 +323,23 @@ model AuditLog {
   @@index([createdAt])
   @@index([success])
   @@map("audit_logs")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  isRead    Boolean          @default(false) @map("is_read")
+  actionUrl String?          @map("action_url")
+  createdAt DateTime         @default(now()) @map("created_at")
+  user      UserProfile      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }
 
 enum AppointmentStatus {
@@ -361,6 +365,16 @@ enum KanbanTaskStatus {
 enum MeetingType {
   online
   offline
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  APPOINTMENT
+  MESSAGE
+  SYSTEM
 }
 
 enum ProjectComplexity {
@@ -412,5 +426,3 @@ enum UserRole {
   pic
   client
 }
-
-

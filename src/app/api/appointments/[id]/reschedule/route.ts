@@ -111,7 +111,36 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       },
     });
 
-    // TODO: Send notification to client
+    // Send notification to the other user
+    const appointmentForNotification = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      select: { clientId: true, picId: true },
+    });
+
+    if (appointmentForNotification) {
+      // Determine recipient (notify the user who didn't make the request)
+      const recipientId =
+        user.id === appointmentForNotification.clientId
+          ? appointmentForNotification.picId
+          : appointmentForNotification.clientId;
+
+      if (recipientId) {
+        try {
+          await prisma.notification.create({
+            data: {
+              userId: recipientId,
+              title: "Reschedule Request",
+              message: `A reschedule request has been made. Requested: ${body.newDate} at ${body.newStartTime}`,
+              type: "WARNING",
+              actionUrl: `/dashboard/appointment`,
+            },
+          });
+        } catch (notifError) {
+          console.error("Error creating notification:", notifError);
+          // Don't fail the request
+        }
+      }
+    }
 
     return NextResponse.json({
       message: "Reschedule request created successfully",

@@ -114,6 +114,31 @@ export async function sendMessage(
       data: updateData,
     });
 
+    // Send notification to the other user
+    try {
+      const recipientId =
+        user.id === conversation.clientId ? conversation.picId : conversation.clientId;
+
+      if (recipientId) {
+        await prisma.notification.create({
+          data: {
+            userId: recipientId,
+            title: "New Message",
+            message:
+              `You have a new message from ${user.name}: "${content.substring(0, 50)}${content.length > 50 ? "..." : ""}"`.substring(
+                0,
+                255
+              ),
+            type: "MESSAGE",
+            actionUrl: `/dashboard/chat`,
+          },
+        });
+      }
+    } catch (notifError) {
+      console.error("Error creating message notification:", notifError);
+      // Don't fail the main operation if notification fails
+    }
+
     const messageWithSender: MessageWithSender = {
       id: message.id,
       conversationId: message.conversationId,

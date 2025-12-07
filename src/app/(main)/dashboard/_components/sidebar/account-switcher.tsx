@@ -91,7 +91,7 @@ export function AccountSwitcher({
             <BadgeCheck />
             Account
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/notifications")}>
             <Bell />
             Notifications
           </DropdownMenuItem>
