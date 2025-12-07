@@ -71,6 +71,29 @@ export async function POST(req: NextRequest) {
       } as never,
     });
 
+    // Send notifications to all admin and PIC users
+    try {
+      const adminUsers = await prisma.userProfile.findMany({
+        where: { role: { in: ["admin", "pic"] } },
+        select: { id: true, fullname: true },
+      });
+
+      for (const admin of adminUsers) {
+        await prisma.notification.create({
+          data: {
+            userId: admin.id,
+            title: "New Guest Appointment Request",
+            message: `New guest appointment from ${guestName} for "${title}" on ${new Date(date).toLocaleDateString("id-ID")}`,
+            type: "APPOINTMENT",
+            actionUrl: `/dashboard/admin/guest-appointments`,
+          },
+        });
+      }
+    } catch (notifError) {
+      console.error("Error creating guest appointment notification:", notifError);
+      // Don't fail the main operation if notification fails
+    }
+
     // Log audit
     const requestInfo = getRequestInfo(req.headers);
     await logAudit({

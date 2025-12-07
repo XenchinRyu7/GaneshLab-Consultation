@@ -105,6 +105,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    // Get project data before deletion for notifications
+    const projectBeforeDelete = await prisma.project.findUnique({
+      where: { id },
+      select: { name: true, clientId: true, picId: true },
+    });
+
     // Soft delete by setting deletedAt
     await prisma.project.update({
       where: { id },
@@ -113,6 +119,36 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
         status: "CANCELLED",
       },
     });
+
+    // Send notifications to client and PIC
+    try {
+      if (projectBeforeDelete?.clientId) {
+        await prisma.notification.create({
+          data: {
+            userId: projectBeforeDelete.clientId,
+            title: "Project Cancelled",
+            message: `Your project "${projectBeforeDelete.name}" has been cancelled`,
+            type: "WARNING",
+            actionUrl: `/dashboard/projects`,
+          },
+        });
+      }
+
+      if (projectBeforeDelete?.picId) {
+        await prisma.notification.create({
+          data: {
+            userId: projectBeforeDelete.picId,
+            title: "Project Cancelled",
+            message: `Project "${projectBeforeDelete.name}" has been cancelled`,
+            type: "WARNING",
+            actionUrl: `/dashboard/projects`,
+          },
+        });
+      }
+    } catch (notifError) {
+      console.error("Error creating project cancellation notification:", notifError);
+      // Don't fail the main operation if notification fails
+    }
 
     return NextResponse.json({ message: "Project deleted successfully" }, { status: 200 });
   } catch (error: unknown) {

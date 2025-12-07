@@ -68,6 +68,36 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       },
     });
 
+    // Create notifications for client and PIC
+    try {
+      if (appointment.clientId) {
+        await prisma.notification.create({
+          data: {
+            userId: appointment.clientId,
+            title: "Appointment Updated",
+            message: `Your appointment "${appointment.title}" has been updated`,
+            type: "INFO",
+            actionUrl: `/dashboard/appointment`,
+          },
+        });
+      }
+
+      if (appointment.picId) {
+        await prisma.notification.create({
+          data: {
+            userId: appointment.picId,
+            title: "Appointment Updated",
+            message: `Appointment "${appointment.title}" has been updated`,
+            type: "INFO",
+            actionUrl: `/dashboard/appointment`,
+          },
+        });
+      }
+    } catch (notifError) {
+      console.error("Error creating notifications:", notifError);
+      // Don't fail the request if notification creation fails
+    }
+
     // Format and return response
     const formattedAppointment = formatAppointment(appointment);
     return NextResponse.json({ appointment: formattedAppointment }, { status: 200 });

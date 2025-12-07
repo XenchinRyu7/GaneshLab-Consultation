@@ -75,6 +75,12 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: "Appointment not found" }, { status: 404 });
     }
 
+    // Sebelum delete (simpan appointment data dulu)
+    const appointmentToDelete = await prisma.appointment.findUnique({
+      where: { id },
+      select: { clientId: true, picId: true, title: true },
+    });
+
     // Soft delete by setting status to cancelled
     await prisma.appointment.update({
       where: { id },
@@ -82,6 +88,31 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
         status: "cancelled",
       },
     });
+
+    // Setelah delete berhasil
+    if (appointmentToDelete?.clientId) {
+      await prisma.notification.create({
+        data: {
+          userId: appointmentToDelete.clientId,
+          title: "Appointment Cancelled",
+          message: `Your appointment "${appointmentToDelete.title}" has been cancelled`,
+          type: "WARNING",
+          actionUrl: `/dashboard/appointment`,
+        },
+      });
+    }
+
+    if (appointmentToDelete?.picId) {
+      await prisma.notification.create({
+        data: {
+          userId: appointmentToDelete.picId,
+          title: "Appointment Cancelled",
+          message: `Appointment "${appointmentToDelete.title}" has been cancelled`,
+          type: "WARNING",
+          actionUrl: `/dashboard/appointment`,
+        },
+      });
+    }
 
     // Log appointment cancellation
     const headersList = await headers();

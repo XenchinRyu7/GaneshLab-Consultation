@@ -10,6 +10,7 @@ import {
   Shield,
   BarChart3,
   UserPlus,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -57,6 +58,12 @@ export const sidebarItems: NavGroup[] = [
     id: 2,
     label: "Pages",
     items: [
+      {
+        title: "Notifications",
+        url: "/dashboard/notifications",
+        icon: Bell,
+        isNew: true,
+      },
       {
         title: "Chat",
         url: "/dashboard/chat",
