@@ -66,6 +66,26 @@ export async function GET() {
       },
     });
 
+    // Get chat statistics for this PIC
+    const totalConversations = await prisma.conversation.count({
+      where: {
+        picId: userId,
+      },
+    });
+
+    const unreadMessages = await prisma.message.count({
+      where: {
+        conversation: {
+          picId: userId,
+        },
+        readAt: null,
+        senderId: {
+          not: userId, // Messages not sent by the PIC
+        },
+        isDeleted: false,
+      },
+    });
+
     // Get pending requests (reschedule requests, etc.)
     const pendingRequests = await prisma.rescheduleRequest.count({
       where: {
@@ -227,6 +247,8 @@ export async function GET() {
       activeProjects,
       availableSlots,
       totalClients,
+      totalConversations,
+      unreadMessages,
       revenueThisMonth,
       pendingRequests,
       todaysAppointments,

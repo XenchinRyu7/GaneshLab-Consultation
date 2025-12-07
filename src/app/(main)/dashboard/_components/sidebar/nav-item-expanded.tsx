@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { ChevronRight } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   SidebarMenuButton,
@@ -10,9 +11,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Badge } from "@/components/ui/badge";
 import type { NavMainItem } from "@/navigation/sidebar/sidebar-items";
 import { useUserStore } from "@/stores/user/user-provider";
+
 import { useNotifications } from "../notifications/notification-context";
 
 const IsComingSoon = () => (

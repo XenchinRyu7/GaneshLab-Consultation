@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import {
@@ -16,8 +18,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 import { useNotifications } from "./notification-context";
 
 interface NotificationItemProps {
@@ -102,7 +105,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
     >
       {/* Unread indicator */}
       {!notification.isRead && (
-        <div className="bg-primary absolute left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full" />
+        <div className="bg-primary absolute top-1/2 left-1 h-2 w-2 -translate-y-1/2 rounded-full" />
       )}
 
       {/* Icon */}
@@ -112,7 +115,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
 
       {/* Content */}
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="text-sm font-medium leading-tight">{notification.title}</p>
+        <p className="text-sm leading-tight font-medium">{notification.title}</p>
         <p className="text-muted-foreground line-clamp-2 text-xs">{notification.message}</p>
         <p className="text-muted-foreground text-xs">
           {formatDistanceToNow(new Date(notification.createdAt), {

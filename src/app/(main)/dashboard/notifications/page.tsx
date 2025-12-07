@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
+
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import { Bell, Check, Trash2, RefreshCw, Filter } from "lucide-react";
+import { toast } from "sonner";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -13,9 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { useNotifications } from "../_components/notifications/notification-context";
 
 type NotificationType =

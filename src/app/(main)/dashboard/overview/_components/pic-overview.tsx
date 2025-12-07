@@ -2,16 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-import { Calendar, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import Link from "next/link";
+
+import { Calendar, Clock, AlertCircle, MessageCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,6 +23,8 @@ interface PicStats {
   activeProjects: number;
   availableSlots: number;
   totalClients: number;
+  totalConversations: number;
+  unreadMessages: number;
   revenueThisMonth: number;
   pendingRequests: number;
   todaysAppointments: number;
@@ -139,49 +134,28 @@ export function PicOverview() {
           </CardFooter>
         </Card>
 
-        <Card className="@container/card">
-          <CardHeader>
-            <CardDescription>Client Satisfaction</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-              {stats.clientSatisfaction}/5
-            </CardTitle>
-            <CardAction>
-              <Badge variant="outline" className="text-green-600">
-                <CheckCircle />
-                Excellent
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardFooter className="flex-col items-start gap-1.5 text-sm">
-            <div className="line-clamp-1 flex gap-2 font-medium">Average rating this month</div>
-            <div className="text-muted-foreground">Based on {stats.totalReviews} reviews</div>
-          </CardFooter>
-        </Card>
-      </div>
-
-      {/* Revenue Chart */}
-      <div className="grid grid-cols-1 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Revenue Trend</CardTitle>
-            <CardDescription>
-              Your revenue from completed projects over the last 6 months
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={stats.revenueChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={value => [`$${value.toLocaleString()}`, "Revenue"]} />
-                  <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardFooter>
-        </Card>
+        <Link href="/dashboard/chat">
+          <Card className="hover:bg-accent/50 @container/card cursor-pointer transition-colors">
+            <CardHeader>
+              <CardDescription>Active Conversations</CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {stats.totalConversations}
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline" className={stats.unreadMessages > 0 ? "text-red-600" : ""}>
+                  <MessageCircle />
+                  {stats.unreadMessages > 0 ? `${stats.unreadMessages} unread` : "All caught up"}
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="line-clamp-1 flex gap-2 font-medium">
+                Chat conversations with clients
+              </div>
+              <div className="text-muted-foreground">Active communication channels</div>
+            </CardFooter>
+          </Card>
+        </Link>
       </div>
 
       {/* PIC-specific sections */}
@@ -207,7 +181,7 @@ export function PicOverview() {
                         {appointment.startTime} - {appointment.title}
                       </div>
                       <div className="text-muted-foreground text-sm">
-                        Client: {appointment.client?.fullname || "Unknown Client"}
+                        Client: {appointment.client.fullname || "Unknown Client"}
                       </div>
                     </div>
                     <Badge

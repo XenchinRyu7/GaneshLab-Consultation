@@ -116,7 +116,7 @@ export async function GET() {
       unreadMessages,
       overallProgress,
       nextAppointmentDate,
-      nextAppointmentPIC: nextAppointment.pic?.fullname ?? "TBD",
+      nextAppointmentPIC: nextAppointment?.pic?.fullname ?? "TBD",
     };
 
     // Format projects for frontend
@@ -125,7 +125,7 @@ export async function GET() {
       name: project.name,
       progress: project.progress,
       status: project.status,
-      picName: project.pic.fullname,
+      picName: project.pic?.fullname ?? "TBD",
     }));
 
     // Format appointments for frontend

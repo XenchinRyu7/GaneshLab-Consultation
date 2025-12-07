@@ -1,77 +1,77 @@
-# Appointment Conflict Detection Algorithm
+# Algoritma Deteksi Konflik Appointment
 
-## Overview
+## Gambaran Umum
 
-This document describes the **Allen's Interval Algebra** algorithm used for detecting scheduling conflicts in the GaneshLab appointment booking system.
+Dokumen ini menjelaskan algoritma **Allen's Interval Algebra** yang digunakan untuk mendeteksi konflik jadwal di sistem booking appointment GaneshLab.
 
 ---
 
-## Algorithm: Allen's Interval Algebra
+## Algoritma: Allen's Interval Algebra
 
-### Academic Reference
+### Referensi Akademik
 
-**Title:** "Maintaining Knowledge about Temporal Intervals"
-**Author:** James F. Allen
-**Published:** Communications of the ACM, Vol. 26, No. 11 (November 1983), pp. 832-843
+**Judul:** "Maintaining Knowledge about Temporal Intervals"
+**Penulis:** James F. Allen
+**Diterbitkan:** Communications of the ACM, Vol. 26, No. 11 (November 1983), pp. 832-843
 **DOI:** [10.1145/182.358434](https://doi.org/10.1145/182.358434)
 
-### Purpose
+### Tujuan
 
-Allen's Interval Algebra is a calculus for temporal reasoning that defines relationships between time intervals. We use it to detect whether two appointment time slots overlap.
+Allen's Interval Algebra adalah kalkulus untuk penalaran temporal yang mendefinisikan hubungan antara interval waktu. Kami menggunakannya untuk mendeteksi apakah dua slot waktu appointment tumpang tindih.
 
-### The 13 Temporal Relations
+### 13 Hubungan Temporal
 
-Allen defined 13 possible relations between two intervals A and B:
+Allen mendefinisikan 13 kemungkinan hubungan antara dua interval A dan B:
 
 ```
 1.  Before        A |-----|        B         |-----|
 2.  After         A         |-----| B |-----|
 3.  Meets         A |-----|B|-----|
 4.  Met-by        A      |-----|B|-----|
-5.  Overlaps      A |-------|  B    |-------|  ✓ CONFLICT
-6.  Overlapped-by A    |-------| B |-------|  ✓ CONFLICT
-7.  Starts        A |---|    B |----------|    ✓ CONFLICT
-8.  Started-by    A |----------| B |---|      ✓ CONFLICT
-9.  During        A   |---|   B |----------|   ✓ CONFLICT
-10. Contains      A |----------| B   |---|    ✓ CONFLICT
-11. Finishes      A     |---| B |----------|   ✓ CONFLICT
-12. Finished-by   A |----------| B     |---|   ✓ CONFLICT
-13. Equals        A |----------| B |----------|  ✓ CONFLICT
+5.  Overlaps      A |-------|  B    |-------|  ✓ KONFLIK
+6.  Overlapped-by A    |-------| B |-------|  ✓ KONFLIK
+7.  Starts        A |---|    B |----------|    ✓ KONFLIK
+8.  Started-by    A |----------| B |---|      ✓ KONFLIK
+9.  During        A   |---|   B |----------|   ✓ KONFLIK
+10. Contains      A |----------| B   |---|    ✓ KONFLIK
+11. Finishes      A     |---| B |----------|   ✓ KONFLIK
+12. Finished-by   A |----------| B     |---|   ✓ KONFLIK
+13. Equals        A |----------| B |----------|  ✓ KONFLIK
 ```
 
-### Overlap Detection Formula
+### Formula Deteksi Overlap
 
-The simplified formula to detect if two intervals overlap:
+Formula sederhana untuk mendeteksi apakah dua interval overlap:
 
 ```
 Overlap(A, B) = (A.start < B.end) ∧ (A.end > B.start)
 ```
 
-This single formula covers relations 5-13 above (all conflict scenarios).
+Formula tunggal ini mencakup hubungan 5-13 di atas (semua skenario konflik).
 
-**Mathematical Proof:**
+**Bukti Matematis:**
 
-- If `A.start < B.end`: A starts before B ends
-- AND `A.end > B.start`: A ends after B starts
-- Then intervals must overlap
+- Jika `A.start < B.end`: A dimulai sebelum B berakhir
+- DAN `A.end > B.start`: A berakhir setelah B dimulai
+- Maka interval harus overlap
 
-**Non-overlap cases:**
+**Kasus non-overlap:**
 
-- `A.end ≤ B.start`: A completely before B (relation 1)
-- `A.start ≥ B.end`: A completely after B (relation 2)
+- `A.end ≤ B.start`: A sepenuhnya sebelum B (hubungan 1)
+- `A.start ≥ B.end`: A sepenuhnya setelah B (hubungan 2)
 
 ---
 
-## Implementation
+## Implementasi
 
-### Code Location
+### Lokasi Kode
 
 `src/app/api/appointments/_handlers/appointments-route-post-validation.ts`
 
-### Function Signature
+### Tanda Tangan Fungsi
 
 ```typescript
-async function checkAppointmentConflictForCreate(
+export async function checkAppointmentConflictForCreate(
   picId: string,
   date: string,
   startTime: string, // Format: "HH:mm" (e.g., "14:30")
@@ -79,157 +79,252 @@ async function checkAppointmentConflictForCreate(
 ): Promise<NextResponse | null>;
 ```
 
-### Algorithm Steps
+### Langkah-Langkah Algoritma
 
 ```typescript
-// Step 1: Fetch all existing appointments for PIC on same date
+// Langkah 1: Ambil semua appointment yang ada untuk PIC pada tanggal yang sama
 const existingAppointments = await prisma.appointment.findMany({
   where: {
     picId,
     date: new Date(date),
-    status: { not: "cancelled" },
+    status: {
+      not: "cancelled",
+    },
+  },
+  select: {
+    id: true,
+    startTime: true,
+    endTime: true,
+    title: true,
+    client: {
+      select: {
+        fullname: true,
+      },
+    },
   },
 });
 
-// Step 2: Apply Allen's overlap formula to each existing appointment
+// Langkah 2: Terapkan formula overlap Allen's ke setiap appointment yang ada
 for (const existing of existingAppointments) {
-  const newStart = startTime; // e.g., "14:30"
-  const newEnd = endTime; // e.g., "15:30"
+  const newStart = startTime;
+  const newEnd = endTime;
   const existingStart = existing.startTime;
   const existingEnd = existing.endTime;
 
-  // Step 3: Check overlap using Allen's formula
+  // Langkah 3: Cek overlap menggunakan formula Allen's
   const hasOverlap = newStart < existingEnd && newEnd > existingStart;
 
   if (hasOverlap) {
-    return ConflictError; // HTTP 409
+    return NextResponse.json(
+      {
+        error: `Konflik jadwal terdeteksi. PIC sudah memiliki appointment pada waktu ini.`,
+        conflict: {
+          title: existing.title,
+          client: existing.client?.fullname ?? "Tamu",
+          time: `${existingStart} - ${existingEnd}`,
+          message: `Slot waktu yang diminta (${startTime} - ${endTime}) overlap dengan appointment yang ada "${existing.title}" yang dijadwalkan dari ${existingStart} sampai ${existingEnd}.`,
+        },
+      },
+      { status: 409 } // 409 Conflict
+    );
   }
 }
 
-return null; // No conflict
+return null; // Tidak ada konflik
 ```
 
-### Time Complexity
+### Kompleksitas Waktu
 
-- **Best Case:** O(1) - No existing appointments
-- **Average Case:** O(n) - Where n = number of existing appointments for PIC on that date
-- **Worst Case:** O(n) - Must check all existing appointments
+- **Kasus Terbaik:** O(1) - Tidak ada appointment yang ada
+- **Kasus Rata-Rata:** O(n) - Dimana n = jumlah appointment yang ada untuk PIC pada tanggal itu
+- **Kasus Terburuk:** O(n) - Harus cek semua appointment yang ada
 
-**Optimization:** Typically n is small (< 10 appointments per day per PIC), so linear search is efficient.
+**Optimasi:** Biasanya n kecil (< 10 appointment per hari per PIC), jadi pencarian linear efisien.
 
-### Space Complexity
+### Kompleksitas Ruang
 
-- **O(n)** - Stores existing appointments in memory for comparison
+- **O(n)** - Menyimpan appointment yang ada di memori untuk perbandingan
 
 ---
 
-## Examples
+## Pencegahan Race Condition
 
-### Example 1: Overlap Detected (Scenario 5: Overlaps)
+### Masalah Race Condition
+
+Algoritma ini rentan terhadap **race condition** jika dua request datang bersamaan:
+
+1. Request A: Cek konflik → Tidak ada → Mulai create.
+2. Request B: Cek konflik (saat A belum commit) → Masih tidak ada → Mulai create.
+3. Hasil: Kedua appointment dibuat, padahal overlap → Duplikasi.
+
+### Solusi: Gunakan Transaction
+
+Bungkus validasi dan create dalam `prisma.$transaction` untuk memastikan atomicity.
+
+**Status Implementasi:** ✅ **SUDAH DITERAPKAN** di `src/app/api/appointments/_handlers/appointments-route-post.ts`
+
+**Kode Implementasi Aktual:**
+
+```typescript
+// Use transaction to prevent race condition: check conflict and create atomically
+const appointment = await prisma.$transaction(async tx => {
+  // Check for conflicts within transaction
+  const existingAppointments = await tx.appointment.findMany({
+    where: {
+      picId: body.picId,
+      date: new Date(body.date),
+      status: { not: "cancelled" },
+    },
+    select: {
+      id: true,
+      startTime: true,
+      endTime: true,
+      title: true,
+      client: { select: { fullname: true } },
+    },
+  });
+
+  // Apply Allen's overlap formula
+  for (const existing of existingAppointments) {
+    const newStart = body.startTime;
+    const newEnd = body.endTime;
+    const existingStart = existing.startTime;
+    const existingEnd = existing.endTime;
+
+    const hasOverlap = newStart < existingEnd && newEnd > existingStart;
+
+    if (hasOverlap) {
+      throw new Error(
+        `Konflik jadwal terdeteksi. PIC sudah memiliki appointment pada waktu ini. Detail: "${existing.title}" dengan ${existing.client?.fullname ?? "Tamu"} dari ${existingStart} sampai ${existingEnd}.`
+      );
+    }
+  }
+
+  // Create appointment within transaction
+  return await tx.appointment.create({
+    data: appointmentData,
+    include: {
+      /* ... */
+    },
+  });
+});
+```
+
+**Manfaat:**
+
+- Mencegah duplikasi meski request bersamaan.
+- Jika konflik, transaction rollback otomatis.
+- Error handling khusus untuk konflik (HTTP 409).
+
+---
+
+## Contoh
+
+### Contoh 1: Overlap Terdeteksi (Skenario 5: Overlaps)
 
 ```
-Existing Appointment: 10:00 - 11:00
-New Appointment:      10:30 - 11:30
+Appointment yang Ada: 10:00 - 11:00
+Appointment Baru:     10:30 - 11:30
 
-Check: 10:30 < 11:00 ∧ 11:30 > 10:00
-       true         ∧ true
-       = CONFLICT ❌
+Cek: 10:30 < 11:00 ∧ 11:30 > 10:00
+     true         ∧ true
+     = KONFLIK ❌
 ```
 
 **Visual:**
 
 ```
-Existing: |-----------|
-New:           |-----------|
+Yang Ada: |-----------|
+Baru:           |-----------|
           10:00  10:30  11:00  11:30
-                 ↑ Overlap region
+                 ↑ Wilayah overlap
 ```
 
-### Example 2: No Overlap (Relation 1: Before)
+### Contoh 2: Tidak Ada Overlap (Hubungan 1: Before)
 
 ```
-Existing Appointment: 10:00 - 11:00
-New Appointment:      11:00 - 12:00
+Appointment yang Ada: 10:00 - 11:00
+Appointment Baru:     11:00 - 12:00
 
-Check: 11:00 < 11:00 ∧ 12:00 > 10:00
-       false        ∧ true
-       = NO CONFLICT ✓
+Cek: 11:00 < 11:00 ∧ 12:00 > 10:00
+     false        ∧ true
+     = TIDAK ADA KONFLIK ✓
 ```
 
 **Visual:**
 
 ```
-Existing: |-----------|
-New:                  |-----------|
+Yang Ada: |-----------|
+Baru:                  |-----------|
           10:00    11:00       12:00
-                   ↑ No overlap
+                   ↑ Tidak overlap
 ```
 
-### Example 3: Complete Containment (Scenario 10: Contains)
+### Contoh 3: Kontainmen Lengkap (Skenario 10: Contains)
 
 ```
-Existing Appointment: 10:00 - 11:00
-New Appointment:      09:00 - 12:00
+Appointment yang Ada: 10:00 - 11:00
+Appointment Baru:     09:00 - 12:00
 
-Check: 09:00 < 11:00 ∧ 12:00 > 10:00
-       true         ∧ true
-       = CONFLICT ❌
+Cek: 09:00 < 11:00 ∧ 12:00 > 10:00
+     true         ∧ true
+     = KONFLIK ❌
 ```
 
 **Visual:**
 
 ```
-Existing:    |-----|
-New:      |-------------|
+Yang Ada:    |-----|
+Baru:      |-------------|
           09:00 10:00 11:00 12:00
-                ↑ New contains existing
+                ↑ Baru mengandung yang ada
 ```
 
-### Example 4: Exact Same Time (Scenario 13: Equals)
+### Contoh 4: Waktu Sama Persis (Skenario 13: Equals)
 
 ```
-Existing Appointment: 10:00 - 11:00
-New Appointment:      10:00 - 11:00
+Appointment yang Ada: 10:00 - 11:00
+Appointment Baru:     10:00 - 11:00
 
-Check: 10:00 < 11:00 ∧ 11:00 > 10:00
-       true         ∧ true
-       = CONFLICT ❌
+Cek: 10:00 < 11:00 ∧ 11:00 > 10:00
+     true         ∧ true
+     = KONFLIK ❌
 ```
 
 ---
 
-## Error Response Format
+## Format Response Error
 
-When a conflict is detected, the API returns:
+Ketika konflik terdeteksi, API mengembalikan:
 
 ```json
 {
-  "error": "Schedule conflict detected. PIC already has an appointment at this time.",
+  "error": "Konflik jadwal terdeteksi. PIC sudah memiliki appointment pada waktu ini.",
   "conflict": {
-    "title": "Client Meeting",
+    "title": "Meeting Klien",
     "client": "John Doe",
     "time": "10:00 - 11:00",
-    "message": "The requested time slot (10:30 - 11:30) overlaps with existing appointment \"Client Meeting\" scheduled from 10:00 to 11:00."
+    "message": "Slot waktu yang diminta (10:30 - 11:30) overlap dengan appointment yang ada \"Meeting Klien\" yang dijadwalkan dari 10:00 sampai 11:00."
   }
 }
 ```
 
-**HTTP Status Code:** `409 Conflict`
+**Kode Status HTTP:** `409 Conflict`
 
 ---
 
-## Database Query Optimization
+## Optimasi Query Database
 
-### Index Strategy
+### Strategi Index
 
-PostgreSQL composite index for fast conflict detection:
+Index komposit PostgreSQL untuk deteksi konflik cepat:
 
 ```sql
 CREATE INDEX idx_appointments_pic_date_time_status
 ON Appointment(picId, date, startTime, endTime, status);
 ```
 
-**Query Plan:**
+**Rencana Query:**
 
 ```sql
 EXPLAIN ANALYZE
@@ -239,20 +334,20 @@ WHERE picId = $1
   AND status != 'cancelled';
 ```
 
-**Result:**
+**Hasil:**
 
-- Uses index scan on `idx_appointments_pic_date_time_status`
-- Cost: O(log n) for index lookup + O(k) for filtering (k = matching rows)
+- Menggunakan index scan pada `idx_appointments_pic_date_time_status`
+- Biaya: O(log n) untuk lookup index + O(k) untuk filtering (k = baris yang cocok)
 
 ---
 
-## Testing Strategy
+## Strategi Testing
 
 ### Unit Tests
 
 ```typescript
-describe("Allen's Interval Algebra - Conflict Detection", () => {
-  test("detects overlap when new starts during existing", () => {
+describe("Allen's Interval Algebra - Deteksi Konflik", () => {
+  test("mendeteksi overlap ketika baru dimulai selama yang ada", () => {
     const existing = { start: "10:00", end: "11:00" };
     const newAppt = { start: "10:30", end: "11:30" };
 
@@ -261,16 +356,16 @@ describe("Allen's Interval Algebra - Conflict Detection", () => {
     expect(hasConflict).toBe(true);
   });
 
-  test("no conflict when new starts exactly when existing ends", () => {
+  test("tidak ada konflik ketika baru dimulai tepat saat yang ada berakhir", () => {
     const existing = { start: "10:00", end: "11:00" };
     const newAppt = { start: "11:00", end: "12:00" };
 
     const hasConflict = newAppt.start < existing.end && newAppt.end > existing.start;
 
-    expect(hasConflict).toBe(false); // 11:00 < 11:00 is false
+    expect(hasConflict).toBe(false); // 11:00 < 11:00 adalah false
   });
 
-  test("detects conflict when new contains existing", () => {
+  test("mendeteksi konflik ketika baru mengandung yang ada", () => {
     const existing = { start: "10:30", end: "10:45" };
     const newAppt = { start: "10:00", end: "11:00" };
 
@@ -279,7 +374,7 @@ describe("Allen's Interval Algebra - Conflict Detection", () => {
     expect(hasConflict).toBe(true);
   });
 
-  test("detects conflict when appointments are identical", () => {
+  test("mendeteksi konflik ketika appointment identik", () => {
     const existing = { start: "10:00", end: "11:00" };
     const newAppt = { start: "10:00", end: "11:00" };
 
@@ -293,17 +388,17 @@ describe("Allen's Interval Algebra - Conflict Detection", () => {
 ### Integration Tests
 
 ```typescript
-describe("Appointment API - Conflict Detection", () => {
-  test("prevents double booking on same time slot", async () => {
-    // Create first appointment
+describe("Appointment API - Deteksi Konflik", () => {
+  test("mencegah double booking pada slot waktu yang sama", async () => {
+    // Buat appointment pertama
     await POST("/api/appointments", {
       picId: "pic-1",
       date: "2025-11-23",
       startTime: "10:00",
       endTime: "11:00",
-    }); // Returns 201 Created
+    }); // Mengembalikan 201 Created
 
-    // Try to create overlapping appointment
+    // Coba buat appointment yang overlap
     const response = await POST("/api/appointments", {
       picId: "pic-1",
       date: "2025-11-23",
@@ -312,11 +407,11 @@ describe("Appointment API - Conflict Detection", () => {
     });
 
     expect(response.status).toBe(409); // Conflict
-    expect(response.body.error).toContain("Schedule conflict");
+    expect(response.body.error).toContain("Konflik jadwal");
   });
 
-  test("allows sequential appointments", async () => {
-    // Create first appointment
+  test("mengizinkan appointment berurutan", async () => {
+    // Buat appointment pertama
     await POST("/api/appointments", {
       picId: "pic-1",
       date: "2025-11-23",
@@ -324,7 +419,7 @@ describe("Appointment API - Conflict Detection", () => {
       endTime: "11:00",
     }); // 201 Created
 
-    // Create sequential appointment (starts when first ends)
+    // Buat appointment berurutan (dimulai saat yang pertama berakhir)
     const response = await POST("/api/appointments", {
       picId: "pic-1",
       date: "2025-11-23",
@@ -332,25 +427,25 @@ describe("Appointment API - Conflict Detection", () => {
       endTime: "12:00",
     });
 
-    expect(response.status).toBe(201); // Success
+    expect(response.status).toBe(201); // Sukses
   });
 });
 ```
 
 ---
 
-## Performance Metrics
+## Metrik Performa
 
-| Metric                | Value  | Notes                                       |
-| --------------------- | ------ | ------------------------------------------- |
-| Algorithm Complexity  | O(n)   | n = existing appointments                   |
-| Typical n per day     | < 10   | Most PICs have < 10 meetings/day            |
-| Average Response Time | < 50ms | Including DB query + validation             |
-| Memory Usage          | O(n)   | Temporary storage for existing appointments |
+| Metrik                   | Nilai  | Catatan                                          |
+| ------------------------ | ------ | ------------------------------------------------ |
+| Kompleksitas Algoritma   | O(n)   | n = appointment yang ada                         |
+| n tipikal per hari       | < 10   | Kebanyakan PIC memiliki < 10 meeting/hari        |
+| Waktu Response Rata-Rata | < 50ms | Termasuk query DB + validasi                     |
+| Penggunaan Memori        | O(n)   | Penyimpanan sementara untuk appointment yang ada |
 
 ---
 
-## References
+## Referensi
 
 1. Allen, J. F. (1983). **Maintaining knowledge about temporal intervals**. _Communications of the ACM_, 26(11), 832-843. DOI: [10.1145/182.358434](https://doi.org/10.1145/182.358434)
 
@@ -362,14 +457,14 @@ describe("Appointment API - Conflict Detection", () => {
 
 ---
 
-## Future Improvements
+## Perbaikan Masa Depan
 
-### Potential Optimizations
+### Optimasi Potensial
 
-1. **Database-Level Constraint**
+1. **Constraint di Level Database**
 
    ```sql
-   -- Add exclusion constraint (PostgreSQL only)
+   -- Tambah exclusion constraint (PostgreSQL only)
    ALTER TABLE Appointment
    ADD CONSTRAINT no_overlap_appointments
    EXCLUDE USING gist (
@@ -378,15 +473,15 @@ describe("Appointment API - Conflict Detection", () => {
    ) WHERE (status != 'cancelled');
    ```
 
-2. **Caching Strategy**
-   - Cache PIC availability for frequently accessed dates
-   - Invalidate cache on appointment creation/update
+2. **Strategi Caching**
+   - Cache ketersediaan PIC untuk tanggal yang sering diakses
+   - Invalidasi cache saat appointment dibuat/diupdate
 
-3. **Parallel Processing**
-   - For PICs with many appointments, check conflicts in parallel batches
+3. **Pemrosesan Paralel**
+   - Untuk PIC dengan banyak appointment, cek konflik dalam batch paralel
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** November 23, 2025
-**Author:** GaneshLab Development Team
+**Versi Dokumen:** 1.2
+**Terakhir Diupdate:** Desember 7, 2025
+**Penulis:** Tim Pengembangan GaneshLab

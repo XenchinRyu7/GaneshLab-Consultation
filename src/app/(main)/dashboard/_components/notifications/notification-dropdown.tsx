@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+
 import { Bell, CheckCheck, Settings } from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,15 +17,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 
-import { NotificationItem } from "./notification-item";
 import { useNotifications } from "./notification-context";
+import { NotificationItem } from "./notification-item";
 
 export function NotificationDropdown() {
   const router = useRouter();
-  const { notifications, unreadCount, isLoading, fetchNotifications, markAllAsRead } =
-    useNotifications();
+  const { notifications, unreadCount, isLoading, markAllAsRead } = useNotifications();
 
   return (
     <DropdownMenu>
@@ -33,7 +33,7 @@ export function NotificationDropdown() {
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -right-1 -top-1 flex size-5 items-center justify-center p-0 text-xs"
+              className="absolute -top-1 -right-1 flex size-5 items-center justify-center p-0 text-xs"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
@@ -68,7 +68,7 @@ export function NotificationDropdown() {
           <div className="p-8 text-center">
             <Bell className="text-muted-foreground/50 mx-auto mb-2 size-12" />
             <p className="text-sm font-medium">No notifications</p>
-            <p className="text-muted-foreground mt-1 text-xs">You're all caught up!</p>
+            <p className="text-muted-foreground mt-1 text-xs">You&#39;re all caught up!</p>
           </div>
         ) : (
           <ScrollArea className="h-[400px]">

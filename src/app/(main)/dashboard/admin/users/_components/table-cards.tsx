@@ -3,8 +3,8 @@
 import { useEffect, useState, useMemo } from "react";
 
 import { Download, Plus } from "lucide-react";
-import type { z } from "zod";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
@@ -26,9 +26,9 @@ import { CreateUserForm } from "./create-user-form";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { EditUserForm } from "./edit-user-form";
 import { ExportCSVDialog } from "./export-csv-dialog";
-import { UsersTableToolbar } from "./users-table-toolbar";
 import { userSchema } from "./schema";
 import { withRetry, exportUsersToCSV } from "./table-utils";
+import { UsersTableToolbar } from "./users-table-toolbar";
 
 export function TableCards() {
   const [users, setUsers] = useState<z.infer<typeof userSchema>[]>([]);
@@ -161,13 +161,6 @@ export function TableCards() {
     onEdit: handleEditUser,
     onDelete: handleDeleteUser,
   });
-
-  const table = useDataTableInstance({
-    data: users,
-    columns,
-    getRowId: row => row.id,
-  });
-
   // Filter logic
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -257,7 +250,7 @@ export function TableCards() {
                     <>
                       <p className="text-muted-foreground">No users yet</p>
                       <p className="text-muted-foreground text-sm">
-                        Click "Add Users" button to create the first user
+                        Click &ldquo;Add Users&rdquo; button to create the first user
                       </p>
                     </>
                   ) : (

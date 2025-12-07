@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession();
 
@@ -11,11 +11,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const { isRead } = await request.json();
 
     const result = await prisma.notification.updateMany({
       where: {
-        id: params.id,
+        id: id,
         userId: session.id,
       },
       data: {
@@ -34,7 +35,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getSession();
 
@@ -42,9 +46,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const result = await prisma.notification.deleteMany({
       where: {
-        id: params.id,
+        id: id,
         userId: session.id,
       },
     });

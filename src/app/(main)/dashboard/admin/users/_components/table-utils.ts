@@ -35,7 +35,7 @@ export async function withRetry<T>(
     }
   }
 
-  throw lastError || new Error("Failed after retries");
+  throw lastError ?? new Error("Failed after retries");
 }
 
 /**
@@ -60,9 +60,6 @@ export function exportUsersToCSV(
     throw new Error("No users to export");
   }
 
-  // Only export safe fields, exclude password, userId, avatarColor
-  const safeFields = ["email", "fullname", "role", "phone", "createdAt"];
-
   // Header
   const headers = ["Email", "Full Name", "Role", "Phone", "Created At"];
   const headerRow = headers.map(h => `"${h}"`).join(",");
@@ -73,7 +70,7 @@ export function exportUsersToCSV(
       user.email,
       user.fullname,
       user.role,
-      user.phone || "-",
+      user.phone ?? "-",
       new Date(user.createdAt).toLocaleDateString("id-ID"),
     ];
     return row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",");

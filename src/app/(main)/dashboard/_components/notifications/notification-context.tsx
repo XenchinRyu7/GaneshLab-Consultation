@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
 interface Notification {
   id: string;
@@ -103,21 +103,28 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
-  return (
-    <NotificationContext.Provider
-      value={{
-        notifications,
-        unreadCount,
-        isLoading,
-        fetchNotifications,
-        markAsRead,
-        markAllAsRead,
-        deleteNotification,
-      }}
-    >
-      {children}
-    </NotificationContext.Provider>
+  const value = useMemo(
+    () => ({
+      notifications,
+      unreadCount,
+      isLoading,
+      fetchNotifications,
+      markAsRead,
+      markAllAsRead,
+      deleteNotification,
+    }),
+    [
+      notifications,
+      unreadCount,
+      isLoading,
+      fetchNotifications,
+      markAsRead,
+      markAllAsRead,
+      deleteNotification,
+    ]
   );
+
+  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
 }
 
 export function useNotifications() {
