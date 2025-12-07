@@ -26,7 +26,7 @@ export const Navigation: React.FC = () => {
       >
         <div className="container mx-auto flex flex-row-reverse items-center justify-between p-6">
           <div className="flex justify-between gap-8">
-            <Link href="/consultation" className="text-zinc-400 duration-200 hover:text-zinc-100">
+            <Link href="/get-started" className="text-zinc-400 duration-200 hover:text-zinc-100">
               Get Started
             </Link>
           </div>

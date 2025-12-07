@@ -60,20 +60,15 @@ export function LoginForm() {
         });
         setIsLoading(false);
       } else {
-        // If no error, login was successful and redirect should happen
         console.log("[LoginForm] Login successful, redirecting...");
         toast.success("Login successful", {
           description: data.remember ? "You will stay logged in for 30 days" : "Welcome back!",
         });
-        // Don't set isLoading to false here as we're redirecting
         router.refresh();
-        // Redirect will happen from server action
       }
     } catch (error) {
-      // This catch block handles unexpected errors
       console.error("[LoginForm] Unexpected error:", error);
 
-      // Check if it's a redirect error (Next.js throws this for redirects)
       if (error && typeof error === "object" && "digest" in error) {
         console.log("[LoginForm] Redirect error (expected):", error);
         return;

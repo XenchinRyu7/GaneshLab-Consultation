@@ -4,10 +4,9 @@ import { useState } from "react";
 
 import Link from "next/link";
 
-import { Mail, Building2, User, MessageSquare, LogIn } from "lucide-react";
+import { Mail, Building2, User, MessageSquare, LogIn, ArrowLeft } from "lucide-react";
 
 import { Card } from "@/components/card";
-import { Navigation } from "@/components/nav";
 
 export default function WaitlistPage() {
   const [formData, setFormData] = useState({
@@ -55,7 +54,17 @@ export default function WaitlistPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
-      <Navigation />
+      <header>
+        <div
+          className={`bg-zinc-900/0" : "border-zinc-800 bg-zinc-900/500" fixed inset-x-0 top-0 z-50 border-b border-transparent backdrop-blur duration-200`}
+        >
+          <div className="container mx-auto p-6">
+            <Link href="/" className="text-zinc-300 duration-200 hover:text-zinc-100">
+              <ArrowLeft className="h-6 w-6" />
+            </Link>
+          </div>
+        </div>
+      </header>
       <div className="container mx-auto flex min-h-screen items-start justify-center px-4 pt-24 pb-8">
         <div className="mx-auto w-full max-w-2xl">
           <Card>
