@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AlertCircle } from "lucide-react";
 import z from "zod";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -126,6 +127,9 @@ export function EditUserForm({ userId, initialData, onSuccess, onError }: EditUs
         console.error("Edit API error response:", error, "Status:", response.status);
         const errorMessage = error.error ?? error.message ?? "Failed to update user";
         setErrors({ submit: errorMessage });
+        toast.error("Failed to update user", {
+          description: errorMessage,
+        });
         onError?.(errorMessage);
         setLoading(false);
         return;
@@ -133,6 +137,9 @@ export function EditUserForm({ userId, initialData, onSuccess, onError }: EditUs
 
       const data = await response.json();
       console.log("Edit API success:", data);
+      toast.success("User updated successfully", {
+        description: `${validated.fullname} has been updated.`,
+      });
       onSuccess?.();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -147,6 +154,9 @@ export function EditUserForm({ userId, initialData, onSuccess, onError }: EditUs
       } else {
         const message = error instanceof Error ? error.message : "An error occurred";
         console.error("Edit form error:", message);
+        toast.error("Failed to update user", {
+          description: message,
+        });
         onError?.(message);
         setErrors({ submit: message });
       }
