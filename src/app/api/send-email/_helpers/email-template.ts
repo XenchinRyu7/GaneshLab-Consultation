@@ -8,6 +8,11 @@ export function generateWelcomeEmailTemplate(params: {
 }): string {
   const { fullname, email, password } = params;
 
+  const baseUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://ganeshlab-consultation.vercel.app"
+      : "http://localhost:3000";
+
   return `
     <!doctype html>
     <html lang="id">
@@ -162,7 +167,7 @@ export function generateWelcomeEmailTemplate(params: {
               <tr>
                 <td style="padding: 0 40px 30px; text-align: center">
                   <a
-                    href="${process.env.BASE_URL_LOGIN_NEXT}"
+                    href="${baseUrl}/auth/login"
                     style="
                       display: inline-block;
                       background: linear-gradient(135deg, #004aad 0%, #0066dd 100%);

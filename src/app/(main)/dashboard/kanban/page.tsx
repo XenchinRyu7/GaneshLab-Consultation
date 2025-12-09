@@ -15,7 +15,7 @@ export default function KanbanPage() {
     activeProject && (activeProject.status === "APPROVED" || activeProject.status === "ACTIVE");
 
   return (
-    <div className="flex flex-col gap-4 md:gap-6">
+    <div className="flex flex-col gap-4 overflow-hidden md:gap-6">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">

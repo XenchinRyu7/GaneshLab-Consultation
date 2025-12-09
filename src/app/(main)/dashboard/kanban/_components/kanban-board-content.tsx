@@ -9,8 +9,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
-
 import { useKanbanDrag } from "./hooks/use-kanban-drag";
 import { KanbanColumn as KanbanColumnComponent } from "./kanban-column";
 import type { KanbanColumn, KanbanTask } from "./kanban-config";
@@ -61,22 +59,20 @@ export function KanbanBoardContent({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <ScrollArea className="h-[calc(100vh-16rem)]">
-        <div className="flex gap-4 p-4">
-          {columns.map(column => {
-            const columnTasks = tasks.filter(task => task.status === column.id);
-            return (
-              <KanbanColumnComponent
-                key={column.id}
-                column={column}
-                tasks={columnTasks}
-                onAddCard={onAddCard}
-                onCardClick={onCardClick}
-              />
-            );
-          })}
-        </div>
-      </ScrollArea>
+      <div className="flex h-[calc(100vh-20rem)] gap-4 overflow-hidden p-4">
+        {columns.map(column => {
+          const columnTasks = tasks.filter(task => task.status === column.id);
+          return (
+            <KanbanColumnComponent
+              key={column.id}
+              column={column}
+              tasks={columnTasks}
+              onAddCard={onAddCard}
+              onCardClick={onCardClick}
+            />
+          );
+        })}
+      </div>
       <DragOverlay>
         {activeTask ? (
           <div className="w-[280px] rotate-3 opacity-90">
