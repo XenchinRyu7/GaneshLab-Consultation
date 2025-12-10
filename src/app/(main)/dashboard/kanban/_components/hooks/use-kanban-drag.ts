@@ -41,9 +41,19 @@ export function useKanbanDrag({ columns, tasks, setTasks, onMoveTask }: UseKanba
     // Check if dropped on a column (status change)
     const overColumn = columns.find(col => col.id === overId);
     if (overColumn) {
-      // Moving to a different column - call API
+      // Moving to a different column - optimistic update
       if (activeTask.status !== overColumn.id) {
-        onMoveTask(activeId, overColumn.id, 0);
+        const tasksInNewBoard = tasks.filter(t => t.status === overColumn.id);
+        const newPosition = tasksInNewBoard.length; // Add to end
+
+        // Optimistic update: move task to new board at the end
+        setTasks(prevTasks => {
+          const filtered = prevTasks.filter(t => t.id !== activeId);
+          return [...filtered, { ...activeTask, status: overColumn.id }];
+        });
+
+        // Call API in background
+        onMoveTask(activeId, overColumn.id, newPosition);
       }
       setActiveTask(null);
       return;
@@ -54,16 +64,31 @@ export function useKanbanDrag({ columns, tasks, setTasks, onMoveTask }: UseKanba
     if (overTask) {
       const newBoardId = overTask.status;
       const tasksInBoard = tasks.filter(t => t.status === newBoardId);
-      const newPosition = tasksInBoard.findIndex(t => t.id === overId);
+      const overIndex = tasksInBoard.findIndex(t => t.id === overId);
+      const newPosition = overIndex; // Insert at overTask's position
 
       if (activeTask.status === overTask.status) {
         // Same column, reorder locally first
         const activeIndex = tasks.findIndex(t => t.id === activeId);
         const overIndex = tasks.findIndex(t => t.id === overId);
         setTasks(prevTasks => arrayMove(prevTasks, activeIndex, overIndex));
+      } else {
+        // Moving to different column - optimistic update
+        setTasks(prevTasks => {
+          const filtered = prevTasks.filter(t => t.id !== activeId);
+          const tasksInNewBoard = filtered.filter(t => t.status === newBoardId);
+          const before = tasksInNewBoard.slice(0, overIndex);
+          const after = tasksInNewBoard.slice(overIndex);
+          return [
+            ...filtered.filter(t => t.status !== newBoardId),
+            ...before,
+            { ...activeTask, status: newBoardId },
+            ...after,
+          ];
+        });
       }
 
-      // Call API to persist
+      // Call API in background
       onMoveTask(activeId, newBoardId, newPosition);
     }
 

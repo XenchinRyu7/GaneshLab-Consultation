@@ -7,6 +7,22 @@ import { prisma } from "@/lib/prisma";
 
 import { calculateProjectProgress } from "./projects";
 
+async function normalizeBoardPositions(boardId: string) {
+  const tasks = await prisma.kanbanTask.findMany({
+    where: { boardId },
+    orderBy: { position: "asc" },
+  });
+
+  for (let i = 0; i < tasks.length; i++) {
+    if (tasks[i].position !== i) {
+      await prisma.kanbanTask.update({
+        where: { id: tasks[i].id },
+        data: { position: i },
+      });
+    }
+  }
+}
+
 // Create a new kanban task
 export async function createKanbanTask(formData: FormData) {
   try {
@@ -251,7 +267,7 @@ export async function deleteKanbanTask(taskId: string) {
 
     const task = await prisma.kanbanTask.findUnique({
       where: { id: taskId },
-      select: { projectId: true, createdBy: true },
+      select: { projectId: true, createdBy: true, boardId: true },
     });
 
     if (!task) {
@@ -273,6 +289,9 @@ export async function deleteKanbanTask(taskId: string) {
     await prisma.kanbanTask.delete({
       where: { id: taskId },
     });
+
+    // Normalize positions in the board after deletion
+    await normalizeBoardPositions(task.boardId);
 
     // Recalculate project progress
     await calculateProjectProgress(task.projectId);

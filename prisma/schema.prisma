@@ -134,7 +134,6 @@ model KanbanTask {
   board          KanbanBoard        @relation(fields: [boardId], references: [id], onDelete: Cascade)
   project        Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@unique([boardId, position])
   @@index([assigneeId])
   @@index([boardId])
   @@index([dueDate])

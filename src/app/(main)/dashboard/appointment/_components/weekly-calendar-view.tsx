@@ -56,6 +56,18 @@ export function WeeklyCalendarView({
     return availabilitySlots;
   }, [availabilitySlots, projectContext]);
 
+  // Check if slot is in the past
+  const isSlotExpired = (slot: PMAvailabilitySlot) => {
+    const now = new Date();
+    const slotDateTime = new Date(`${slot.date}T${slot.startTime}`);
+    return slotDateTime < now;
+  };
+
+  // Filter available and future slots for selection
+  const selectableSlots = useMemo(() => {
+    return filteredSlots.filter(slot => slot.available && !isSlotExpired(slot));
+  }, [filteredSlots]);
+
   const statusColors = {
     pending:
       "bg-yellow-50 border-yellow-200 text-yellow-700 dark:bg-yellow-950/30 dark:border-yellow-800 dark:text-yellow-400",
@@ -173,32 +185,56 @@ export function WeeklyCalendarView({
                     </Card>
                   ))}
                   {/* Availability Slots - Each slot is a separate card */}
-                  {daySlots.map((slot, idx) => (
-                    <Card
-                      key={`${slot.pmId}-${slot.startTime}-${idx}`}
-                      onClick={() => onSlotSelect?.(slot)}
-                      className={cn(
-                        "cursor-pointer border-2 p-3 transition-opacity hover:opacity-90",
-                        getMeetingTypeColors(slot.type)
-                      )}
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          {getMeetingTypeIcon(slot.type)}
-                          {getMeetingTypeBadge(slot.type)}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs font-medium">
-                          <Clock className="h-3 w-3 opacity-60" />
-                          <span>
-                            {slot.startTime} - {slot.endTime}
-                          </span>
-                        </div>
-                        {slot.pmName && (
-                          <div className="text-xs opacity-60">PIC: {slot.pmName}</div>
+                  {daySlots.map((slot, idx) => {
+                    const expired = isSlotExpired(slot);
+                    const canSelect = slot.available && !expired;
+                    return (
+                      <Card
+                        key={`${slot.pmId}-${slot.startTime}-${idx}`}
+                        onClick={() => canSelect && onSlotSelect?.(slot)}
+                        className={cn(
+                          "border-2 p-3 transition-opacity",
+                          canSelect
+                            ? "cursor-pointer hover:opacity-90"
+                            : "cursor-not-allowed opacity-50",
+                          getMeetingTypeColors(slot.type)
                         )}
-                      </div>
-                    </Card>
-                  ))}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {getMeetingTypeIcon(slot.type)}
+                            {getMeetingTypeBadge(slot.type)}
+                            {!slot.available && (
+                              <Badge variant="destructive" className="text-xs">
+                                Booked
+                              </Badge>
+                            )}
+                            {expired && (
+                              <Badge variant="secondary" className="text-xs">
+                                Expired
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs font-medium">
+                            <Clock className="h-3 w-3 opacity-60" />
+                            <span>
+                              {slot.startTime} - {slot.endTime}
+                            </span>
+                          </div>
+                          {slot.pmName && (
+                            <div className="text-xs opacity-60">PIC: {slot.pmName}</div>
+                          )}
+                          {!canSelect && (
+                            <div className="text-muted-foreground text-xs">
+                              {expired
+                                ? "This slot has already passed"
+                                : "This slot is no longer available"}
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
                   {dayAppointments.length === 0 && daySlots.length === 0 && (
                     <div className="text-muted-foreground py-8 text-center text-xs">
                       No appointments or available slots

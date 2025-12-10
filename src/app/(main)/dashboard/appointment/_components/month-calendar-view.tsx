@@ -64,6 +64,13 @@ export function MonthCalendarView({
     return availabilitySlots;
   }, [availabilitySlots, projectContext]);
 
+  // Check if slot is in the past
+  const isSlotExpired = (slot: PMAvailabilitySlot) => {
+    const now = new Date();
+    const slotDateTime = new Date(`${slot.date}T${slot.startTime}`);
+    return slotDateTime < now;
+  };
+
   const statusColors = {
     pending:
       "bg-yellow-50 border-yellow-200 text-yellow-700 dark:bg-yellow-950/30 dark:border-yellow-800 dark:text-yellow-400",
@@ -177,29 +184,32 @@ export function MonthCalendarView({
                           </div>
                         )}
                         {/* Availability Slots - Each as a small card */}
-                        {daySlots.slice(0, 3 - dayAppointments.length).map((slot, idx) => (
-                          <Card
-                            key={`${slot.pmId}-${slot.startTime}-${idx}`}
-                            onClick={e => {
-                              e.stopPropagation();
-                              onSlotSelect?.(slot);
-                            }}
-                            className={cn(
-                              "cursor-pointer border p-1.5 text-xs transition-opacity hover:opacity-90",
-                              getMeetingTypeColors(slot.type)
-                            )}
-                          >
-                            <div className="flex items-center gap-1">
-                              {slot.type === "online" ? (
-                                <Monitor className="h-2.5 w-2.5 text-blue-600 dark:text-blue-400" />
-                              ) : (
-                                <MapPin className="h-2.5 w-2.5 text-orange-600 dark:text-orange-400" />
+                        {daySlots
+                          .filter(slot => slot.available && !isSlotExpired(slot))
+                          .slice(0, 3 - dayAppointments.length)
+                          .map((slot, idx) => (
+                            <Card
+                              key={`${slot.pmId}-${slot.startTime}-${idx}`}
+                              onClick={e => {
+                                e.stopPropagation();
+                                onSlotSelect?.(slot);
+                              }}
+                              className={cn(
+                                "cursor-pointer border p-1.5 text-xs transition-opacity hover:opacity-90",
+                                getMeetingTypeColors(slot.type)
                               )}
-                              <span className="truncate">{slot.startTime}</span>
-                              {getMeetingTypeBadge(slot.type)}
-                            </div>
-                          </Card>
-                        ))}
+                            >
+                              <div className="flex items-center gap-1">
+                                {slot.type === "online" ? (
+                                  <Monitor className="h-2.5 w-2.5 text-blue-600 dark:text-blue-400" />
+                                ) : (
+                                  <MapPin className="h-2.5 w-2.5 text-orange-600 dark:text-orange-400" />
+                                )}
+                                <span className="truncate">{slot.startTime}</span>
+                                {getMeetingTypeBadge(slot.type)}
+                              </div>
+                            </Card>
+                          ))}
                         {daySlots.length > 3 - dayAppointments.length &&
                           dayAppointments.length < 3 && (
                             <div className="text-muted-foreground text-center text-xs">

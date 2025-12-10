@@ -20,6 +20,8 @@ interface KanbanBoardContentProps {
   onAddCard: (task: Omit<KanbanTask, "id">) => void;
   onCardClick: (task: KanbanTask) => void;
   onMoveTask: (taskId: string, newBoardId: string, newPosition: number) => void;
+  onDeleteBoard?: (boardId: string) => void;
+  canManageBoards?: boolean;
 }
 
 export function KanbanBoardContent({
@@ -29,6 +31,8 @@ export function KanbanBoardContent({
   onAddCard,
   onCardClick,
   onMoveTask,
+  onDeleteBoard,
+  canManageBoards,
 }: KanbanBoardContentProps) {
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -59,7 +63,7 @@ export function KanbanBoardContent({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex h-[calc(100vh-20rem)] gap-4 overflow-hidden p-4">
+      <div className="flex h-full gap-4 overflow-x-auto p-4">
         {columns.map(column => {
           const columnTasks = tasks.filter(task => task.status === column.id);
           return (
@@ -69,6 +73,8 @@ export function KanbanBoardContent({
               tasks={columnTasks}
               onAddCard={onAddCard}
               onCardClick={onCardClick}
+              onDeleteBoard={onDeleteBoard}
+              canManageBoards={canManageBoards}
             />
           );
         })}

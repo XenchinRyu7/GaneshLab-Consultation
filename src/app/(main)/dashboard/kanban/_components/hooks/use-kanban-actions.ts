@@ -215,7 +215,7 @@ export function useKanbanActions({
 
       const data = await response.json();
 
-      // Update from server response
+      // Update from server response (sync with DB)
       const updatedColumns: KanbanColumn[] = [];
       const updatedTasks: KanbanTask[] = [];
 
@@ -246,8 +246,33 @@ export function useKanbanActions({
     } catch (error) {
       console.error("Error moving task:", error);
       onError("Failed to move task");
+      // TODO: Rollback optimistic update if needed
     }
   }
 
-  return { handleAddCard, handleAddBoard, handleUpdateCard, handleMoveTask };
+  async function handleDeleteBoard(boardId: string) {
+    try {
+      const response = await fetch(`/api/kanban/boards/${boardId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error ?? "Failed to delete board");
+      }
+
+      // Remove board from local state
+      setColumns(prev => prev.filter(col => col.id !== boardId));
+
+      // Remove tasks from this board
+      setTasks(prev => prev.filter(task => task.status !== boardId));
+
+      onSuccess("Board deleted successfully");
+    } catch (error) {
+      console.error("Error deleting board:", error);
+      onError(error instanceof Error ? error.message : "Failed to delete board");
+    }
+  }
+
+  return { handleAddCard, handleAddBoard, handleUpdateCard, handleMoveTask, handleDeleteBoard };
 }

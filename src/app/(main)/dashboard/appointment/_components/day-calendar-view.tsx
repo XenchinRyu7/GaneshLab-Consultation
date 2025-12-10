@@ -44,6 +44,13 @@ export function DayCalendarView({
     return slots;
   }, [availabilitySlots, dateStr, projectContext]);
 
+  // Check if slot is in the past
+  const isSlotExpired = (slot: PMAvailabilitySlot) => {
+    const now = new Date();
+    const slotDateTime = new Date(`${slot.date}T${slot.startTime}`);
+    return slotDateTime < now;
+  };
+
   const statusColors = {
     pending:
       "bg-yellow-50 border-yellow-200 text-yellow-700 dark:bg-yellow-950/30 dark:border-yellow-800 dark:text-yellow-400",
@@ -131,30 +138,52 @@ export function DayCalendarView({
           ))}
 
           {/* Availability Slots - Each slot is a separate card */}
-          {daySlots.map(slot => (
-            <Card
-              key={`${slot.pmId}-${slot.startTime}-${slot.endTime}`}
-              onClick={() => onSlotSelect?.(slot)}
-              className={cn(
-                "cursor-pointer border-2 p-4 transition-opacity hover:opacity-90",
-                getMeetingTypeColors(slot.type)
-              )}
-            >
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {getMeetingTypeIcon(slot.type)}
-                  {getMeetingTypeBadge(slot.type)}
+          {daySlots.map(slot => {
+            const expired = isSlotExpired(slot);
+            const canSelect = slot.available && !expired;
+            return (
+              <Card
+                key={`${slot.pmId}-${slot.startTime}-${slot.endTime}`}
+                onClick={() => canSelect && onSlotSelect?.(slot)}
+                className={cn(
+                  "border-2 p-4 transition-opacity",
+                  canSelect ? "cursor-pointer hover:opacity-90" : "cursor-not-allowed opacity-50",
+                  getMeetingTypeColors(slot.type)
+                )}
+              >
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {getMeetingTypeIcon(slot.type)}
+                    {getMeetingTypeBadge(slot.type)}
+                    {!slot.available && (
+                      <Badge variant="destructive" className="text-xs">
+                        Booked
+                      </Badge>
+                    )}
+                    {expired && (
+                      <Badge variant="secondary" className="text-xs">
+                        Expired
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <Clock className="h-4 w-4 opacity-60" />
+                    <span>
+                      {slot.startTime} - {slot.endTime}
+                    </span>
+                  </div>
+                  {slot.pmName && <div className="text-sm opacity-60">PIC: {slot.pmName}</div>}
+                  {!canSelect && (
+                    <div className="text-muted-foreground text-sm">
+                      {expired
+                        ? "This slot has already passed"
+                        : "This slot is no longer available"}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <Clock className="h-4 w-4 opacity-60" />
-                  <span>
-                    {slot.startTime} - {slot.endTime}
-                  </span>
-                </div>
-                {slot.pmName && <div className="text-sm opacity-60">PIC: {slot.pmName}</div>}
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
 
           {dayAppointments.length === 0 && daySlots.length === 0 && (
             <div className="text-muted-foreground py-12 text-center text-sm">

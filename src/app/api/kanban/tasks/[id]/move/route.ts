@@ -8,6 +8,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+async function normalizeBoardPositions(tx: any, boardId: string) {
+  const tasks = await tx.kanbanTask.findMany({
+    where: { boardId },
+    orderBy: { position: "asc" },
+  });
+
+  for (let i = 0; i < tasks.length; i++) {
+    if (tasks[i].position !== i) {
+      await tx.kanbanTask.update({
+        where: { id: tasks[i].id },
+        data: { position: i },
+      });
+    }
+  }
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getCurrentUser();
@@ -55,72 +71,50 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const isSameBoard = oldBoardId === newBoardId;
 
     await prisma.$transaction(async tx => {
+      // First, normalize positions in both boards to ensure no duplicates
+      await normalizeBoardPositions(tx, oldBoardId);
+      if (!isSameBoard) {
+        await normalizeBoardPositions(tx, newBoardId);
+      }
+
       if (isSameBoard) {
         // Reordering within same board
         if (newPosition > oldPosition) {
-          // Moving down
-          await tx.kanbanTask.updateMany({
-            where: {
-              boardId: oldBoardId,
-              position: {
-                gt: oldPosition,
-                lte: newPosition,
-              },
-            },
-            data: {
-              position: {
-                decrement: 1,
-              },
-            },
-          });
+          // Moving down - shift tasks between old and new position up
+          await tx.$executeRaw`
+            UPDATE kanban_tasks
+            SET position = position - 1
+            WHERE board_id = ${oldBoardId}
+              AND position > ${oldPosition}
+              AND position <= ${newPosition}
+          `;
         } else if (newPosition < oldPosition) {
-          // Moving up
-          await tx.kanbanTask.updateMany({
-            where: {
-              boardId: oldBoardId,
-              position: {
-                gte: newPosition,
-                lt: oldPosition,
-              },
-            },
-            data: {
-              position: {
-                increment: 1,
-              },
-            },
-          });
+          // Moving up - shift tasks between new and old position down
+          await tx.$executeRaw`
+            UPDATE kanban_tasks
+            SET position = position + 1
+            WHERE board_id = ${oldBoardId}
+              AND position >= ${newPosition}
+              AND position < ${oldPosition}
+          `;
         }
       } else {
         // Moving to different board
         // 1. Shift tasks in old board up to fill gap
-        await tx.kanbanTask.updateMany({
-          where: {
-            boardId: oldBoardId,
-            position: {
-              gt: oldPosition,
-            },
-          },
-          data: {
-            position: {
-              decrement: 1,
-            },
-          },
-        });
+        await tx.$executeRaw`
+          UPDATE kanban_tasks
+          SET position = position - 1
+          WHERE board_id = ${oldBoardId}
+            AND position > ${oldPosition}
+        `;
 
         // 2. Shift tasks in new board down to make space
-        await tx.kanbanTask.updateMany({
-          where: {
-            boardId: newBoardId,
-            position: {
-              gte: newPosition,
-            },
-          },
-          data: {
-            position: {
-              increment: 1,
-            },
-          },
-        });
+        await tx.$executeRaw`
+          UPDATE kanban_tasks
+          SET position = position + 1
+          WHERE board_id = ${newBoardId}
+            AND position >= ${newPosition}
+        `;
       }
 
       // 3. Update the moved task

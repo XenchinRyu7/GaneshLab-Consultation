@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { useUserStore } from "@/stores/user/user-provider";
+
 import { AddBoardDialog } from "./add-board-dialog";
 import { EditCardDialog } from "./edit-card-dialog";
 import { useKanbanActions } from "./hooks/use-kanban-actions";
@@ -30,14 +32,18 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
     onError: handleError,
   });
 
-  const { handleAddCard, handleAddBoard, handleUpdateCard, handleMoveTask } = useKanbanActions({
-    projectId,
-    columns,
-    setColumns,
-    setTasks,
-    onSuccess: handleSuccess,
-    onError: handleError,
-  });
+  const { handleAddCard, handleAddBoard, handleUpdateCard, handleMoveTask, handleDeleteBoard } =
+    useKanbanActions({
+      projectId,
+      columns,
+      setColumns,
+      setTasks,
+      onSuccess: handleSuccess,
+      onError: handleError,
+    });
+
+  const isPIC = useUserStore(state => state.isPIC());
+  const isAdmin = useUserStore(state => state.isAdmin());
 
   const [editingTask, setEditingTask] = useState<KanbanTask | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -69,17 +75,23 @@ export function KanbanBoard({ projectId }: KanbanBoardProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-end">
-        <AddBoardDialog onAddBoard={handleAddBoard} existingIds={existingIds} />
+        {(isPIC || isAdmin) && (
+          <AddBoardDialog onAddBoard={handleAddBoard} existingIds={existingIds} />
+        )}
       </div>
 
-      <KanbanBoardContent
-        columns={columns}
-        tasks={tasks}
-        setTasks={setTasks}
-        onAddCard={handleAddCard}
-        onCardClick={handleCardClick}
-        onMoveTask={handleMoveTask}
-      />
+      <div className="max-h-[calc(100vh-12rem)] overflow-y-auto">
+        <KanbanBoardContent
+          columns={columns}
+          tasks={tasks}
+          setTasks={setTasks}
+          onAddCard={handleAddCard}
+          onCardClick={handleCardClick}
+          onMoveTask={handleMoveTask}
+          onDeleteBoard={handleDeleteBoard}
+          canManageBoards={isPIC || isAdmin}
+        />
+      </div>
 
       {editingTask && (
         <EditCardDialog
