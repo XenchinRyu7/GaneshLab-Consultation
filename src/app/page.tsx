@@ -1,6 +1,12 @@
 import Link from "next/link";
 
 import Particles from "@/components/particles";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const navigation = [
   { name: "Get Started", href: "/get-started" },
@@ -35,6 +41,63 @@ export default function Home() {
         <h2 className="text-sm text-zinc-500">
           Connect with our team to discuss your project needs.
         </h2>
+
+        {/* App Description Section */}
+        <div className="mx-auto max-w-2xl space-y-4 text-center">
+          <p className="text-sm leading-relaxed text-zinc-400">
+            GaneshLab Consultation is a comprehensive project management platform designed to
+            streamline your consulting journey. Our system connects clients with expert consultants
+            (PICs) through structured workflows, appointment scheduling, and collaborative project
+            tracking.
+          </p>
+
+          <div className="space-y-3 text-left">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="what-we-do">
+                <AccordionTrigger className="text-sm font-semibold text-zinc-300 hover:text-zinc-100">
+                  What We Do
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-zinc-400">
+                    <li>Project consultation and management</li>
+                    <li>Appointment scheduling with Google Calendar integration</li>
+                    <li>Real-time communication and progress tracking</li>
+                    <li>Kanban board for project workflow management</li>
+                    <li>Secure document sharing and collaboration</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="data-usage">
+                <AccordionTrigger className="text-sm font-semibold text-zinc-300 hover:text-zinc-100">
+                  Data Usage
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="mt-2 space-y-2">
+                    <p className="text-xs leading-relaxed text-zinc-400">
+                      We collect and use your information to provide consulting services, schedule
+                      appointments, and manage projects. Your Google Calendar data is used solely
+                      for appointment coordination and will never be shared with third parties. All
+                      personal data is protected under our privacy policy and handled in compliance
+                      with data protection regulations.
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      Read our{" "}
+                      <Link
+                        href="/privacy-policy"
+                        className="text-zinc-300 underline hover:text-zinc-100"
+                      >
+                        Privacy Policy
+                      </Link>{" "}
+                      for detailed information about data collection and usage.
+                    </p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+
         <div className="flex flex-col items-center gap-3">
           <div className="space-y-2 text-center">
             <p className="text-xs text-zinc-400">

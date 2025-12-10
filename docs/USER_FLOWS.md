@@ -73,7 +73,7 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 
 ### 2. Penerimaan Kredensial
 
-- Admin meninjau permintaan dan membuat kredensial login
+- sistem otomatis membuatkan password sementara dengan email yang dimasukan olebh client
 - Client menerima email dengan kredensial login (email dan kata sandi sementara)
 
 ### 3. Proses Login
@@ -87,7 +87,6 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 
 - Saat login pertama, client diminta untuk melengkapi profil perusahaan
 - Harus mengisi detail perusahaan, informasi kontak, dan bidang wajib lainnya
-- Profil harus disetujui sebelum melanjutkan ke pembuatan proyek
 
 ### 5. Pembuatan Proyek
 
@@ -97,9 +96,8 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 
 ### 6. Menunggu Persetujuan Proyek
 
-- Status proyek menunjukkan "Menunggu Persetujuan"
+- Status proyek menunjukkan "Pending Approval"
 - Client tidak dapat melanjutkan sampai PIC meninjau dan menyetujui proyek
-- Mungkin menerima notifikasi tentang pembaruan status proyek
 
 ### 7. Penjadwalan Janji Temu
 
