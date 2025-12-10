@@ -104,23 +104,14 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 - Setelah proyek disetujui, client dapat menjadwalkan janji temu
 - Melihat kalender ketersediaan PIC
 - Memesan slot waktu untuk konsultasi/pertemuan
-- Dapat meminta penjadwalan ulang jika diperlukan
 
-### 8. Penanganan Reschedule
+### 8. Manajemen Proyek
 
-- Client dapat mengajukan permintaan reschedule melalui dashboard
-- Sistem mengirim notifikasi ke PIC yang ditugaskan
-- PIC meninjau dan menyetujui atau menolak permintaan reschedule
-- Jika disetujui, sistem memperbarui kalender dan mengirim konfirmasi ke client
-- Jika ditolak, PIC memberikan alasan dan saran waktu alternatif
-
-### 9. Manajemen Proyek
-
-- Mengakses papan Kanban untuk melacak kemajuan proyek
+- Mengakses papan Milestone untuk melacak kemajuan proyek
 - Melihat timeline proyek dan milestone
 - Berkomunikasi dengan PIC yang ditugaskan melalui sistem chat
 
-### 10. Gambaran Umum Dashboard
+### 9. Gambaran Umum Dashboard
 
 - Melihat status proyek secara keseluruhan dan janji temu mendatang
 - Mengakses laporan proyek dan dokumentasi
@@ -152,9 +143,9 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 - Mengelola jadwal dan menangani penjadwalan ulang jika diperlukan
 - Melaksanakan konsultasi dengan guest sesuai jadwal
 
-### 5. Manajemen Papan Kanban
+### 5. Manajemen Milestone
 
-- Memperbarui status proyek melalui workflow Kanban
+- Memperbarui status proyek melalui workflow Milestone
 - Memindahkan tugas antar kolom (To Do, In Progress, Done, dll.)
 - Menambahkan komentar dan pembaruan ke kartu proyek
 
@@ -186,7 +177,7 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 ### 2. Akses Dashboard
 
 - Melihat statistik sistem secara keseluruhan (total pengguna, proyek aktif, kesehatan sistem)
-- Memantau metrik kinerja PIC dan client
+- Memantau metrik kine qrja PIC dan client
 - Mengakses notifikasi sistem dan pembaruan penting
 - Melihat ringkasan aktivitas harian dan bulanan
 
@@ -252,13 +243,6 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 - Jika disetujui, PIC ditugaskan dan guest menerima email konfirmasi
 - Jika ditolak, guest menerima email penolakan dengan alasan
 
-### Reset Kata Sandi
-
-- Tersedia untuk semua peran
-- Pengguna meminta reset kata sandi via email
-- Menerima link reset dengan token sementara
-- Membuat kata sandi baru dan login
-
 ### Manajemen Profil
 
 - Semua pengguna dapat memperbarui informasi profil mereka
@@ -272,32 +256,3 @@ Sistem mendukung tiga peran pengguna utama dengan izin dan workflow yang berbeda
 - PIC: penugasan baru, pesan client, guest appointment assignments
 - Admin: peringatan sistem, permintaan persetujuan, guest appointment requests
 
-## Penanganan Error dan Kasus Tepi
-
-### Akses Ditolak
-
-- Pengguna yang mencoba tindakan yang tidak sah dialihkan
-- Pesan error yang jelas menjelaskan persyaratan izin
-
-### Kedaluwarsa Sesi
-
-- Logout otomatis setelah tidak aktif
-- Pengguna diminta untuk login ulang
-
-### Validasi Data
-
-- Semua formulir menyertakan validasi sisi client dan sisi server
-- Guest appointment forms memerlukan validasi email dan informasi kontak
-- Pengguna dipandu melalui koreksi input yang tidak valid
-
-### Guest Request Limits
-
-- Sistem dapat membatasi jumlah guest appointment requests per hari
-- Admin dapat mengatur prioritas berdasarkan jenis konsultasi
-- Guest menerima feedback langsung tentang status permintaan mereka
-- Guest tetap sebagai eksternal user tanpa akses ke sistem dashboard
-
-### Resolusi Konflik
-
-- Konflik janji temu terdeteksi dan dicegah
-- Admin dapat menyelesaikan konflik yang ditingkatkan secara manual

@@ -71,10 +71,10 @@ export async function POST(req: NextRequest) {
       } as never,
     });
 
-    // Send notifications to all admin and PIC users
+    // Send notifications to admin users only
     try {
       const adminUsers = await prisma.userProfile.findMany({
-        where: { role: { in: ["admin", "pic"] } },
+        where: { role: "admin" },
         select: { id: true, fullname: true },
       });
 

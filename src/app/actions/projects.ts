@@ -134,10 +134,10 @@ export async function declineProject(projectId: string, declineNote: string) {
   }
 }
 
-// Calculate project progress based on kanban tasks
+// Calculate project progress based on milestone tasks
 export async function calculateProjectProgress(projectId: string): Promise<number> {
   try {
-    const tasks = await prisma.kanbanTask.findMany({
+    const tasks = await prisma.milestoneTask.findMany({
       where: { projectId },
       select: {
         board: {

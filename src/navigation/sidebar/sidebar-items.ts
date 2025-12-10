@@ -1,11 +1,11 @@
 import {
   MessageSquare,
   Calendar,
-  Kanban,
+  Target,
   Users,
   Fingerprint,
   LayoutDashboard,
-  FolderKanban,
+  Folder,
   Clock,
   Shield,
   BarChart3,
@@ -72,12 +72,12 @@ export const sidebarItems: NavGroup[] = [
       {
         title: "Projects",
         url: "/dashboard/projects",
-        icon: FolderKanban,
+        icon: Folder,
         subItems: [
           {
             title: "All Projects",
             url: "/dashboard/projects",
-            icon: FolderKanban,
+            icon: Folder,
           },
           {
             title: "Project Approvals",
@@ -99,9 +99,9 @@ export const sidebarItems: NavGroup[] = [
         roles: ["pic", "admin"], // Only visible for PIC and Admin
       },
       {
-        title: "Kanban",
-        url: "/dashboard/kanban",
-        icon: Kanban,
+        title: "Milestone",
+        url: "/dashboard/milestone",
+        icon: Target,
       },
     ],
   },

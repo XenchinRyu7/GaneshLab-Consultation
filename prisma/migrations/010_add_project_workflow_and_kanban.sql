@@ -1,14 +1,14 @@
--- Add proper project workflow and kanban system
--- Migration: 010_add_project_workflow_and_kanban
+-- Add proper project workflow and milestone system
+-- Migration: 010_add_project_workflow_and_milestone.sql
 
 -- Create project status enum
 CREATE TYPE "ProjectStatus" AS ENUM ('PENDING', 'APPROVED', 'DECLINED', 'ACTIVE', 'COMPLETED', 'ON_MAINTAIN', 'CANCELLED');
 
--- Create kanban task status enum
-CREATE TYPE "KanbanTaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE');
+-- Create milestone task status enum
+CREATE TYPE "MilestoneTaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE');
 
--- Create kanban task priority enum
-CREATE TYPE "KanbanTaskPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+-- Create milestone task priority enum
+CREATE TYPE "MilestoneTaskPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 
 -- Update projects table
 ALTER TABLE projects
@@ -28,13 +28,13 @@ UPDATE projects SET status = 'ON_MAINTAIN' WHERE status = 'on_hold';
 ALTER TABLE projects DROP CONSTRAINT IF EXISTS projects_status_check;
 ALTER TABLE projects ALTER COLUMN status SET DEFAULT 'PENDING';
 
--- Create kanban_tasks table
-CREATE TABLE IF NOT EXISTS kanban_tasks (
+-- Create milestone_tasks table
+CREATE TABLE IF NOT EXISTS milestone_tasks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   description TEXT,
-  status "KanbanTaskStatus" DEFAULT 'TODO',
-  priority "KanbanTaskPriority" DEFAULT 'MEDIUM',
+  status "MilestoneTaskStatus" DEFAULT 'TODO',
+  priority "MilestoneTaskPriority" DEFAULT 'MEDIUM',
   assignee_id UUID REFERENCES user_profiles(id) ON DELETE SET NULL,
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   tags TEXT[] DEFAULT '{}',
@@ -47,18 +47,18 @@ CREATE TABLE IF NOT EXISTS kanban_tasks (
   created_by UUID NOT NULL REFERENCES user_profiles(id)
 );
 
--- Create indexes for kanban_tasks
-CREATE INDEX IF NOT EXISTS idx_kanban_tasks_project_id ON kanban_tasks(project_id);
-CREATE INDEX IF NOT EXISTS idx_kanban_tasks_assignee_id ON kanban_tasks(assignee_id);
-CREATE INDEX IF NOT EXISTS idx_kanban_tasks_status ON kanban_tasks(status);
-CREATE INDEX IF NOT EXISTS idx_kanban_tasks_priority ON kanban_tasks(priority);
-CREATE INDEX IF NOT EXISTS idx_kanban_tasks_due_date ON kanban_tasks(due_date);
+-- Create indexes for milestone_tasks
+CREATE INDEX IF NOT EXISTS idx_milestone_tasks_project_id ON milestone_tasks(project_id);
+CREATE INDEX IF NOT EXISTS idx_milestone_tasks_assignee_id ON milestone_tasks(assignee_id);
+CREATE INDEX IF NOT EXISTS idx_milestone_tasks_status ON milestone_tasks(status);
+CREATE INDEX IF NOT EXISTS idx_milestone_tasks_priority ON milestone_tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_milestone_tasks_due_date ON milestone_tasks(due_date);
 
 -- Update projects table to make progress calculated (not stored)
--- Progress will be calculated dynamically from kanban tasks
-COMMENT ON COLUMN projects.progress IS 'Progress percentage calculated from kanban tasks (0-100)';
+-- Progress will be calculated dynamically from milestone tasks
+COMMENT ON COLUMN projects.progress IS 'Progress percentage calculated from milestone tasks (0-100)';
 
--- Add trigger to update project updated_at when kanban tasks change
+-- Add trigger to update project updated_at when milestone tasks change
 CREATE OR REPLACE FUNCTION update_project_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -67,6 +67,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_update_project_on_kanban_change
-  AFTER INSERT OR UPDATE OR DELETE ON kanban_tasks
+CREATE TRIGGER trigger_update_project_on_milestone_change
+  AFTER INSERT OR UPDATE OR DELETE ON milestone_tasks
   FOR EACH ROW EXECUTE FUNCTION update_project_updated_at();

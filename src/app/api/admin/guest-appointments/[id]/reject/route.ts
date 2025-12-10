@@ -6,7 +6,7 @@ import transporter from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 /**
- * POST /api/admin/guest-appointments/[id]/assign - Assign PIC to guest appointment
+ * POST /api/admin/guest-appointments/[id]/reject - Reject guest appointment
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -16,43 +16,39 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log("[assign-pic] User role:", session.role);
-
     if (session.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { id } = await params;
-    const { picId } = await req.json();
-
-    if (!picId) {
-      return NextResponse.json({ error: "PIC ID is required" }, { status: 400 });
-    }
-
-    // Verify PIC exists and has correct role
-    const pic = await prisma.userProfile.findUnique({
-      where: { id: picId },
-    });
-
-    if (!pic || pic.role !== "pic") {
-      return NextResponse.json({ error: "Invalid PIC" }, { status: 400 });
-    }
+    const { reason } = await req.json();
 
     // Verify appointment exists and is a guest appointment
     const appointment = await prisma.appointment.findUnique({
       where: { id },
+      include: {
+        pic: {
+          select: {
+            fullname: true,
+            email: true,
+          },
+        },
+      },
     });
 
     if (!appointment?.isGuestAppointment) {
       return NextResponse.json({ error: "Appointment not found" }, { status: 404 });
     }
 
-    // Update appointment with PIC
+    if (appointment.status !== "pending") {
+      return NextResponse.json({ error: "Appointment is not in pending status" }, { status: 400 });
+    }
+
+    // Update appointment status to cancelled
     const updatedAppointment = await prisma.appointment.update({
       where: { id },
       data: {
-        picId,
-        status: "confirmed", // Auto-confirm when PIC is assigned
+        status: "cancelled",
       },
       include: {
         pic: {
@@ -64,28 +60,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       },
     });
 
-    // Send assignment email to PIC
-    if (pic.email) {
-      const assignmentEmailHtml = `
+    // Send rejection email to guest
+    if (appointment.guestEmail) {
+      const rejectionEmailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #16a34a;">New Guest Appointment Assigned</h2>
-          <p>Dear ${pic.fullname},</p>
-          <p>You have been assigned to handle a guest appointment.</p>
+          <h2 style="color: #dc2626;">Appointment Rejected</h2>
+          <p>Dear ${appointment.guestName},</p>
+          <p>We regret to inform you that your guest appointment request has been <strong>rejected</strong>.</p>
 
-          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
             <h3>Appointment Details:</h3>
             <p><strong>Title:</strong> ${appointment.title}</p>
-            <p><strong>Guest:</strong> ${appointment.guestName}</p>
-            <p><strong>Email:</strong> ${appointment.guestEmail}</p>
-            <p><strong>Phone:</strong> ${appointment.guestPhone}</p>
-            <p><strong>Purpose:</strong> ${appointment.guestPurpose}</p>
-            <p><strong>Date:</strong> ${appointment.date.toLocaleDateString()}</p>
+            <p><strong>Date:</strong> ${appointment.date?.toLocaleDateString()}</p>
             <p><strong>Time:</strong> ${appointment.startTime} - ${appointment.endTime}</p>
-            <p><strong>Type:</strong> ${appointment.type}</p>
+            ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ""}
           </div>
 
-          <p>Please prepare for this appointment and contact the guest if needed.</p>
-          <p>If you cannot attend this appointment, please request a reschedule through the system.</p>
+          <p>If you have any questions or would like to schedule a different time, please contact us.</p>
 
           <p>Best regards,<br>GaneshLab Consultation Team</p>
         </div>
@@ -93,17 +84,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
       const mailOptions = {
         from: `"GaneshLab Consultation" <${process.env.SMTP_USER}>`,
-        to: pic.email,
-        subject: "New Guest Appointment Assigned - GaneshLab Consultation",
-        html: assignmentEmailHtml,
+        to: appointment.guestEmail,
+        subject: "Appointment Rejected - GaneshLab Consultation",
+        html: rejectionEmailHtml,
       };
 
       try {
         await transporter.sendMail(mailOptions);
-        console.log("Assignment email sent to PIC:", pic.email);
+        console.log("Rejection email sent to:", appointment.guestEmail);
       } catch (emailError) {
-        console.error("Failed to send assignment email:", emailError);
-        // Don't fail the assignment if email fails
+        console.error("Failed to send rejection email:", emailError);
+        // Don't fail the rejection if email fails
       }
     }
 
@@ -111,28 +102,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const requestInfo = getRequestInfo(req.headers);
     await logAudit({
       userId: session.id,
-      action: "ASSIGN_PIC_TO_GUEST",
+      action: "REJECT_GUEST_APPOINTMENT",
       entityType: "APPOINTMENT",
       entityId: id,
       details: {
-        picId,
-        picName: pic.fullname,
         guestName: appointment.guestName ?? "Unknown",
         guestEmail: appointment.guestEmail ?? "Unknown",
+        reason: reason ?? "No reason provided",
       },
       ...requestInfo,
     });
 
     return NextResponse.json({
-      message: "PIC assigned successfully",
+      message: "Guest appointment rejected successfully",
       appointment: updatedAppointment,
     });
   } catch (error) {
-    console.error("Error assigning PIC:", error);
+    console.error("Error rejecting guest appointment:", error);
 
     const requestInfo = getRequestInfo(req.headers);
     await logAudit({
-      action: "ASSIGN_PIC_TO_GUEST",
+      action: "REJECT_GUEST_APPOINTMENT",
       entityType: "APPOINTMENT",
       details: { error: error instanceof Error ? error.message : "Unknown error" },
       success: false,
@@ -140,6 +130,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       ...requestInfo,
     });
 
-    return NextResponse.json({ error: "Failed to assign PIC" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to reject guest appointment" }, { status: 500 });
   }
 }

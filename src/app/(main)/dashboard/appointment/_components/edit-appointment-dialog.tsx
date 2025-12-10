@@ -116,6 +116,21 @@ export function EditAppointmentDialog({
             <RescheduleSection onRequestReschedule={handleRescheduleRequest} />
           )}
 
+          {isClient && (
+            <div className="space-y-4 border-t pt-4">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20">
+                <h3 className="mb-2 text-lg font-medium text-blue-900 dark:text-blue-100">
+                  Need to Reschedule?
+                </h3>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  As a client, you cannot reschedule appointments directly. Please contact your
+                  assigned PIC (Person In Charge) to request a reschedule. They will coordinate with
+                  you and send a formal reschedule request if needed.
+                </p>
+              </div>
+            </div>
+          )}
+
           <DialogFooter className="flex items-center justify-between">
             <Button type="button" variant="destructive" onClick={handleDelete}>
               <Trash2 className="mr-2 h-4 w-4" />

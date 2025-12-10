@@ -1,39 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, UserCheck } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from "react";
 
 import { DataTable } from "@/components/data-table/data-table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useDataTableInstance } from "@/hooks/use-data-table-instance";
+
+import { AssignPICDialog } from "./_components/assign-pic-dialog";
+import { DeleteAppointmentDialog } from "./_components/delete-appointment-dialog";
+import { getGuestAppointmentColumns } from "./_components/guest-appointment-columns";
+import { RejectAppointmentDialog } from "./_components/reject-appointment-dialog";
+import { useGuestAppointmentActions } from "./_hooks/use-guest-appointment-actions";
+import { useGuestAppointments } from "./_hooks/use-guest-appointments";
 
 type GuestAppointment = {
   id: string;
@@ -55,266 +32,92 @@ type GuestAppointment = {
   createdAt: string;
 };
 
-type PIC = {
-  id: string;
-  fullname: string;
-  email: string;
-};
-
 export default function GuestAppointmentsPage() {
-  const [appointments, setAppointments] = useState<GuestAppointment[]>([]);
-  const [pics, setPics] = useState<PIC[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { appointments, pics, fetchGuestAppointments, fetchAvailablePICs } = useGuestAppointments();
+
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<GuestAppointment | null>(null);
-  const [selectedPicId, setSelectedPicId] = useState<string>("");
-  const [isAssigning, setIsAssigning] = useState(false);
 
-  useEffect(() => {
+  const {
+    isAssigning,
+    isProcessing,
+    handleAssignPIC,
+    handleApproveAppointment,
+    handleRejectAppointment,
+    handleDeleteAppointment,
+  } = useGuestAppointmentActions(selectedAppointment, () => {
     fetchGuestAppointments();
-  }, []);
+    setSelectedAppointment(null);
+  });
 
-  async function fetchGuestAppointments() {
-    try {
-      const response = await fetch("/api/admin/guest-appointments");
-      if (!response.ok) throw new Error("Failed to fetch");
-      const data = await response.json();
-      setAppointments(data.appointments);
-    } catch {
-      toast.error("Gagal memuat data guest appointments");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const handleAssign = (appointment: GuestAppointment) => {
+    setSelectedAppointment(appointment);
+    setAssignDialogOpen(true);
+  };
 
-  async function fetchAvailablePICs(date: string, startTime: string, endTime: string) {
-    try {
-      // Extract date string only (YYYY-MM-DD) if it's an ISO string
-      const dateStr = date.includes("T") ? date.split("T")[0] : date;
+  const handleApprove = (appointment: GuestAppointment) => {
+    setSelectedAppointment(appointment);
+    handleApproveAppointment();
+  };
 
-      const params = new URLSearchParams({ date: dateStr, startTime, endTime });
-      const response = await fetch(`/api/admin/guest-appointments/available-pics?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch available PICs");
-      const data = await response.json();
-      setPics(data.pics ?? []);
-    } catch (error) {
-      console.error("Error fetching available PICs:", error);
-      toast.error("Gagal memuat daftar PIC yang tersedia");
-      setPics([]);
-    }
-  }
+  const handleReject = (appointment: GuestAppointment) => {
+    setSelectedAppointment(appointment);
+    setRejectDialogOpen(true);
+  };
 
-  async function handleAssignPIC() {
-    if (!selectedAppointment || !selectedPicId) return;
+  const handleDelete = (appointment: GuestAppointment) => {
+    setSelectedAppointment(appointment);
+    setDeleteDialogOpen(true);
+  };
 
-    setIsAssigning(true);
-    try {
-      const response = await fetch(
-        `/api/admin/guest-appointments/${selectedAppointment.id}/assign`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ picId: selectedPicId }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to assign PIC");
-
-      toast.success("PIC berhasil ditugaskan");
-
-      setAssignDialogOpen(false);
-      setSelectedAppointment(null);
-      setSelectedPicId("");
-      fetchGuestAppointments();
-    } catch {
-      toast.error("Gagal menugaskan PIC");
-    } finally {
-      setIsAssigning(false);
-    }
-  }
-
-  const columns: ColumnDef<GuestAppointment>[] = [
-    {
-      accessorKey: "guestName",
-      header: "Nama",
-    },
-    {
-      accessorKey: "guestEmail",
-      header: "Email",
-    },
-    {
-      accessorKey: "guestPhone",
-      header: "Telepon",
-    },
-    {
-      accessorKey: "guestOrganization",
-      header: "Organisasi",
-      cell: ({ row }) => row.original.guestOrganization ?? "-",
-    },
-    {
-      accessorKey: "title",
-      header: "Judul",
-    },
-    {
-      accessorKey: "date",
-      header: "Tanggal",
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString("id-ID"),
-    },
-    {
-      accessorKey: "startTime",
-      header: "Waktu",
-      cell: ({ row }) => `${row.original.startTime} - ${row.original.endTime}`,
-    },
-    {
-      accessorKey: "type",
-      header: "Tipe",
-      cell: ({ row }) => (
-        <Badge variant={row.original.type === "online" ? "default" : "secondary"}>
-          {row.original.type === "online" ? "Online" : "Offline"}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: "pic",
-      header: "PIC",
-      cell: ({ row }) =>
-        row.original.pic?.fullname ?? <Badge variant="outline">Belum ditugaskan</Badge>,
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
-        const variant =
-          status === "confirmed"
-            ? "default"
-            : status === "pending"
-              ? "secondary"
-              : status === "cancelled"
-                ? "destructive"
-                : "outline";
-        return <Badge variant={variant}>{status}</Badge>;
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const appointment = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedAppointment(appointment);
-                  setSelectedPicId(appointment.picId ?? "");
-                  // Fetch available PICs based on appointment time
-                  fetchAvailablePICs(appointment.date, appointment.startTime, appointment.endTime);
-                  setAssignDialogOpen(true);
-                }}
-              >
-                <UserCheck className="mr-2 h-4 w-4" />
-                {appointment.picId ? "Ubah PIC" : "Tugaskan PIC"}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `Nama: ${appointment.guestName}\nEmail: ${appointment.guestEmail}\nTelepon: ${appointment.guestPhone}\nKeperluan: ${appointment.guestPurpose}`
-                  );
-                  toast.success("Detail disalin ke clipboard");
-                }}
-              >
-                Copy Detail
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
+  const columns = getGuestAppointmentColumns(
+    handleAssign,
+    handleApprove,
+    handleReject,
+    handleDelete
+  );
 
   const table = useDataTableInstance({
     data: appointments,
     columns,
-    getRowId: row => row.id,
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Guest Appointments</h1>
-        <p className="text-muted-foreground">Kelola janji temu dari tamu yang belum terdaftar</p>
+        <p className="text-muted-foreground">Manage guest appointment requests and assignments.</p>
       </div>
 
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
-        <DataTable<GuestAppointment, unknown> table={table} columns={columns} />
-      )}
+      <DataTable table={table} columns={columns} />
 
-      {/* Assign PIC Dialog */}
-      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tugaskan PIC</DialogTitle>
-            <DialogDescription>Pilih PIC yang akan menangani appointment ini</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Appointment</Label>
-              <p className="text-muted-foreground text-sm">{selectedAppointment?.title}</p>
-              <p className="text-muted-foreground text-sm">
-                {selectedAppointment?.guestName} - {selectedAppointment?.guestEmail}
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="pic-select">Pilih PIC (Hanya PIC yang tersedia)</Label>
-              <Select value={selectedPicId} onValueChange={setSelectedPicId}>
-                <SelectTrigger id="pic-select">
-                  <SelectValue placeholder="Pilih PIC" />
-                </SelectTrigger>
-                <SelectContent>
-                  {pics.length === 0 ? (
-                    <div className="text-muted-foreground px-2 py-6 text-center text-sm">
-                      Tidak ada PIC yang tersedia pada waktu ini
-                    </div>
-                  ) : (
-                    pics.map(pic => (
-                      <SelectItem key={pic.id} value={pic.id}>
-                        {pic.fullname} ({pic.email})
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              {pics.length === 0 && (
-                <p className="text-muted-foreground mt-2 text-xs">
-                  Semua PIC sedang sibuk atau tidak tersedia pada{" "}
-                  {selectedAppointment &&
-                    new Date(selectedAppointment.date).toLocaleDateString("id-ID")}{" "}
-                  pukul {selectedAppointment?.startTime} - {selectedAppointment?.endTime}
-                </p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
-              Batal
-            </Button>
-            <Button onClick={handleAssignPIC} disabled={!selectedPicId || isAssigning}>
-              {isAssigning ? "Menugaskan..." : "Tugaskan"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AssignPICDialog
+        open={assignDialogOpen}
+        onOpenChange={setAssignDialogOpen}
+        appointment={selectedAppointment}
+        pics={pics}
+        onAssign={picId => handleAssignPIC(picId)}
+        onFetchPICs={fetchAvailablePICs}
+        isAssigning={isAssigning}
+      />
+
+      <RejectAppointmentDialog
+        open={rejectDialogOpen}
+        onOpenChange={setRejectDialogOpen}
+        appointment={selectedAppointment}
+        onReject={handleRejectAppointment}
+        isProcessing={isProcessing}
+      />
+
+      <DeleteAppointmentDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        appointment={selectedAppointment}
+        onDelete={handleDeleteAppointment}
+        isProcessing={isProcessing}
+      />
     </div>
   );
 }

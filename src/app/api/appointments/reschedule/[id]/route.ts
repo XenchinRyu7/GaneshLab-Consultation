@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { id: requestId } = await params;
     const body: RescheduleAction = await req.json();
 
-    if (!body.action || !["approve", "reject"].includes(body.action)) {
+    if (!["approve", "reject"].includes(body.action)) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 

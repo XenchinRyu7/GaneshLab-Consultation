@@ -63,11 +63,6 @@ export function WeeklyCalendarView({
     return slotDateTime < now;
   };
 
-  // Filter available and future slots for selection
-  const selectableSlots = useMemo(() => {
-    return filteredSlots.filter(slot => slot.available && !isSlotExpired(slot));
-  }, [filteredSlots]);
-
   const statusColors = {
     pending:
       "bg-yellow-50 border-yellow-200 text-yellow-700 dark:bg-yellow-950/30 dark:border-yellow-800 dark:text-yellow-400",

@@ -34,7 +34,7 @@ export async function proxy(request: NextRequest) {
     "/get-started",
     "/terms-of-service",
     "/privacy-policy",
-    "/guest-appointments",
+    "/guest-appointment",
   ];
   const isPublicRoute = pathname === "/" || publicRoutes.some(route => pathname.startsWith(route));
 

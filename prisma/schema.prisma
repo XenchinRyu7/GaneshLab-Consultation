@@ -96,50 +96,49 @@ model Conversation {
   @@map("conversations")
 }
 
-model KanbanBoard {
-  id        String       @id @default(cuid())
+model MilestoneBoard {
+  id        String          @id @default(cuid())
   title     String
-  color     String       @default("#3b82f6")
+  color     String          @default("#3b82f6")
   position  Int
-  projectId String       @map("project_id")
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
-  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  tasks     KanbanTask[]
+  projectId String          @map("project_id")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  project   Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     MilestoneTask[]
 
   @@unique([projectId, position])
   @@index([projectId])
   @@index([position])
-  @@map("kanban_boards")
+  @@map("milestone_boards")
 }
 
-model KanbanTask {
-  id             String             @id @default(cuid())
+model MilestoneTask {
+  id             String                @id @default(cuid())
   title          String
   description    String?
-  priority       KanbanTaskPriority @default(MEDIUM)
-  assigneeId     String?            @map("assignee_id")
-  projectId      String             @map("project_id")
+  priority       MilestoneTaskPriority @default(MEDIUM)
+  assigneeId     String?               @map("assignee_id")
+  projectId      String                @map("project_id")
   tags           String[]
-  dueDate        DateTime?          @map("due_date")
-  estimatedHours Int?               @map("estimated_hours")
-  startedAt      DateTime?          @map("started_at")
-  completedAt    DateTime?          @map("completed_at")
-  createdAt      DateTime           @default(now()) @map("created_at")
-  updatedAt      DateTime           @updatedAt @map("updated_at")
-  createdBy      String             @map("created_by")
-  boardId        String             @map("board_id")
+  dueDate        DateTime?             @map("due_date")
+  estimatedHours Int?                  @map("estimated_hours")
+  startedAt      DateTime?             @map("started_at")
+  completedAt    DateTime?             @map("completed_at")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+  createdBy      String                @map("created_by")
+  boardId        String                @map("board_id")
   position       Int
-  assignee       UserProfile?       @relation(fields: [assigneeId], references: [id])
-  board          KanbanBoard        @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  project        Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee       UserProfile?          @relation(fields: [assigneeId], references: [id])
+  board          MilestoneBoard        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  project        Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([assigneeId])
   @@index([boardId])
   @@index([dueDate])
-  @@index([priority])
   @@index([projectId])
-  @@map("kanban_tasks")
+  @@map("milestone_tasks")
 }
 
 model Message {
@@ -228,8 +227,8 @@ model Project {
   status          ProjectStatus     @default(PENDING)
   appointments    Appointment[]
   conversations   Conversation[]
-  kanbanBoards    KanbanBoard[]
-  kanbanTasks     KanbanTask[]
+  milestoneBoards MilestoneBoard[]
+  milestoneTasks  MilestoneTask[]
   client          UserProfile       @relation("ProjectClient", fields: [clientId], references: [id], onDelete: Cascade)
   company         Company?          @relation(fields: [companyId], references: [id])
   pic             UserProfile       @relation("ProjectPic", fields: [picId], references: [id], onDelete: Cascade)
@@ -287,8 +286,8 @@ model UserProfile {
   company               Company?
   conversationsAsClient Conversation[]      @relation("ConversationClient")
   conversationsAsPic    Conversation[]      @relation("ConversationPic")
-  kanbanTasks           KanbanTask[]
   messages              Message[]
+  milestoneTasks        MilestoneTask[]
   notifications         Notification[]
   picAvailabilities     PicAvailability[]
   picBlockedSlots       PicBlockedSlot[]
@@ -348,13 +347,13 @@ enum AppointmentStatus {
   completed
 }
 
-enum KanbanTaskPriority {
+enum MilestoneTaskPriority {
   LOW
   MEDIUM
   HIGH
 }
 
-enum KanbanTaskStatus {
+enum MilestoneTaskStatus {
   TODO
   IN_PROGRESS
   REVIEW

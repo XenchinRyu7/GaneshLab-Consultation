@@ -4,43 +4,45 @@
 
 ## Features
 
-- Built with Next.js 16, TypeScript, Tailwind CSS v4, and Shadcn UI  
-- Responsive and mobile-friendly  
-- 42 customizable theme presets (light/dark modes with color schemes)  
-- Flexible layouts (collapsible sidebar, variable content widths)  
-- Authentication flows and screens  
-- Prebuilt dashboards (Default, CRM, Finance)  
-- Role-Based Access Control (RBAC) with config-driven UI and multi-tenant support *(planned)*  
+- Built with Next.js 16, TypeScript, Tailwind CSS v4, and Shadcn UI
+- Responsive and mobile-friendly
+- 42 customizable theme presets (light/dark modes with color schemes)
+- Flexible layouts (collapsible sidebar, variable content widths)
+- Authentication flows and screens
+- Prebuilt dashboards (Default, CRM, Finance)
+- Role-Based Access Control (RBAC) with config-driven UI and multi-tenant support _(planned)_
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 (App Router), TypeScript, Tailwind CSS v4  
-- **UI Components**: Shadcn UI  
-- **Validation**: Zod  
-- **Forms & State Management**: React Hook Form, Zustand  
-- **Tables & Data Handling**: TanStack Table  
-- **Tooling & DX**: ESLint, Prettier, Husky  
+- **Framework**: Next.js 16 (App Router), TypeScript, Tailwind CSS v4
+- **UI Components**: Shadcn UI
+- **Validation**: Zod
+- **Forms & State Management**: React Hook Form, Zustand
+- **Tables & Data Handling**: TanStack Table
+- **Tooling & DX**: ESLint, Prettier, Husky
 
 ## Screens
 
 ### Available
-- Default Dashboard  
-- CRM Dashboard  
-- Finance Dashboard  
+
+- Default Dashboard
+- CRM Dashboard
+- Finance Dashboard
 - Authentication (4 screens)
 
 ### Coming Soon
-- Analytics Dashboard  
-- eCommerce Dashboard  
-- Academy Dashboard  
-- Logistics Dashboard  
-- Email Page  
-- Chat Page  
-- Calendar Page  
-- Kanban Board  
-- Invoice Page  
-- Users Management  
-- Roles Management  
+
+- Analytics Dashboard
+- eCommerce Dashboard
+- Academy Dashboard
+- Logistics Dashboard
+- Email Page
+- Chat Page
+- Calendar Page
+- Milestone Tracking
+- Invoice Page
+- Users Management
+- Roles Management
 
 ## Getting Started
 
@@ -56,16 +58,19 @@
 This ensures all developers have the same environment.
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/XenchinRyu7/GaneshLab-Consultation.git
    ```
-   
+
 2. **Navigate into the project**
+
    ```bash
    cd GaneshLab-Consultation
    ```
 
 3. **Start with Docker Compose**
+
    ```bash
    docker-compose up
    ```
@@ -78,6 +83,7 @@ This ensures all developers have the same environment.
 Your app will be running at [http://localhost:3000](http://localhost:3000)
 
 **Docker Commands:**
+
 - `docker-compose up` - Start development server
 - `docker-compose up -d` - Start in detached mode (background)
 - `docker-compose down` - Stop containers
@@ -87,16 +93,19 @@ Your app will be running at [http://localhost:3000](http://localhost:3000)
 #### Option 2: Local Development
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/XenchinRyu7/GaneshLab-Consultation.git
    ```
-   
+
 2. **Navigate into the project**
+
    ```bash
    cd GaneshLab-Consultation
    ```
 
 3. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -124,11 +133,13 @@ Your app will be running at [http://localhost:3000](http://localhost:3000)
 The project includes Docker setup for consistent development environments across the team.
 
 **Files:**
+
 - `Dockerfile.dev` - Development Docker image
 - `docker-compose.yml` - Docker Compose configuration for development
 - `Dockerfile` - Production Docker image (standalone output)
 
 **Features:**
+
 - Hot reload enabled (volume mounting)
 - Consistent Node.js version (20-alpine)
 - Automatic theme preset generation
@@ -164,6 +175,7 @@ src
 ## Theme Presets
 
 The project includes 42 theme presets including:
+
 - Default (Shadcn Neutral)
 - Tangerine
 - Neo Brutalism

@@ -1,5 +1,6 @@
 /**
- * Component to display and handle reschedule requests for clients
+ * Component to display reschedule notifications for clients
+ * Shows when PIC has rescheduled appointments (no approval needed)
  */
 
 import { useCallback, useEffect, useState } from "react";

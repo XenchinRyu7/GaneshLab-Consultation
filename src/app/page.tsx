@@ -62,7 +62,7 @@ export default function Home() {
                     <li>Project consultation and management</li>
                     <li>Appointment scheduling with Google Calendar integration</li>
                     <li>Real-time communication and progress tracking</li>
-                    <li>Kanban board for project workflow management</li>
+                    <li>Milestone tracking for project workflow management</li>
                     <li>Secure document sharing and collaboration</li>
                   </ul>
                 </AccordionContent>
