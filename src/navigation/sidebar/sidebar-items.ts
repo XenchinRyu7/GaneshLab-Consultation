@@ -96,7 +96,7 @@ export const sidebarItems: NavGroup[] = [
         title: "Availability",
         url: "/dashboard/availability",
         icon: Clock,
-        roles: ["pic", "admin"], // Only visible for PIC and Admin
+        roles: ["pic", "admin"],
       },
       {
         title: "Milestone",

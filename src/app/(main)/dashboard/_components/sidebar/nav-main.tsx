@@ -29,7 +29,8 @@ export function NavMain({ items }: NavMainProps) {
 
   const isItemActive = (url: string, subItems?: NavMainItem["subItems"]) => {
     if (subItems?.length) {
-      return subItems.some(sub => path.startsWith(sub.url));
+      // For items with subItems, only be active if current path exactly matches the main URL
+      return path === url;
     }
     return path === url;
   };
