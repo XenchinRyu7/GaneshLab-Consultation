@@ -16,7 +16,13 @@ export const formSchema = z.object({
   type: z.enum(["online", "offline"], {
     required_error: "Tipe pertemuan harus dipilih",
   }),
-  preferredTime: z.string().min(1, "Waktu preferensi harus diisi"),
+  preferredTime: z
+    .string()
+    .min(1, "Waktu preferensi harus diisi")
+    .regex(
+      /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
+      "Format waktu tidak valid. Gunakan format 24 jam (HH:mm)"
+    ),
 });
 
 export type FormValues = z.infer<typeof formSchema>;

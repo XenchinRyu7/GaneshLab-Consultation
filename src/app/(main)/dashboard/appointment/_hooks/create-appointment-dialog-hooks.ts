@@ -4,6 +4,11 @@
 
 import type { PIC, ProjectContext, MeetingType } from "../_components/calendar-config";
 
+interface Project {
+  id: string;
+  name: string;
+}
+
 interface PICResponse {
   id: string;
   fullname: string;
@@ -47,8 +52,32 @@ function autoSelectPIC(
 }
 
 /**
- * Fetch and process PICs
+ * Fetch client projects
  */
+export async function fetchClientProjects(
+  userId: string,
+  userRole: string,
+  setProjects: (projects: Project[]) => void,
+  setLoadingProjects: (loading: boolean) => void
+): Promise<void> {
+  try {
+    setLoadingProjects(true);
+    const response = await fetch(`/api/projects?userId=${userId}&role=${userRole}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch projects");
+    }
+    const data = await response.json();
+    const projects: Project[] = (data.projects ?? []).map((project: any) => ({
+      id: project.id,
+      name: project.name,
+    }));
+    setProjects(projects);
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+  } finally {
+    setLoadingProjects(false);
+  }
+}
 export async function fetchAndProcessPICs(
   projectContext: ProjectContext | undefined,
   setPics: (pics: PIC[]) => void,
@@ -90,6 +119,7 @@ export function initializeFormFromSlot(
     setTitle: (title: string) => void;
     setDescription: (desc: string) => void;
     setLocation: (location: string) => void;
+    setProjectId?: (id: string) => void;
   }
 ) {
   if (initialSlot && open) {
@@ -111,6 +141,7 @@ export function initializeFormFromSlot(
     setters.setEndTime("");
     setters.setType("online");
     setters.setLocation("");
+    setters.setProjectId?.("");
   }
 }
 
@@ -131,12 +162,19 @@ export function calculateDuration(start: string, end: string): number {
 export function validateFormSubmission(
   title: string,
   picId: string,
+  projectId: string,
   date: string,
   startTime: string,
   endTime: string,
-  pics: PIC[]
+  pics: PIC[],
+  isClient: boolean = false
 ): { valid: boolean; selectedPM: PIC | null } {
   if (!title.trim() || !picId || !date || !startTime || !endTime) {
+    return { valid: false, selectedPM: null };
+  }
+
+  // For clients, project selection is required
+  if (isClient && !projectId) {
     return { valid: false, selectedPM: null };
   }
 
@@ -155,6 +193,7 @@ export function buildAppointmentPayload(
   title: string,
   description: string,
   picId: string,
+  projectId: string,
   selectedPM: PIC,
   date: string,
   startTime: string,
@@ -179,6 +218,6 @@ export function buildAppointmentPayload(
     type,
     location: type === "offline" ? location.trim() || undefined : undefined,
     status: "pending" as const,
-    projectId: undefined, // Will be set by parent component
+    projectId: projectId || undefined,
   };
 }
