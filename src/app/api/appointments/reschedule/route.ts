@@ -162,7 +162,7 @@ async function sendRescheduleNotification(
           title: "Appointment Reschedule Requested",
           message: `Your PIC ${appointment.pic?.fullname} has requested to reschedule your appointment "${appointment.title}" to ${new Date(proposedDate).toLocaleDateString()} at ${proposedStartTime}`,
           type: "APPOINTMENT",
-          actionUrl: `/dashboard/appointment?id=${appointmentId}`,
+          actionUrl: `/dashboard/appointment?id=${appointment.id}`,
         },
       });
     } catch (notifError) {

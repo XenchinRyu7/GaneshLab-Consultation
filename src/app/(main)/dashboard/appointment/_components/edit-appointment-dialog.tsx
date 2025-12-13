@@ -107,7 +107,10 @@ export function EditAppointmentDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isClient && appointment.clientName && (
-            <ClientInfoSection clientName={appointment.clientName} />
+            <ClientInfoSection
+              clientName={appointment.clientName}
+              projectName={appointment.projectName}
+            />
           )}
 
           <AppointmentFormFields {...formState} isClient={isClient} />

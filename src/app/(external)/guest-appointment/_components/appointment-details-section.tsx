@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { TimePicker } from "@/components/ui/time-picker";
 import { cn } from "@/lib/utils";
 
 export function AppointmentDetailsSection({ control }: { control: any }) {
@@ -150,14 +149,29 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
               Waktu Preferensi *
             </FormLabel>
             <FormControl>
-              <TimePicker
-                value={field.value}
-                onChange={field.onChange}
-                className="[&_.w-20]:border-zinc-700 [&_.w-20]:bg-zinc-800/50 [&_.w-20]:text-zinc-100 [&_.w-20]:focus:border-transparent [&_.w-20]:focus:ring-2 [&_.w-20]:focus:ring-zinc-500 [&_span]:text-zinc-400"
+              <Input
+                type="text"
+                placeholder="HH:mm (contoh: 14:30)"
+                maxLength={5}
+                className="border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500"
+                {...field}
+                onChange={e => {
+                  let value = e.target.value;
+                  // Hanya izinkan angka dan colon
+                  value = value.replace(/[^0-9:]/g, "");
+                  // Auto insert colon setelah 2 digit pertama
+                  if (value.length === 2 && !value.includes(":")) {
+                    value = value + ":";
+                  }
+                  // Batasi panjang maksimal 5 karakter (HH:mm)
+                  if (value.length <= 5) {
+                    field.onChange(value);
+                  }
+                }}
               />
             </FormControl>
             <FormDescription className="text-zinc-500">
-              Waktu yang Anda inginkan (akan dikonfirmasi oleh admin)
+              Waktu yang Anda inginkan (akan dikonfirmasi oleh admin). Format: 24 jam (HH:mm)
             </FormDescription>
             <FormMessage />
           </FormItem>

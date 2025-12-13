@@ -54,8 +54,22 @@ export function MilestoneBoard({ projectId }: MilestoneBoardProps) {
   }
 
   async function handleUpdate(taskId: string, updatedTask: Partial<milestoneTask>) {
+    // Check if status is being changed
+    const currentTask = tasks.find(t => t.id === taskId);
+    const statusChanged =
+      updatedTask.status && currentTask && updatedTask.status !== currentTask.status;
+
     const success = await handleUpdateCard(taskId, updatedTask);
     if (success) {
+      // If status changed, move the task to the new column
+      if (statusChanged && updatedTask.status) {
+        // Find the position in the new column (add to the end)
+        const tasksInNewColumn = tasks.filter(t => t.status === updatedTask.status);
+        const newPosition = tasksInNewColumn.length;
+
+        await handleMoveTask(taskId, updatedTask.status, newPosition);
+      }
+
       setIsEditDialogOpen(false);
       setEditingTask(null);
     }
@@ -99,7 +113,7 @@ export function MilestoneBoard({ projectId }: MilestoneBoardProps) {
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
           onUpdateCard={handleUpdate}
-          availableStatuses={availableStatuses}
+          availableColumns={columns}
         />
       )}
     </div>

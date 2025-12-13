@@ -25,31 +25,6 @@ export type UserState = {
   setDevelopmentMode: (enabled: boolean) => void;
 };
 
-// Mock users untuk development (hanya digunakan jika development mode aktif)
-const mockUsers: Record<UserRole, User> = {
-  admin: {
-    id: "admin-1",
-    name: "Admin System",
-    email: "admin@ganeshlab.com",
-    role: "admin",
-    avatar: "#3b82f6", // Blue color
-  },
-  pic: {
-    id: "pic-1",
-    name: "John PIC",
-    email: "pic@ganeshlab.com",
-    role: "pic",
-    avatar: "#10b981", // Green color
-  },
-  client: {
-    id: "client-1",
-    name: "Client ABC",
-    email: "client@example.com",
-    role: "client",
-    avatar: "#f59e0b", // Orange color
-  },
-};
-
 export const createUserStore = (init?: Partial<UserState>) =>
   createStore<UserState>()((set, get) => ({
     currentUser: init?.currentUser ?? null,
@@ -68,9 +43,6 @@ export const createUserStore = (init?: Partial<UserState>) =>
             role,
           },
         });
-      } else if (get().isDevelopmentMode) {
-        // Jika belum ada user, gunakan mock user
-        set({ currentUser: mockUsers[role] });
       }
     },
 

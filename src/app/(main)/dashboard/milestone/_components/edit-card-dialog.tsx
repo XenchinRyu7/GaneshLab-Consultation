@@ -22,26 +22,26 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import type { milestoneTask, TaskStatus } from "./milestone-config";
+import type { milestoneTask, TaskStatus, milestoneColumn } from "./milestone-config";
 
 interface EditCardDialogProps {
   task: milestoneTask;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdateCard: (taskId: string, updatedTask: Partial<milestoneTask>) => void;
-  availableStatuses: TaskStatus[];
+  availableColumns: milestoneColumn[];
 }
 
 function EditCardForm({
   task,
   onUpdateCard,
   onClose,
-  availableStatuses,
+  availableColumns,
 }: {
   task: milestoneTask;
   onUpdateCard: (taskId: string, updatedTask: Partial<milestoneTask>) => void;
   onClose: () => void;
-  availableStatuses: TaskStatus[];
+  availableColumns: milestoneColumn[];
 }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? "");
@@ -106,9 +106,9 @@ function EditCardForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {availableStatuses.map(statusId => (
-                  <SelectItem key={statusId} value={statusId}>
-                    {statusId.charAt(0).toUpperCase() + statusId.slice(1).replace(/-/g, " ")}
+                {availableColumns.map(column => (
+                  <SelectItem key={column.id} value={column.id}>
+                    {column.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -164,7 +164,7 @@ export function EditCardDialog({
   open,
   onOpenChange,
   onUpdateCard,
-  availableStatuses,
+  availableColumns,
 }: EditCardDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -173,7 +173,7 @@ export function EditCardDialog({
           task={task}
           onUpdateCard={onUpdateCard}
           onClose={() => onOpenChange(false)}
-          availableStatuses={availableStatuses}
+          availableColumns={availableColumns}
         />
       </DialogContent>
     </Dialog>
