@@ -32,6 +32,11 @@ export function formatAppointment(appointment: {
   project: {
     name: string;
   } | null;
+  isGuestAppointment?: boolean;
+  guestName?: string | null;
+  guestEmail?: string | null;
+  guestOrganization?: string | null;
+  guestPhone?: string | null;
 }) {
   return {
     id: appointment.id,
@@ -56,5 +61,10 @@ export function formatAppointment(appointment: {
     notes: appointment.notes,
     createdAt: appointment.createdAt.toISOString(),
     updatedAt: appointment.updatedAt.toISOString(),
+    isGuestAppointment: appointment.isGuestAppointment ?? false,
+    guestName: appointment.guestName ?? null,
+    guestEmail: appointment.guestEmail ?? null,
+    guestOrganization: appointment.guestOrganization ?? null,
+    guestPhone: appointment.guestPhone ?? null,
   };
 }

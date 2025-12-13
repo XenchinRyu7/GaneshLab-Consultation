@@ -26,6 +26,12 @@ export interface Appointment {
   // Additional fields from API
   projectId?: string;
   projectName?: string;
+  // Guest appointment fields
+  isGuestAppointment?: boolean;
+  guestName?: string;
+  guestEmail?: string;
+  guestOrganization?: string;
+  guestPhone?: string;
 }
 
 export interface PMAvailability {

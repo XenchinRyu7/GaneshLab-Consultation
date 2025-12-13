@@ -39,7 +39,7 @@ interface PicStats {
     status: string;
     client: {
       fullname: string;
-    };
+    } | null;
   }>;
   pendingProjectApprovals: number;
   pendingRescheduleRequests: number;
@@ -181,7 +181,7 @@ export function PicOverview() {
                         {appointment.startTime} - {appointment.title}
                       </div>
                       <div className="text-muted-foreground text-sm">
-                        Client: {appointment.client.fullname || "Unknown Client"}
+                        Client: {appointment.client?.fullname ?? "Unknown Client"}
                       </div>
                     </div>
                     <Badge

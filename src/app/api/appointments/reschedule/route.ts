@@ -8,8 +8,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { logAudit, getRequestInfo } from "@/lib/audit-logger";
 import { getCurrentUser } from "@/lib/auth";
-import transporter from "@/lib/email";
 import { prisma } from "@/lib/prisma";
+
+import { sendRescheduleNotification } from "./_utils/notification-handler";
 
 // GET /api/appointments/reschedule?clientId=...
 export async function GET(req: NextRequest) {
@@ -106,71 +107,6 @@ async function validateRescheduleRequest(
   return appointment;
 }
 
-async function sendRescheduleNotification(
-  appointment: any,
-  proposedDate: string,
-  proposedStartTime: string,
-  proposedEndTime: string,
-  reason?: string
-) {
-  if (appointment.isGuestAppointment && appointment.guestEmail) {
-    const rescheduleEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #f59e0b;">Appointment Reschedule Requested</h2>
-        <p>Dear ${appointment.guestName},</p>
-        <p>Your assigned PIC has requested to reschedule your appointment.</p>
-
-        <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-          <h3>Current Appointment:</h3>
-          <p><strong>Title:</strong> ${appointment.title}</p>
-          <p><strong>Original Date:</strong> ${appointment.date.toLocaleDateString()}</p>
-          <p><strong>Original Time:</strong> ${appointment.startTime} - ${appointment.endTime}</p>
-
-          <h3 style="margin-top: 15px;">Proposed New Schedule:</h3>
-          <p><strong>New Date:</strong> ${new Date(proposedDate).toLocaleDateString()}</p>
-          <p><strong>New Time:</strong> ${proposedStartTime} - ${proposedEndTime}</p>
-          ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ""}
-        </div>
-
-        <p>Please contact this email to confirm the reschedule request. You will receive a notification once the reschedule is confirmed.</p>
-        <p>If you have any concerns, please contact your PIC at <strong>${appointment.pic?.email}</strong> or our team.</p>
-
-        <p>Best regards,<br>GaneshLab Consultation Team</p>
-      </div>
-    `;
-
-    const mailOptions = {
-      from: `"GaneshLab Consultation" <${process.env.SMTP_USER}>`,
-      to: appointment.guestEmail,
-      subject: "Appointment Reschedule Requested - GaneshLab Consultation",
-      html: rescheduleEmailHtml,
-    };
-
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log("Reschedule request email sent to guest:", appointment.guestEmail);
-    } catch (emailError) {
-      console.error("Failed to send reschedule email:", emailError);
-    }
-  }
-
-  if (appointment.clientId && !appointment.isGuestAppointment) {
-    try {
-      await prisma.notification.create({
-        data: {
-          userId: appointment.clientId,
-          title: "Appointment Reschedule Requested",
-          message: `Your PIC ${appointment.pic?.fullname} has requested to reschedule your appointment "${appointment.title}" to ${new Date(proposedDate).toLocaleDateString()} at ${proposedStartTime}`,
-          type: "APPOINTMENT",
-          actionUrl: `/dashboard/appointment?id=${appointment.id}`,
-        },
-      });
-    } catch (notifError) {
-      console.error("Error creating reschedule notification:", notifError);
-    }
-  }
-}
-
 // POST /api/appointments/reschedule - PIC requests reschedule for appointment
 export async function POST(req: NextRequest) {
   try {
@@ -208,13 +144,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    await sendRescheduleNotification(
+    await sendRescheduleNotification({
       appointment,
       proposedDate,
       proposedStartTime,
       proposedEndTime,
-      reason
-    );
+      reason,
+      rescheduleRequestId: rescheduleRequest.id,
+    });
 
     const requestInfo = getRequestInfo(req.headers);
     await logAudit({

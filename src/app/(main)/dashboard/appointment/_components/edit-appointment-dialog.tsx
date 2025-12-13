@@ -106,10 +106,14 @@ export function EditAppointmentDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!isClient && appointment.clientName && (
+          {!isClient && (
             <ClientInfoSection
               clientName={appointment.clientName}
               projectName={appointment.projectName}
+              isGuestAppointment={appointment.isGuestAppointment}
+              guestName={appointment.guestName}
+              guestEmail={appointment.guestEmail}
+              guestOrganization={appointment.guestOrganization}
             />
           )}
 
