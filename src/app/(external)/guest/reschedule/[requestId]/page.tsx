@@ -22,6 +22,9 @@ interface RescheduleRequestData {
     date: string;
     startTime: string;
     endTime: string;
+    type: "online" | "offline";
+    meetingLink: string | null;
+    location: string | null;
     guestName: string;
     guestEmail: string;
     pic: {
@@ -32,6 +35,7 @@ interface RescheduleRequestData {
   newDate: string;
   newStartTime: string;
   newEndTime: string;
+  newMeetingLink: string | null;
   reason: string | null;
   status: string;
 }
@@ -244,6 +248,7 @@ export default function GuestReschedulePage() {
               newDate={data.newDate}
               newStartTime={data.newStartTime}
               newEndTime={data.newEndTime}
+              newMeetingLink={data.newMeetingLink}
               reason={data.reason}
             />
 

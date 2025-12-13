@@ -52,6 +52,9 @@ export async function GET(
         date: rescheduleRequest.appointment.date.toISOString(),
         startTime: rescheduleRequest.appointment.startTime,
         endTime: rescheduleRequest.appointment.endTime,
+        type: rescheduleRequest.appointment.type,
+        meetingLink: rescheduleRequest.appointment.meetingLink,
+        location: rescheduleRequest.appointment.location,
         guestName: rescheduleRequest.appointment.guestName,
         guestEmail: rescheduleRequest.appointment.guestEmail,
         pic: rescheduleRequest.appointment.pic,
@@ -59,6 +62,7 @@ export async function GET(
       newDate: rescheduleRequest.newDate.toISOString(),
       newStartTime: rescheduleRequest.newStartTime,
       newEndTime: rescheduleRequest.newEndTime,
+      newMeetingLink: rescheduleRequest.newMeetingLink,
       reason: rescheduleRequest.reason,
       status: rescheduleRequest.status,
     });
@@ -143,7 +147,10 @@ export async function PATCH(
         appointment: {
           picId: rescheduleRequest.appointment.picId,
           guestName: rescheduleRequest.appointment.guestName,
+          guestEmail: rescheduleRequest.appointment.guestEmail,
           title: rescheduleRequest.appointment.title,
+          type: rescheduleRequest.appointment.type as "online" | "offline",
+          clientId: rescheduleRequest.appointment.clientId,
         },
       });
 
@@ -161,8 +168,10 @@ export async function PATCH(
           appointment: {
             picId: rescheduleRequest.appointment.picId,
             guestName: rescheduleRequest.appointment.guestName,
+            guestEmail: rescheduleRequest.appointment.guestEmail,
             title: rescheduleRequest.appointment.title,
             status: rescheduleRequest.appointment.status,
+            type: rescheduleRequest.appointment.type as "online" | "offline",
           },
         },
         alternativeDate,

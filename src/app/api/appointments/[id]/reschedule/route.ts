@@ -54,7 +54,7 @@ async function validateRescheduleRequest(
 }
 
 async function createNewMeetingLink(appointment: any, body: RescheduleRequest) {
-  if (appointment.type !== "online" || !appointment.client) {
+  if (appointment.type !== "online") {
     return null;
   }
 
@@ -81,12 +81,25 @@ async function createNewMeetingLink(appointment: any, body: RescheduleRequest) {
   const endDate = new Date(body.newDate);
   endDate.setHours(endHour, endMin, 0, 0);
 
+  // Include client email or guest email as attendee
+  const attendees: string[] = [];
+  if (appointment.client?.email) {
+    attendees.push(appointment.client.email);
+  }
+  if (appointment.isGuestAppointment && appointment.guestEmail) {
+    attendees.push(appointment.guestEmail);
+  }
+
+  if (attendees.length === 0) {
+    return null;
+  }
+
   const calendarEvent = await createCalendarEventWithMeet(pic, {
     summary: `${appointment.title} (Rescheduled)`,
     description: appointment.description ?? "",
     start: startDate,
     end: endDate,
-    attendees: [appointment.client.email],
+    attendees: attendees,
     type: "online",
   });
 

@@ -163,7 +163,8 @@ export function AppointmentFormFields({
             value={meetingLink}
             onChange={e => setMeetingLink(e.target.value)}
             placeholder="https://meet.google.com/..."
-            disabled={true}
+            readOnly
+            className="bg-muted/50 cursor-text"
           />
         </div>
       )}

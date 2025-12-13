@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Link as LinkIcon, MapPin } from "lucide-react";
 
 interface AppointmentDetailsProps {
   appointment: {
@@ -8,6 +8,9 @@ interface AppointmentDetailsProps {
     date: string;
     startTime: string;
     endTime: string;
+    type: "online" | "offline";
+    meetingLink: string | null;
+    location: string | null;
     pic: {
       fullname: string;
       email: string;
@@ -16,6 +19,7 @@ interface AppointmentDetailsProps {
   newDate: string;
   newStartTime: string;
   newEndTime: string;
+  newMeetingLink: string | null;
   reason: string | null;
 }
 
@@ -24,6 +28,7 @@ export function AppointmentDetails({
   newDate,
   newStartTime,
   newEndTime,
+  newMeetingLink,
   reason,
 }: AppointmentDetailsProps) {
   return (
@@ -50,6 +55,29 @@ export function AppointmentDetails({
           <p>
             <span className="font-medium">Time:</span> {appointment.startTime} -{" "}
             {appointment.endTime}
+          </p>
+          <p>
+            <span className="font-medium">Type:</span>{" "}
+            <span className="capitalize">{appointment.type}</span>
+            {appointment.type === "online" && appointment.meetingLink && (
+              <span className="ml-2 flex items-center gap-1 text-sm">
+                <LinkIcon className="h-3 w-3" />
+                <a
+                  href={appointment.meetingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:underline"
+                >
+                  Meeting Link
+                </a>
+              </span>
+            )}
+            {appointment.type === "offline" && appointment.location && (
+              <span className="ml-2 flex items-center gap-1 text-sm">
+                <MapPin className="h-3 w-3" />
+                {appointment.location}
+              </span>
+            )}
           </p>
           {appointment.pic && (
             <p>
@@ -78,6 +106,29 @@ export function AppointmentDetails({
           </p>
           <p>
             <span className="font-medium">New Time:</span> {newStartTime} - {newEndTime}
+          </p>
+          <p>
+            <span className="font-medium">Type:</span>{" "}
+            <span className="capitalize">{appointment.type}</span>
+            {appointment.type === "online" && newMeetingLink && (
+              <span className="ml-2 flex items-center gap-1 text-sm">
+                <LinkIcon className="h-3 w-3" />
+                <a
+                  href={newMeetingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:underline"
+                >
+                  Meeting Link
+                </a>
+              </span>
+            )}
+            {appointment.type === "offline" && appointment.location && (
+              <span className="ml-2 flex items-center gap-1 text-sm">
+                <MapPin className="h-3 w-3" />
+                {appointment.location}
+              </span>
+            )}
           </p>
           {reason && (
             <div className="mt-3 rounded border border-amber-700/30 bg-amber-950/10 p-3">
