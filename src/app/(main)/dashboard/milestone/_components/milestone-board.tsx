@@ -49,6 +49,8 @@ export function MilestoneBoard({ projectId }: MilestoneBoardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   function handleCardClick(task: milestoneTask) {
+    // Only allow edit if user is PIC or Admin
+    if (!isPIC && !isAdmin) return;
     setEditingTask(task);
     setIsEditDialogOpen(true);
   }

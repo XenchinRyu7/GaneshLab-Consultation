@@ -69,14 +69,19 @@ export function MilestoneColumn({
   };
 
   return (
-    <div className="flex h-full max-w-[320px] min-w-[280px] flex-col">
+    <div className="flex h-full w-[260px] min-w-[260px] flex-col sm:w-auto sm:max-w-[320px] sm:min-w-[280px]">
       <Card className="flex h-full flex-col">
-        <CardHeader className="border-b pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full" style={{ backgroundColor: column.color }} />
-              <CardTitle className="text-base font-semibold">{column.title}</CardTitle>
-              <Badge variant="secondary" className="text-xs">
+        <CardHeader className="border-b pb-3 sm:pb-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
+              <div
+                className="size-2 flex-shrink-0 rounded-full"
+                style={{ backgroundColor: column.color }}
+              />
+              <CardTitle className="truncate text-sm font-semibold sm:text-base">
+                {column.title}
+              </CardTitle>
+              <Badge variant="secondary" className="flex-shrink-0 text-xs">
                 {tasks.length}
               </Badge>
             </div>
@@ -122,7 +127,7 @@ export function MilestoneColumn({
         <CardContent
           ref={setNodeRef}
           className={cn(
-            "flex-1 space-y-3 overflow-y-auto p-4 transition-colors",
+            "flex-1 space-y-2 overflow-y-auto p-3 transition-colors sm:space-y-3 sm:p-4",
             isOver && "bg-muted/50"
           )}
         >
@@ -133,7 +138,12 @@ export function MilestoneColumn({
               </div>
             ) : (
               tasks.map(task => (
-                <MilestoneCard key={task.id} task={task} onCardClick={onCardClick} />
+                <MilestoneCard
+                  key={task.id}
+                  task={task}
+                  onCardClick={onCardClick}
+                  canDrag={canManageBoards}
+                />
               ))
             )}
           </SortableContext>

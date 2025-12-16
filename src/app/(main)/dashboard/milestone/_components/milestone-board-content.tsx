@@ -56,14 +56,21 @@ export function MilestoneBoardContent({
     onMoveTask,
   });
 
+  // Disable drag and drop if user cannot manage boards
+  const dragHandlers = canManageBoards
+    ? {
+        onDragStart: handleDragStart,
+        onDragEnd: handleDragEnd,
+      }
+    : {};
+
   return (
     <DndContext
-      sensors={sensors}
+      sensors={canManageBoards ? sensors : undefined}
       collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      {...dragHandlers}
     >
-      <div className="flex h-full gap-4 overflow-x-auto p-4">
+      <div className="flex h-full gap-2 overflow-x-auto p-2 sm:gap-4 sm:p-4">
         {columns.map(column => {
           const columnTasks = tasks.filter(task => task.status === column.id);
           return (
@@ -72,7 +79,7 @@ export function MilestoneBoardContent({
               column={column}
               tasks={columnTasks}
               onAddCard={onAddCard}
-              onCardClick={onCardClick}
+              onCardClick={canManageBoards ? onCardClick : undefined}
               onDeleteBoard={onDeleteBoard}
               canManageBoards={canManageBoards}
             />

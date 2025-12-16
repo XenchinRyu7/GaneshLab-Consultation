@@ -14,6 +14,7 @@ import type { milestoneTask } from "./milestone-config";
 interface MilestoneCardProps {
   task: milestoneTask;
   onCardClick?: (task: milestoneTask) => void;
+  canDrag?: boolean;
 }
 
 const priorityColors = {
@@ -22,9 +23,10 @@ const priorityColors = {
   high: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
-export function MilestoneCard({ task, onCardClick }: MilestoneCardProps) {
+export function MilestoneCard({ task, onCardClick, canDrag = true }: MilestoneCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
+    disabled: !canDrag,
   });
 
   const style = {
@@ -33,23 +35,26 @@ export function MilestoneCard({ task, onCardClick }: MilestoneCardProps) {
   };
 
   function handleCardClick(e: React.MouseEvent) {
-    // Don't trigger click if dragging or clicking on drag handle
-    if (isDragging) return;
+    // Don't trigger click if dragging, no click handler, or clicking on drag handle
+    if (isDragging || !onCardClick) return;
     e.stopPropagation();
-    onCardClick?.(task);
+    onCardClick(task);
   }
+
+  const dragProps = canDrag ? { ...attributes, ...listeners } : {};
 
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      onClick={handleCardClick}
+      {...dragProps}
+      onClick={onCardClick ? handleCardClick : undefined}
       className={cn(
-        "group cursor-grab transition-shadow hover:shadow-md active:cursor-grabbing",
+        "group transition-shadow hover:shadow-md",
+        canDrag && "cursor-grab active:cursor-grabbing",
         isDragging && "opacity-50 shadow-lg",
-        onCardClick && "cursor-pointer"
+        onCardClick && "cursor-pointer",
+        !onCardClick && "cursor-default"
       )}
     >
       <CardHeader className="pb-3">

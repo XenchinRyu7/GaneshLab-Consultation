@@ -41,12 +41,12 @@ export function CalendarView({
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Appointment Calendar</CardTitle>
+      <CardHeader className="pb-3 sm:pb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-lg sm:text-xl">Appointment Calendar</CardTitle>
           <div className="flex items-center gap-2">
             <Select value={viewMode} onValueChange={value => setViewMode(value as ViewMode)}>
-              <SelectTrigger className="w-[120px]">
+              <SelectTrigger className="w-[100px] sm:w-[120px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -58,7 +58,7 @@ export function CalendarView({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         {viewMode === "day" && (
           <DayCalendarView
             date={selectedDate ?? new Date()}

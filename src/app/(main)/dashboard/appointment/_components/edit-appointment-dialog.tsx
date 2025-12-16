@@ -96,7 +96,7 @@ export function EditAppointmentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} key={appointment.id}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-h-[90vh] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Appointment</DialogTitle>
           <DialogDescription>

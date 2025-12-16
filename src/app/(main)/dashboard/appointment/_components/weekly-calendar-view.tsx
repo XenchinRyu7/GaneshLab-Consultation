@@ -96,7 +96,7 @@ export function WeeklyCalendarView({
       return (
         <Badge
           variant="outline"
-          className="border-blue-300 bg-blue-100 text-xs text-blue-700 dark:border-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
+          className="border-blue-300 bg-blue-100 text-[10px] text-blue-700 sm:text-xs dark:border-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
         >
           Online
         </Badge>
@@ -105,7 +105,7 @@ export function WeeklyCalendarView({
       return (
         <Badge
           variant="outline"
-          className="border-orange-300 bg-orange-100 text-xs text-orange-700 dark:border-orange-700 dark:bg-orange-900/50 dark:text-orange-300"
+          className="border-orange-300 bg-orange-100 text-[10px] text-orange-700 sm:text-xs dark:border-orange-700 dark:bg-orange-900/50 dark:text-orange-300"
         >
           Offline
         </Badge>
@@ -116,130 +116,151 @@ export function WeeklyCalendarView({
   return (
     <div className="space-y-4">
       {/* Week Navigation */}
-      <div className="flex items-center justify-between">
-        <Button variant="outline" size="sm" onClick={handlePreviousWeek}>
-          <ChevronLeft className="mr-1 h-4 w-4" />
-          Previous Week
-        </Button>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center justify-between gap-2 sm:justify-start">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePreviousWeek}
+            className="sm:min-w-[auto]"
+          >
+            <ChevronLeft className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Previous Week</span>
+          </Button>
           <Button variant="outline" size="sm" onClick={handleToday}>
             Today
           </Button>
-          <span className="text-muted-foreground text-sm font-medium">
+          <Button variant="outline" size="sm" onClick={handleNextWeek} className="sm:min-w-[auto]">
+            <span className="hidden sm:inline">Next Week</span>
+            <ChevronRight className="h-4 w-4 sm:ml-1" />
+          </Button>
+        </div>
+        <div className="text-center sm:text-left">
+          <span className="text-muted-foreground text-xs font-medium sm:text-sm">
             {format(weekStart, "MMM d")} - {format(addDays(weekStart, 6), "MMM d, yyyy")}
           </span>
         </div>
-        <Button variant="outline" size="sm" onClick={handleNextWeek}>
-          Next Week
-          <ChevronRight className="ml-1 h-4 w-4" />
-        </Button>
       </div>
 
       {/* Week Grid */}
-      <div className="grid grid-cols-7 gap-2">
-        {weekDays.map(day => {
-          const dayStr = format(day, "yyyy-MM-dd");
-          const dayAppointments = appointments.filter(apt => apt.date === dayStr);
-          const daySlots = filteredSlots.filter(slot => slot.date === dayStr);
+      <div className="overflow-x-auto">
+        <div className="grid min-w-[700px] grid-cols-7 gap-2 sm:min-w-0">
+          {weekDays.map(day => {
+            const dayStr = format(day, "yyyy-MM-dd");
+            const dayAppointments = appointments.filter(apt => apt.date === dayStr);
+            const daySlots = filteredSlots.filter(slot => slot.date === dayStr);
 
-          return (
-            <Card
-              key={dayStr}
-              className={cn("min-h-[400px]", isToday(day) && "ring-primary ring-2")}
-            >
-              <CardContent className="p-3">
-                <div className="bg-background sticky top-0 z-10 mb-3 pb-2 text-sm font-medium">
-                  {format(day, "EEE")}
-                  <div className={cn("text-xs", isToday(day) && "text-primary font-bold")}>
-                    {format(day, "d MMM")}
-                  </div>
-                </div>
-                <div className="max-h-[350px] space-y-2 overflow-y-auto">
-                  {/* Appointments */}
-                  {dayAppointments.map(apt => (
-                    <Card
-                      key={apt.id}
-                      onClick={() => onAppointmentClick?.(apt)}
+            return (
+              <Card
+                key={dayStr}
+                className={cn(
+                  "min-h-[300px] sm:min-h-[400px]",
+                  isToday(day) && "ring-primary ring-2"
+                )}
+              >
+                <CardContent className="p-2 sm:p-3">
+                  <div className="bg-background sticky top-0 z-10 mb-2 pb-2 text-xs font-medium sm:mb-3 sm:text-sm">
+                    {format(day, "EEE")}
+                    <div
                       className={cn(
-                        "cursor-pointer border-2 p-3 transition-opacity hover:opacity-90",
-                        statusColors[apt.status]
+                        "text-[10px] sm:text-xs",
+                        isToday(day) && "text-primary font-bold"
                       )}
                     >
-                      <div className="space-y-1">
-                        <div className="truncate text-sm font-medium">{apt.title}</div>
-                        <div className="flex items-center gap-2 text-xs opacity-75">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            {apt.startTime} - {apt.endTime}
-                          </span>
-                        </div>
-                        {apt.picName && (
-                          <div className="text-xs opacity-60">PIC: {apt.picName}</div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                  {/* Availability Slots - Each slot is a separate card */}
-                  {daySlots.map((slot, idx) => {
-                    const expired = isSlotExpired(slot);
-                    const canSelect = slot.available && !expired;
-                    return (
+                      {format(day, "d MMM")}
+                    </div>
+                  </div>
+                  <div className="max-h-[240px] space-y-1.5 overflow-y-auto sm:max-h-[280px] sm:space-y-2">
+                    {/* Appointments */}
+                    {dayAppointments.map(apt => (
                       <Card
-                        key={`${slot.pmId}-${slot.startTime}-${idx}`}
-                        onClick={() => canSelect && onSlotSelect?.(slot)}
+                        key={apt.id}
+                        onClick={() => onAppointmentClick?.(apt)}
                         className={cn(
-                          "border-2 p-3 transition-opacity",
-                          canSelect
-                            ? "cursor-pointer hover:opacity-90"
-                            : "cursor-not-allowed opacity-50",
-                          getMeetingTypeColors(slot.type)
+                          "cursor-pointer border-2 p-2 transition-opacity hover:opacity-90 sm:p-3",
+                          statusColors[apt.status]
                         )}
                       >
-                        <div className="space-y-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            {getMeetingTypeIcon(slot.type)}
-                            {getMeetingTypeBadge(slot.type)}
-                            {!slot.available && (
-                              <Badge variant="destructive" className="text-xs">
-                                Booked
-                              </Badge>
-                            )}
-                            {expired && (
-                              <Badge variant="secondary" className="text-xs">
-                                Expired
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 text-xs font-medium">
-                            <Clock className="h-3 w-3 opacity-60" />
+                        <div className="space-y-1">
+                          <div className="truncate text-xs font-medium sm:text-sm">{apt.title}</div>
+                          <div className="flex items-center gap-1.5 text-[10px] opacity-75 sm:gap-2 sm:text-xs">
+                            <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                             <span>
-                              {slot.startTime} - {slot.endTime}
+                              {apt.startTime} - {apt.endTime}
                             </span>
                           </div>
-                          {slot.pmName && (
-                            <div className="text-xs opacity-60">PIC: {slot.pmName}</div>
-                          )}
-                          {!canSelect && (
-                            <div className="text-muted-foreground text-xs">
-                              {expired
-                                ? "This slot has already passed"
-                                : "This slot is no longer available"}
+                          {apt.picName && (
+                            <div className="text-[10px] opacity-60 sm:text-xs">
+                              PIC: {apt.picName}
                             </div>
                           )}
                         </div>
                       </Card>
-                    );
-                  })}
-                  {dayAppointments.length === 0 && daySlots.length === 0 && (
-                    <div className="text-muted-foreground py-8 text-center text-xs">
-                      No appointments or available slots
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                    ))}
+                    {/* Availability Slots - Each slot is a separate card */}
+                    {daySlots.map((slot, idx) => {
+                      const expired = isSlotExpired(slot);
+                      const canSelect = slot.available && !expired;
+                      return (
+                        <Card
+                          key={`${slot.pmId}-${slot.startTime}-${idx}`}
+                          onClick={() => canSelect && onSlotSelect?.(slot)}
+                          className={cn(
+                            "border-2 p-2 transition-opacity sm:p-3",
+                            canSelect
+                              ? "cursor-pointer hover:opacity-90"
+                              : "cursor-not-allowed opacity-50",
+                            getMeetingTypeColors(slot.type)
+                          )}
+                        >
+                          <div className="space-y-1.5 sm:space-y-2">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                              {getMeetingTypeIcon(slot.type)}
+                              {getMeetingTypeBadge(slot.type)}
+                              {!slot.available && (
+                                <Badge variant="destructive" className="text-[10px] sm:text-xs">
+                                  Booked
+                                </Badge>
+                              )}
+                              {expired && (
+                                <Badge variant="secondary" className="text-[10px] sm:text-xs">
+                                  Expired
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] font-medium sm:gap-2 sm:text-xs">
+                              <Clock className="h-2.5 w-2.5 opacity-60 sm:h-3 sm:w-3" />
+                              <span>
+                                {slot.startTime} - {slot.endTime}
+                              </span>
+                            </div>
+                            {slot.pmName && (
+                              <div className="text-[10px] opacity-60 sm:text-xs">
+                                PIC: {slot.pmName}
+                              </div>
+                            )}
+                            {!canSelect && (
+                              <div className="text-muted-foreground text-[10px] sm:text-xs">
+                                {expired
+                                  ? "This slot has already passed"
+                                  : "This slot is no longer available"}
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+                      );
+                    })}
+                    {dayAppointments.length === 0 && daySlots.length === 0 && (
+                      <div className="text-muted-foreground py-6 text-center text-[10px] sm:py-8 sm:text-xs">
+                        No appointments or available slots
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
