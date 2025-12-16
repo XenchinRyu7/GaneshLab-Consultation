@@ -49,15 +49,27 @@ export function usePICs() {
 /**
  * Hook to handle availability fetching
  */
-export function useAvailabilities(selectedPicId: string | null) {
+export function useAvailabilities(selectedPicId: string | null, weekStart?: Date) {
   const [availabilities, setAvailabilities] = useState<AvailabilityByDay>({});
   const [loading, setLoading] = useState(true);
   const [viewingPicName, setViewingPicName] = useState<string | null>(null);
+  const [currentWeekStart, setCurrentWeekStart] = useState<string | null>(null);
 
-  async function fetchAvailabilities(picId: string) {
+  async function fetchAvailabilities(picId: string, weekStartDate?: Date) {
     try {
       setLoading(true);
-      const url = picId ? `/api/pic/availability?picId=${picId}` : "/api/pic/availability";
+      let url = picId ? `/api/pic/availability?picId=${picId}` : "/api/pic/availability";
+
+      if (weekStartDate) {
+        // Use local date components to avoid timezone issues
+        // toISOString() converts to UTC which can change the date
+        const year = weekStartDate.getFullYear();
+        const month = String(weekStartDate.getMonth() + 1).padStart(2, "0");
+        const day = String(weekStartDate.getDate()).padStart(2, "0");
+        const weekStartStr = `${year}-${month}-${day}`;
+        url += `${picId ? "&" : "?"}weekStart=${weekStartStr}`;
+      }
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch availability");
@@ -66,6 +78,7 @@ export function useAvailabilities(selectedPicId: string | null) {
       const initialized = initializeAvailabilityData(data);
       setAvailabilities(initialized);
       setViewingPicName(data.picName ?? null);
+      setCurrentWeekStart(data.weekStart ?? null);
     } catch (error) {
       console.error("Error fetching availability:", error);
       toast.error("Failed to load availability schedule");
@@ -77,11 +90,18 @@ export function useAvailabilities(selectedPicId: string | null) {
 
   useEffect(() => {
     if (selectedPicId) {
-      fetchAvailabilities(selectedPicId);
+      fetchAvailabilities(selectedPicId, weekStart);
     }
-  }, [selectedPicId]);
+  }, [selectedPicId, weekStart]);
 
-  return { availabilities, loading, viewingPicName, setAvailabilities };
+  return {
+    availabilities,
+    loading,
+    viewingPicName,
+    currentWeekStart,
+    setAvailabilities,
+    refetch: () => fetchAvailabilities(selectedPicId ?? "", weekStart),
+  };
 }
 
 /**

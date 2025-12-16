@@ -121,6 +121,74 @@ function validateSlot(slot: unknown, day: string): NextResponse | null {
 }
 
 /**
+ * Check if two time ranges overlap
+ */
+function doTimeRangesOverlap(start1: string, end1: string, start2: string, end2: string): boolean {
+  // Convert time strings to minutes for easier comparison
+  const timeToMinutes = (time: string): number => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const start1Min = timeToMinutes(start1);
+  const end1Min = timeToMinutes(end1);
+  const start2Min = timeToMinutes(start2);
+  const end2Min = timeToMinutes(end2);
+
+  // Two ranges overlap if: start1 < end2 && start2 < end1
+  return start1Min < end2Min && start2Min < end1Min;
+}
+
+/**
+ * Validate no overlapping slots in the same day
+ */
+function validateNoOverlaps(slots: unknown[], day: string): NextResponse | null {
+  const validSlots = slots.filter(
+    (slot): slot is Record<string, unknown> =>
+      typeof slot === "object" &&
+      slot !== null &&
+      typeof slot.startTime === "string" &&
+      typeof slot.endTime === "string"
+  );
+
+  // Check for overlaps
+  for (let i = 0; i < validSlots.length; i++) {
+    for (let j = i + 1; j < validSlots.length; j++) {
+      const slot1 = validSlots[i];
+      const slot2 = validSlots[j];
+
+      // Only check overlaps if they have the same date (if date field exists)
+      const slot1Date = slot1.date as string | undefined;
+      const slot2Date = slot2.date as string | undefined;
+
+      // If both have dates and they're different, skip overlap check
+      if (slot1Date && slot2Date && slot1Date !== slot2Date) {
+        continue;
+      }
+
+      // Check if time ranges overlap
+      if (
+        doTimeRangesOverlap(
+          slot1.startTime as string,
+          slot1.endTime as string,
+          slot2.startTime as string,
+          slot2.endTime as string
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error: `Overlapping time slots detected for ${day}: ${slot1.startTime}-${slot1.endTime} overlaps with ${slot2.startTime}-${slot2.endTime}`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
  * Validate all availability slots
  */
 export function validateAllSlots(availabilities: unknown): NextResponse | null {
@@ -139,10 +207,15 @@ export function validateAllSlots(availabilities: unknown): NextResponse | null {
       );
     }
 
+    // Validate each slot
     for (const slot of slots) {
       const error = validateSlot(slot, day);
       if (error) return error;
     }
+
+    // Validate no overlaps in the same day
+    const overlapError = validateNoOverlaps(slots, day);
+    if (overlapError) return overlapError;
   }
 
   return null;

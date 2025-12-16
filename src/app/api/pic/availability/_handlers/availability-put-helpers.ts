@@ -37,6 +37,10 @@ export function buildSlotsToCreateWithDates(
     sunday: 6,
   };
 
+  // Parse startOfWeek as ISO date string (YYYY-MM-DD) to avoid timezone issues
+  const weekStartStr = startOfWeek.toISOString().split("T")[0];
+  const [weekYear, weekMonth, weekDay] = weekStartStr.split("-").map(Number);
+
   for (const day of DAYS_OF_WEEK) {
     const slots = availabilities[day] ?? [];
     if (!Array.isArray(slots) || slots.length === 0) {
@@ -48,13 +52,17 @@ export function buildSlotsToCreateWithDates(
     for (const slot of slots) {
       const slotObj = slot as Record<string, unknown>;
 
-      // Calculate specific date for this day of week (UTC to avoid timezone shift)
-      const year = startOfWeek.getFullYear();
-      const month = startOfWeek.getMonth();
-      const date = startOfWeek.getDate() + dayIndex;
-
-      // Create date in UTC using Date.UTC
-      const slotDate = new Date(Date.UTC(year, month, date, 0, 0, 0, 0));
+      // Use date from slot if available (for proper date handling), otherwise calculate from weekStart
+      let slotDate: Date;
+      if (slotObj.date && typeof slotObj.date === "string") {
+        // Parse date string (YYYY-MM-DD) and create UTC date
+        const [year, month, dayNum] = slotObj.date.split("-").map(Number);
+        slotDate = new Date(Date.UTC(year, month - 1, dayNum, 0, 0, 0, 0));
+      } else {
+        // Calculate specific date for this day of week using UTC to avoid timezone shift
+        // weekMonth - 1 because Date.UTC expects 0-indexed month
+        slotDate = new Date(Date.UTC(weekYear, weekMonth - 1, weekDay + dayIndex, 0, 0, 0, 0));
+      }
 
       slotsToCreate.push({
         picId: userId,
@@ -67,66 +75,4 @@ export function buildSlotsToCreateWithDates(
   }
 
   return slotsToCreate;
-}
-
-/**
- * Convert date-based slots back to day-of-week format for UI compatibility
- */
-export function convertToAvailabilityByDay(
-  updatedAvailabilities: Array<{
-    date: Date;
-    startTime: string;
-    endTime: string;
-    meetingType: string;
-  }>
-): Record<
-  string,
-  Array<{
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
-    meetingType: string;
-    date: string;
-  }>
-> {
-  const availabilityByDay: Record<
-    string,
-    Array<{
-      dayOfWeek: string;
-      startTime: string;
-      endTime: string;
-      meetingType: string;
-      date: string;
-    }>
-  > = {
-    monday: [],
-    tuesday: [],
-    wednesday: [],
-    thursday: [],
-    friday: [],
-    saturday: [],
-    sunday: [],
-  };
-
-  const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-
-  for (const avail of updatedAvailabilities) {
-    // Parse date as UTC to avoid timezone issues
-    const dateStr = avail.date.toISOString().split("T")[0];
-    const [year, month, day] = dateStr.split("-").map(Number);
-
-    // Create date in UTC to avoid timezone shift
-    const date = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
-    const dayOfWeek = dayNames[date.getUTCDay()];
-
-    availabilityByDay[dayOfWeek].push({
-      dayOfWeek,
-      startTime: avail.startTime,
-      endTime: avail.endTime,
-      meetingType: avail.meetingType,
-      date: dateStr,
-    });
-  }
-
-  return availabilityByDay;
 }

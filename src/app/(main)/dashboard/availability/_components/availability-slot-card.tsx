@@ -18,6 +18,7 @@ interface AvailabilitySlot {
   startTime: string;
   endTime: string;
   meetingType: "online" | "offline";
+  date?: string; // ISO date string (YYYY-MM-DD) - actual date in database
 }
 
 interface AvailabilitySlotCardProps {
@@ -82,70 +83,71 @@ export function AvailabilitySlotCard({
 
   return (
     <div
-      className={`flex flex-col gap-4 rounded-lg border-2 p-4 transition-colors sm:flex-row ${getMeetingTypeColors(slot.meetingType)}`}
+      className={`flex flex-col gap-3 rounded-lg border-2 p-3 transition-colors sm:gap-4 sm:p-4 ${getMeetingTypeColors(slot.meetingType)}`}
     >
-      <div className="flex flex-1 items-center gap-4">
-        <div className="flex items-center gap-2">
-          {getMeetingTypeIcon(slot.meetingType)}
-          {getMeetingTypeBadge(slot.meetingType)}
-        </div>
-        {isViewingOwnSchedule ? (
-          <>
-            <div className="flex flex-1 items-center gap-2">
-              <Clock className="text-muted-foreground h-4 w-4" />
-              <Label className="w-20 text-sm">Start Time</Label>
-              <TimePicker
-                value={slot.startTime}
-                onChange={value => onUpdate(dayOfWeek, index, "startTime", value)}
-                id={`${dayOfWeek}-${index}-start`}
-              />
-            </div>
-            <div className="flex flex-1 items-center gap-2">
-              <Label className="w-20 text-sm">End Time</Label>
-              <TimePicker
-                value={slot.endTime}
-                onChange={value => onUpdate(dayOfWeek, index, "endTime", value)}
-                id={`${dayOfWeek}-${index}-end`}
-              />
-            </div>
-            <div className="flex flex-1 items-center gap-2">
-              <Label htmlFor={`${dayOfWeek}-${index}-type`} className="w-20 text-sm">
-                Type
-              </Label>
-              <Select
-                value={slot.meetingType}
-                onValueChange={value => onUpdate(dayOfWeek, index, "meetingType", value)}
-              >
-                <SelectTrigger className="w-32" id={`${dayOfWeek}-${index}-type`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="online">Online</SelectItem>
-                  <SelectItem value="offline">Offline</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onRemove(dayOfWeek, index)}
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </>
-        ) : (
-          <div className="ml-4 flex flex-1 items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Clock className="text-muted-foreground h-4 w-4" />
-              <span className="text-sm font-medium">
-                {slot.startTime} - {slot.endTime}
-              </span>
-            </div>
-          </div>
-        )}
+      <div className="flex items-center gap-2">
+        {getMeetingTypeIcon(slot.meetingType)}
+        {getMeetingTypeBadge(slot.meetingType)}
       </div>
+      {isViewingOwnSchedule ? (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <Clock className="text-muted-foreground h-4 w-4 flex-shrink-0" />
+              <Label className="w-20 text-xs sm:text-sm">Start Time</Label>
+            </div>
+            <TimePicker
+              value={slot.startTime}
+              onChange={value => onUpdate(dayOfWeek, index, "startTime", value)}
+              id={`${dayOfWeek}-${index}-start`}
+              className="flex-1"
+            />
+          </div>
+          <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+            <Label className="w-20 text-xs sm:text-sm">End Time</Label>
+            <TimePicker
+              value={slot.endTime}
+              onChange={value => onUpdate(dayOfWeek, index, "endTime", value)}
+              id={`${dayOfWeek}-${index}-end`}
+              className="flex-1"
+            />
+          </div>
+          <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+            <Label htmlFor={`${dayOfWeek}-${index}-type`} className="w-20 text-xs sm:text-sm">
+              Type
+            </Label>
+            <Select
+              value={slot.meetingType}
+              onValueChange={value => onUpdate(dayOfWeek, index, "meetingType", value)}
+            >
+              <SelectTrigger className="w-full sm:w-32" id={`${dayOfWeek}-${index}-type`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="online">Online</SelectItem>
+                <SelectItem value="offline">Offline</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onRemove(dayOfWeek, index)}
+            className="text-destructive hover:text-destructive w-full sm:w-auto"
+          >
+            <Trash2 className="mr-2 h-4 w-4 sm:mr-0" />
+            <span className="sm:hidden">Remove Slot</span>
+          </Button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <Clock className="text-muted-foreground h-4 w-4" />
+          <span className="text-sm font-medium">
+            {slot.startTime} - {slot.endTime}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ export interface AvailabilitySlot {
   startTime: string;
   endTime: string;
   meetingType: "online" | "offline";
+  date?: string; // ISO date string (YYYY-MM-DD) - actual date in database
 }
 
 export interface AvailabilityByDay {
@@ -53,7 +54,8 @@ export function createEmptyAvailabilityData(): AvailabilityByDay {
  */
 export function addSlotToAvailability(
   prev: AvailabilityByDay,
-  dayOfWeek: string
+  dayOfWeek: string,
+  date?: string
 ): AvailabilityByDay {
   return {
     ...prev,
@@ -64,6 +66,7 @@ export function addSlotToAvailability(
         startTime: "09:00",
         endTime: "17:00",
         meetingType: "online",
+        date,
       },
     ],
   };

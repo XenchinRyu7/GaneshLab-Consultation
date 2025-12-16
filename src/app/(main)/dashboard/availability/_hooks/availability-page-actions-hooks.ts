@@ -20,8 +20,8 @@ export function useAvailabilitySlots(
   availabilities: AvailabilityByDay,
   setAvailabilities: (availabilities: AvailabilityByDay) => void
 ) {
-  function addSlot(dayOfWeek: string) {
-    setAvailabilities(addSlotToAvailability(availabilities, dayOfWeek));
+  function addSlot(dayOfWeek: string, date?: string) {
+    setAvailabilities(addSlotToAvailability(availabilities, dayOfWeek, date));
   }
 
   function removeSlot(dayOfWeek: string, index: number) {
@@ -45,19 +45,29 @@ export function useAvailabilitySlots(
  */
 export function useSaveAvailability(
   availabilities: AvailabilityByDay,
-  setAvailabilities: (availabilities: AvailabilityByDay) => void
+  setAvailabilities: (availabilities: AvailabilityByDay) => void,
+  weekStart?: Date
 ) {
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
     try {
       setSaving(true);
+      const body: { availabilities: AvailabilityByDay; weekStart?: string } = { availabilities };
+      if (weekStart) {
+        // Use local date components to avoid timezone issues
+        const year = weekStart.getFullYear();
+        const month = String(weekStart.getMonth() + 1).padStart(2, "0");
+        const day = String(weekStart.getDate()).padStart(2, "0");
+        body.weekStart = `${year}-${month}-${day}`;
+      }
+
       const response = await fetch("/api/pic/availability", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ availabilities }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -69,7 +79,6 @@ export function useSaveAvailability(
       setAvailabilities(data.availabilities);
       toast.success("Availability schedule saved successfully");
     } catch (error: unknown) {
-      console.error("Error saving availability:", error);
       toast.error(error instanceof Error ? error.message : "Failed to save availability schedule");
     } finally {
       setSaving(false);

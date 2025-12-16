@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,13 +11,15 @@ interface AvailabilitySlot {
   startTime: string;
   endTime: string;
   meetingType: "online" | "offline";
+  date?: string;
 }
 
 interface AvailabilityDaySectionProps {
   day: { value: string; label: string };
+  dayDate?: Date;
   slots: AvailabilitySlot[];
   isViewingOwnSchedule: boolean;
-  onAddSlot: (dayOfWeek: string) => void;
+  onAddSlot: () => void;
   onUpdateSlot: (
     dayOfWeek: string,
     index: number,
@@ -28,6 +31,7 @@ interface AvailabilityDaySectionProps {
 
 export function AvailabilityDaySection({
   day,
+  dayDate,
   slots,
   isViewingOwnSchedule,
   onAddSlot,
@@ -35,11 +39,24 @@ export function AvailabilityDaySection({
   onRemoveSlot,
 }: AvailabilityDaySectionProps) {
   return (
-    <div className="space-y-4 rounded-lg border p-4">
-      <div className="flex items-center justify-between">
-        <div className="text-lg font-medium">{day.label}</div>
+    <div className="space-y-3 rounded-lg border p-3 sm:space-y-4 sm:p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="text-base font-medium sm:text-lg">{day.label}</div>
+          {dayDate && (
+            <div className="text-muted-foreground text-xs sm:text-sm">
+              {format(dayDate, "MMMM d, yyyy")}
+            </div>
+          )}
+        </div>
         {isViewingOwnSchedule && (
-          <Button type="button" variant="outline" size="sm" onClick={() => onAddSlot(day.value)}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onAddSlot}
+            className="w-full sm:w-auto"
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add Slot
           </Button>
@@ -54,7 +71,10 @@ export function AvailabilityDaySection({
         <div className="space-y-3">
           {slots.map((slot, index) => (
             <AvailabilitySlotCard
-              key={index}
+              key={
+                slot.id ??
+                `${day.value}-${slot.startTime}-${slot.endTime}-${slot.meetingType}-${index}`
+              }
               slot={slot}
               dayOfWeek={day.value}
               index={index}
