@@ -162,11 +162,13 @@ export function useMessageSubscription({
           if (status === "SUBSCRIBED") {
             console.log("Subscribed to conversation:", selectedConversation.id);
           } else if (status === "CHANNEL_ERROR") {
-            console.error("Error subscribing to conversation");
+            // Realtime not enabled for this table; will use polling instead
+            console.debug("Realtime not available for messages; using polling fallback");
           }
         });
     } catch (error) {
-      console.error("Error setting up real-time subscription:", error);
+      // Supabase might not be configured; silently fallback to polling
+      console.debug("Real-time subscription failed, using polling:", error);
     }
 
     return () => {
@@ -199,7 +201,8 @@ export function useConversationSubscription(refreshContacts: () => Promise<void>
           if (status === "SUBSCRIBED") {
             console.log("Subscribed to conversations");
           } else if (status === "CHANNEL_ERROR") {
-            console.error("Error subscribing to conversations");
+            // Realtime not enabled for this table; will use polling instead
+            console.debug("Realtime not available for conversations; using polling fallback");
           }
         });
     } catch (error) {
