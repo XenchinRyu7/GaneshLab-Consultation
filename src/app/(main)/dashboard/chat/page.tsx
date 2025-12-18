@@ -8,7 +8,7 @@ export default async function ChatPage() {
   const { contacts } = await getContacts();
 
   return (
-    <div className="-m-4 h-[calc(100vh-4rem)] overflow-hidden md:-m-6">
+    <div className="-m-2 h-[calc(100vh-4rem)] overflow-hidden md:-m-4 lg:-m-6">
       <ChatClient initialContacts={contacts} currentUser={user} />
     </div>
   );

@@ -74,7 +74,7 @@ export function ChatMessageInput({
   };
 
   return (
-    <div className="bg-background flex-shrink-0 border-t p-4">
+    <div className="bg-background flex-shrink-0 border-t p-3 md:p-4">
       <div className="flex items-end gap-2">
         <Textarea
           ref={textareaRef}
@@ -83,7 +83,7 @@ export function ChatMessageInput({
           onChange={e => setMessageInput(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isSending}
-          className="max-h-[200px] min-h-[60px] flex-1 resize-none"
+          className="max-h-[200px] min-h-[50px] flex-1 resize-none text-sm md:min-h-[60px] md:text-base"
           rows={1}
         />
         <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
@@ -102,7 +102,7 @@ export function ChatMessageInput({
             <EmojiPicker
               onEmojiClick={handleEmojiClick}
               theme={emojiTheme}
-              width={350}
+              width={typeof window !== "undefined" && window.innerWidth < 768 ? 280 : 350}
               height={400}
               previewConfig={{
                 showPreview: false,

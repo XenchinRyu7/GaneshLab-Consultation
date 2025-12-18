@@ -10,14 +10,7 @@ import {
   type ConversationWithParticipants,
   type Contact,
 } from "@/app/actions/chat";
-import {
-  saveMessagesCache,
-  saveConversationCache,
-  removeConversationFromCache,
-} from "@/app/actions/chat/_cache";
 import type { User } from "@/lib/auth";
-
-import type { MessageCache } from "../_components/chat-client-types";
 
 interface UseMessageHandlersProps {
   selectedContact: Contact | null;
@@ -28,8 +21,6 @@ interface UseMessageHandlersProps {
     React.SetStateAction<ConversationWithParticipants | null>
   >;
   setMessages: React.Dispatch<React.SetStateAction<MessageWithSender[]>>;
-  messagesCacheRef: React.MutableRefObject<Map<string, MessageCache>>;
-  conversationsCacheRef: React.MutableRefObject<Map<string, ConversationWithParticipants>>;
   refreshContacts: () => Promise<void>;
 }
 
@@ -40,8 +31,6 @@ export function useMessageHandlers({
   setSelectedContact,
   setSelectedConversation,
   setMessages,
-  messagesCacheRef,
-  conversationsCacheRef,
   refreshContacts,
 }: UseMessageHandlersProps) {
   const initializeNewConversation = useCallback(
@@ -68,32 +57,13 @@ export function useMessageHandlers({
           : null
       );
       setSelectedConversation(newConversation);
-      conversationsCacheRef.current.set(newConversation.id, newConversation);
 
       const emptyMessages: MessageWithSender[] = [];
       setMessages(emptyMessages);
 
-      const messageCache: MessageCache = {
-        messages: emptyMessages,
-        lastUpdated: Date.now(),
-      };
-      messagesCacheRef.current.set(newConversation.id, messageCache);
-
-      if (user?.id) {
-        saveConversationCache(user.id, newConversation);
-        saveMessagesCache(user.id, newConversation.id, emptyMessages);
-      }
-
       return { conversationId: newConversation.id, conversation: newConversation };
     },
-    [
-      user,
-      setSelectedContact,
-      setSelectedConversation,
-      setMessages,
-      messagesCacheRef,
-      conversationsCacheRef,
-    ]
+    [setSelectedContact, setSelectedConversation, setMessages]
   );
 
   const createOptimisticMessage = useCallback(
@@ -134,30 +104,22 @@ export function useMessageHandlers({
   );
 
   const handleMessageSendSuccess = useCallback(
-    (tempId: string, serverMessage: MessageWithSender, conversationId: string) => {
+    (tempId: string, serverMessage: MessageWithSender) => {
       setMessages(prev => {
         const updatedMessages = prev.map(msg =>
           msg.tempId === tempId ? { ...serverMessage, status: "sent" as const } : msg
         );
 
-        const messageCache: MessageCache = {
-          messages: updatedMessages,
-          lastUpdated: Date.now(),
-        };
-        messagesCacheRef.current.set(conversationId, messageCache);
-
-        if (user?.id) {
-          saveMessagesCache(user.id, conversationId, updatedMessages);
-        }
-
         return updatedMessages;
       });
 
-      setTimeout(() => {
-        refreshContacts();
-      }, 100);
+      requestAnimationFrame(() => {
+        refreshContacts().catch(err => {
+          console.error("Error refreshing contacts:", err);
+        });
+      });
     },
-    [user, setMessages, messagesCacheRef, refreshContacts]
+    [setMessages, refreshContacts]
   );
 
   const handleSendMessage = useCallback(
@@ -194,7 +156,7 @@ export function useMessageHandlers({
           return;
         }
 
-        handleMessageSendSuccess(tempId, serverMessage, conversationId);
+        handleMessageSendSuccess(tempId, serverMessage);
       } catch (error) {
         handleMessageSendError(tempId);
         console.error("Error sending message:", error);
@@ -225,24 +187,12 @@ export function useMessageHandlers({
           msg.id === messageId ? { ...msg, isDeleted: true, content: "" } : msg
         );
 
-        if (selectedConversation) {
-          const messageCache: MessageCache = {
-            messages: updatedMessages,
-            lastUpdated: Date.now(),
-          };
-          messagesCacheRef.current.set(selectedConversation.id, messageCache);
-
-          if (user?.id) {
-            saveMessagesCache(user.id, selectedConversation.id, updatedMessages);
-          }
-        }
-
         return updatedMessages;
       });
 
       await refreshContacts();
     },
-    [selectedConversation, user, setMessages, messagesCacheRef, refreshContacts]
+    [setMessages, refreshContacts]
   );
 
   const handleEditMessage = useCallback(
@@ -264,24 +214,12 @@ export function useMessageHandlers({
           msg.id === messageId ? { ...updatedMessage, status: msg.status, tempId: msg.tempId } : msg
         );
 
-        if (selectedConversation) {
-          const messageCache: MessageCache = {
-            messages: updatedMessages,
-            lastUpdated: Date.now(),
-          };
-          messagesCacheRef.current.set(selectedConversation.id, messageCache);
-
-          if (user?.id) {
-            saveMessagesCache(user.id, selectedConversation.id, updatedMessages);
-          }
-        }
-
         return updatedMessages;
       });
 
       await refreshContacts();
     },
-    [selectedConversation, user, setMessages, messagesCacheRef, refreshContacts]
+    [setMessages, refreshContacts]
   );
 
   const handleClearConversation = useCallback(
@@ -293,13 +231,6 @@ export function useMessageHandlers({
         return;
       }
 
-      messagesCacheRef.current.delete(conversationId);
-      conversationsCacheRef.current.delete(conversationId);
-
-      if (user?.id) {
-        removeConversationFromCache(user.id, conversationId);
-      }
-
       if (selectedConversation?.id === conversationId) {
         setSelectedConversation(null);
         setMessages([]);
@@ -309,13 +240,10 @@ export function useMessageHandlers({
       await refreshContacts();
     },
     [
-      user,
       selectedConversation,
       setSelectedConversation,
       setMessages,
       setSelectedContact,
-      messagesCacheRef,
-      conversationsCacheRef,
       refreshContacts,
     ]
   );

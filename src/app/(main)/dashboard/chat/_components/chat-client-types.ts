@@ -7,6 +7,9 @@ export interface SupabasePayload {
     sender_id?: string;
     conversation_id?: string;
     content?: string;
+    is_deleted?: boolean;
+    edited_at?: string | null;
+    read_at?: string | null;
     created_at?: string;
     [key: string]: unknown;
   };
@@ -15,12 +18,6 @@ export interface SupabasePayload {
     [key: string]: unknown;
   };
   [key: string]: unknown;
-}
-
-// Cache untuk messages dan conversations
-export interface MessageCache {
-  messages: MessageWithSender[];
-  lastUpdated: number;
 }
 
 export interface ChatClientState {

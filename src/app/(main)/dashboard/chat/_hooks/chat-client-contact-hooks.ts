@@ -68,18 +68,29 @@ export function useRefreshContacts(
   setSelectedContact: React.Dispatch<React.SetStateAction<Contact | null>>
 ) {
   return useCallback(async () => {
-    const { contacts: updatedContacts } = await getContacts();
+    try {
+      const { contacts: updatedContacts } = await getContacts();
 
-    const currentSelectedContactId = selectedContact?.id;
-    const currentConversationId = selectedConversation?.id ?? selectedContact?.conversationId;
+      const currentSelectedContactId = selectedContact?.id;
+      const currentConversationId = selectedConversation?.id ?? selectedContact?.conversationId;
 
-    setContacts(updatedContacts);
+      if (currentSelectedContactId) {
+        const updatedContact = updatedContacts.find(c => c.id === currentSelectedContactId);
+        if (updatedContact) {
+          setSelectedContact(updatedContact);
+        }
+      }
 
-    updateSelectedContactAfterRefresh(
-      updatedContacts,
-      currentSelectedContactId,
-      currentConversationId,
-      setSelectedContact
-    );
+      setContacts(updatedContacts);
+
+      updateSelectedContactAfterRefresh(
+        updatedContacts,
+        currentSelectedContactId,
+        currentConversationId,
+        setSelectedContact
+      );
+    } catch (error) {
+      console.error("❌ Error refreshing contacts:", error);
+    }
   }, [selectedContact, selectedConversation, setContacts, setSelectedContact]);
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { formatDistanceToNow } from "date-fns";
 
 import type { ConversationWithParticipants } from "@/app/actions/chat";
@@ -7,6 +9,34 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, getInitials } from "@/lib/utils";
+
+// Component untuk timestamp yang aman dari hydration error
+function RelativeTimestamp({ date }: { date: Date | string }) {
+  // Selalu mulai dengan empty string untuk memastikan server dan client render sama
+  const [timestamp, setTimestamp] = useState("");
+
+  useEffect(() => {
+    // Set timestamp setelah mount untuk menghindari hydration mismatch
+    const updateTimestamp = () => {
+      setTimestamp(
+        formatDistanceToNow(new Date(date), {
+          addSuffix: true,
+        })
+      );
+    };
+    updateTimestamp();
+    const interval = setInterval(updateTimestamp, 60000); // Update setiap 1 menit
+    return () => clearInterval(interval);
+  }, [date]);
+
+  // Render placeholder saat belum mount untuk menghindari hydration mismatch
+  // suppressHydrationWarning karena kita sengaja berbeda antara server dan client
+  return (
+    <span className="text-muted-foreground text-xs whitespace-nowrap" suppressHydrationWarning>
+      {timestamp || "--"}
+    </span>
+  );
+}
 
 interface ConversationListProps {
   conversations: ConversationWithParticipants[];
@@ -65,11 +95,7 @@ export function ConversationList({
                       {otherParticipant.name}
                     </p>
                     {conversation.lastMessageAt && (
-                      <span className="text-muted-foreground text-xs whitespace-nowrap">
-                        {formatDistanceToNow(new Date(conversation.lastMessageAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
+                      <RelativeTimestamp date={conversation.lastMessageAt} />
                     )}
                   </div>
                   <div className="flex items-center gap-2">

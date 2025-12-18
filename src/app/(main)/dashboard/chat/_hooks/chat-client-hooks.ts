@@ -1,50 +1,100 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import {
   ConversationWithParticipants,
   MessageWithSender,
-  getMessages,
   markMessagesAsRead,
-  getConversationById,
+  type Contact,
 } from "@/app/actions/chat";
-import {
-  saveMessagesCache,
-  loadMessagesCache,
-  loadConversationsCache,
-} from "@/app/actions/chat/_cache";
 import { supabase } from "@/lib/supabase";
 
-import {
-  handleCachedDataFound,
-  handleLoadedConversationData,
-  handleNoCachedData,
-  loadCachedData,
-} from "../_components/chat-client-load-helpers";
-import type { MessageCache, SupabasePayload } from "../_components/chat-client-types";
+import type { SupabasePayload } from "../_components/chat-client-types";
+
+/**
+ * Transform Supabase payload to MessageWithSender using conversation participants
+ */
+function transformPayloadToMessage(
+  payload: SupabasePayload,
+  conversation: ConversationWithParticipants
+): MessageWithSender | null {
+  if (!payload.new) {
+    console.warn("⚠️ transformPayloadToMessage: payload.new is missing");
+    return null;
+  }
+
+  const newData = payload.new;
+  const senderId = newData.sender_id;
+  if (!senderId) {
+    console.warn("⚠️ transformPayloadToMessage: sender_id is missing", newData);
+    return null;
+  }
+
+  // Get sender info from conversation participants
+  const isClient = senderId === conversation.clientId;
+  const senderName = isClient ? conversation.clientName : conversation.picName;
+  const senderAvatar = isClient ? conversation.clientAvatar : conversation.picAvatar;
+
+  return {
+    id: newData.id as string,
+    conversationId: newData.conversation_id as string,
+    senderId,
+    senderName,
+    senderAvatar,
+    content: (newData.content as string) || "",
+    isDeleted: (newData.is_deleted as boolean) || false,
+    editedAt: newData.edited_at ? new Date(newData.edited_at) : null,
+    readAt: newData.read_at ? new Date(newData.read_at) : null,
+    createdAt: new Date((newData.created_at as string) || Date.now()),
+  };
+}
 
 interface UseMessageSubscriptionProps {
   selectedConversation: ConversationWithParticipants | null;
   userId: string | undefined;
   setMessages: React.Dispatch<React.SetStateAction<MessageWithSender[]>>;
-  messagesCacheRef: React.MutableRefObject<Map<string, MessageCache>>;
   refreshContacts: () => Promise<void>;
+  setContacts?: React.Dispatch<React.SetStateAction<Contact[]>>;
 }
 
 export function useMessageSubscription({
   selectedConversation,
   userId,
   setMessages,
-  messagesCacheRef,
   refreshContacts,
+  setContacts,
 }: UseMessageSubscriptionProps) {
+  const processedMessageIdsRef = useRef<Set<string>>(new Set());
+  const prevConversationIdRef = useRef<string | undefined>(undefined);
+  const currentMessagesRef = useRef<MessageWithSender[]>([]);
+  const userIdRef = useRef(userId);
+
   useEffect(() => {
-    if (!selectedConversation || !userId) return;
+    userIdRef.current = userId;
+  }, [userId]);
+
+  // Update current messages ref when messages change
+  useEffect(() => {
+    currentMessagesRef.current = [];
+  }, [selectedConversation?.id]);
+
+  useEffect(() => {
+    if (!selectedConversation || !userId) {
+      return;
+    }
+
+    // Only clear processed messages when conversation changes
+    if (prevConversationIdRef.current !== selectedConversation.id) {
+      processedMessageIdsRef.current.clear();
+      prevConversationIdRef.current = selectedConversation.id;
+    }
 
     let channel: ReturnType<typeof supabase.channel> | null = null;
 
     try {
+      const channelName = `conversation:${selectedConversation.id}`;
+
       channel = supabase
-        .channel(`conversation:${selectedConversation.id}`)
+        .channel(channelName)
         .on(
           "postgres_changes",
           {
@@ -54,67 +104,106 @@ export function useMessageSubscription({
             filter: `conversation_id=eq.${selectedConversation.id}`,
           },
           async (payload: SupabasePayload) => {
-            const newSenderId = payload.new?.sender_id;
+            if (!payload.new) {
+              return;
+            }
 
-            // Fetch all messages from server
-            const { messages: allMessages } = await getMessages(selectedConversation.id);
+            const messageConversationId = payload.new.conversation_id as string;
+            const messageId = payload.new.id as string;
 
-            // Update messages state, replacing optimistic with server messages
+            if (processedMessageIdsRef.current.has(messageId)) return;
+            processedMessageIdsRef.current.add(messageId);
+            if (processedMessageIdsRef.current.size > 100) {
+              processedMessageIdsRef.current.clear();
+            }
+
+            if (messageConversationId !== selectedConversation.id) {
+              return;
+            }
+
+            const newMessage = transformPayloadToMessage(payload, selectedConversation);
+            if (!newMessage) {
+              console.warn("⚠️ [TRACE] Failed to transform message");
+              return;
+            }
+
+            const newSenderId = newMessage.senderId;
+
             setMessages(prev => {
-              const serverMessageMap = new Map(allMessages.map(m => [m.id, m]));
-
-              const updated = prev.map(prevMsg => {
-                if (serverMessageMap.has(prevMsg.id)) {
-                  return serverMessageMap.get(prevMsg.id)!;
-                }
-
-                if (prevMsg.tempId) {
-                  const matching = allMessages.find(
-                    m =>
-                      m.content === prevMsg.content &&
-                      m.senderId === prevMsg.senderId &&
-                      Math.abs(
-                        new Date(m.createdAt).getTime() - new Date(prevMsg.createdAt).getTime()
-                      ) < 5000
-                  );
-
-                  if (matching) {
-                    return { ...matching, status: "sent" as const };
-                  }
-
-                  return prevMsg;
-                }
-
-                return prevMsg;
-              });
-
-              const currentIds = new Set(updated.map(m => m.id));
-              const newMessages = allMessages.filter(m => !currentIds.has(m.id));
-
-              const combined = [...updated, ...newMessages].sort(
-                (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-              );
-
-              const messageCache: MessageCache = {
-                messages: combined,
-                lastUpdated: Date.now(),
-              };
-              messagesCacheRef.current.set(selectedConversation.id, messageCache);
-
-              if (userId) {
-                saveMessagesCache(userId, selectedConversation.id, combined);
+              if (currentMessagesRef.current.some(msg => msg.id === newMessage.id)) {
+                if (currentMessagesRef.current.some(msg => msg.id === newMessage.id)) return prev;
               }
 
-              return combined;
+              const existingIndex = prev.findIndex(
+                msg =>
+                  msg.id === newMessage.id ||
+                  (msg.tempId &&
+                    msg.content === newMessage.content &&
+                    msg.senderId === newMessage.senderId)
+              );
+
+              let updatedMessages: MessageWithSender[];
+              if (existingIndex >= 0) {
+                updatedMessages = [...prev];
+                updatedMessages[existingIndex] = { ...newMessage, status: "sent" as const };
+              } else {
+                const newMessageCreatedAt =
+                  newMessage.createdAt instanceof Date
+                    ? newMessage.createdAt
+                    : new Date(newMessage.createdAt);
+                const sortedMessages = [
+                  ...prev,
+                  { ...newMessage, createdAt: newMessageCreatedAt },
+                ].sort((a, b) => {
+                  const aTime =
+                    a.createdAt instanceof Date
+                      ? a.createdAt.getTime()
+                      : new Date(a.createdAt).getTime();
+                  const bTime =
+                    b.createdAt instanceof Date
+                      ? b.createdAt.getTime()
+                      : new Date(b.createdAt).getTime();
+                  return aTime - bTime;
+                });
+
+                updatedMessages = sortedMessages;
+              }
+
+              currentMessagesRef.current = updatedMessages;
+
+              return updatedMessages;
             });
 
             if (newSenderId !== userId) {
               await markMessagesAsRead(selectedConversation.id);
             }
 
+            if (setContacts) {
+              setContacts(prevContacts => {
+                return prevContacts.map(contact => {
+                  // Update contact yang conversation-nya menerima pesan baru
+                  if (contact.conversationId === selectedConversation.id) {
+                    return {
+                      ...contact,
+                      lastMessage: newMessage.content,
+                      lastMessageAt: newMessage.createdAt,
+                      unreadCount:
+                        newSenderId !== userId
+                          ? (contact.unreadCount || 0) + 1
+                          : contact.unreadCount,
+                    };
+                  }
+                  // Return unchanged contact as new reference
+                  return { ...contact };
+                });
+              });
+            }
+
             setTimeout(() => {
-              refreshContacts();
-            }, 100);
+              refreshContacts().catch(err => {
+                console.error("Error refreshing contacts:", err);
+              });
+            }, 500);
           }
         )
         .on(
@@ -126,43 +215,41 @@ export function useMessageSubscription({
             filter: `conversation_id=eq.${selectedConversation.id}`,
           },
           async (payload: SupabasePayload) => {
-            const updatedMessageId = payload.new?.id;
+            const updatedMessage = transformPayloadToMessage(payload, selectedConversation);
+            if (!updatedMessage) return;
 
-            const { messages: allMessages } = await getMessages(selectedConversation.id);
-            const updatedMessage = allMessages.find(m => m.id === updatedMessageId);
+            const updatedMessageId = updatedMessage.id;
 
-            if (updatedMessage) {
-              setMessages(prev => {
-                const updatedMessages = prev.map(msg =>
-                  msg.id === updatedMessageId
-                    ? { ...updatedMessage, status: msg.status, tempId: msg.tempId }
-                    : msg
-                );
+            // Update message directly from payload
+            setMessages(prev => {
+              const messageExists = prev.some(msg => msg.id === updatedMessageId);
+              if (!messageExists) return prev; // Message not in current view, skip
 
-                const messageCache: MessageCache = {
-                  messages: updatedMessages,
-                  lastUpdated: Date.now(),
-                };
-                messagesCacheRef.current.set(selectedConversation.id, messageCache);
+              const updatedMessages = prev.map(msg =>
+                msg.id === updatedMessageId
+                  ? { ...updatedMessage, status: msg.status, tempId: msg.tempId }
+                  : msg
+              );
 
-                if (userId) {
-                  saveMessagesCache(userId, selectedConversation.id, updatedMessages);
-                }
+              // Update current messages ref
+              currentMessagesRef.current = updatedMessages;
 
-                return updatedMessages;
+              return updatedMessages;
+            });
+
+            // Refresh contacts list immediately to update last message
+            requestAnimationFrame(() => {
+              refreshContacts().catch(err => {
+                console.error("Error refreshing contacts:", err);
               });
-            }
-
-            setTimeout(() => {
-              refreshContacts();
-            }, 100);
+            });
           }
         )
-        .subscribe(status => {
-          if (status === "SUBSCRIBED") {
-            console.log("Subscribed to conversation:", selectedConversation.id);
-          } else if (status === "CHANNEL_ERROR") {
-            console.error("Error subscribing to conversation");
+        .subscribe((status: string, err?: Error) => {
+          if (status === "CHANNEL_ERROR") {
+            console.error("Realtime subscription error:", err);
+          } else if (status === "TIMED_OUT") {
+            console.error("Realtime subscription timed out");
           }
         });
     } catch (error) {
@@ -174,147 +261,6 @@ export function useMessageSubscription({
         supabase.removeChannel(channel);
       }
     };
-  }, [selectedConversation, userId, setMessages, messagesCacheRef, refreshContacts]);
-}
-
-export function useConversationSubscription(refreshContacts: () => Promise<void>) {
-  useEffect(() => {
-    let channel: ReturnType<typeof supabase.channel> | null = null;
-
-    try {
-      channel = supabase
-        .channel("conversations")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "conversations",
-          },
-          () => {
-            refreshContacts();
-          }
-        )
-        .subscribe(status => {
-          if (status === "SUBSCRIBED") {
-            console.log("Subscribed to conversations");
-          } else if (status === "CHANNEL_ERROR") {
-            console.error("Error subscribing to conversations");
-          }
-        });
-    } catch (error) {
-      console.error("Error setting up conversations subscription:", error);
-    }
-
-    return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
-    };
-  }, [refreshContacts]);
-}
-
-interface UseCacheProps {
-  userId: string | undefined;
-  messagesCacheRef: React.MutableRefObject<Map<string, MessageCache>>;
-  conversationsCacheRef: React.MutableRefObject<Map<string, ConversationWithParticipants>>;
-}
-
-export function useCache({ userId, messagesCacheRef, conversationsCacheRef }: UseCacheProps) {
-  useEffect(() => {
-    if (!userId) return;
-
-    try {
-      const cachedMessages = loadMessagesCache(userId);
-      Object.entries(cachedMessages).forEach(([conversationId, cache]) => {
-        messagesCacheRef.current.set(conversationId, cache);
-      });
-
-      const cachedConversations = loadConversationsCache(userId);
-      Object.entries(cachedConversations).forEach(([conversationId, cache]) => {
-        conversationsCacheRef.current.set(conversationId, cache.conversation);
-      });
-    } catch (error) {
-      console.error("Error loading cache from localStorage:", error);
-    }
-  }, [userId, messagesCacheRef, conversationsCacheRef]);
-}
-
-interface UseLoadConversationProps {
-  conversationId: string;
-  userId: string | undefined;
-  messagesCacheRef: React.MutableRefObject<Map<string, MessageCache>>;
-  conversationsCacheRef: React.MutableRefObject<Map<string, ConversationWithParticipants>>;
-  setSelectedConversation: React.Dispatch<
-    React.SetStateAction<ConversationWithParticipants | null>
-  >;
-  setMessages: React.Dispatch<React.SetStateAction<MessageWithSender[]>>;
-  setIsLoadingMessages: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export async function loadConversation({
-  conversationId,
-  userId,
-  messagesCacheRef,
-  conversationsCacheRef,
-  setSelectedConversation,
-  setMessages,
-  setIsLoadingMessages,
-}: UseLoadConversationProps) {
-  // Check cache first
-  const { cachedMessages, cachedConversation } = loadCachedData(
-    conversationId,
-    userId ?? null,
-    messagesCacheRef,
-    conversationsCacheRef
-  );
-
-  if (cachedMessages && cachedConversation) {
-    handleCachedDataFound(
-      cachedMessages,
-      cachedConversation,
-      conversationId,
-      setSelectedConversation,
-      setMessages,
-      setIsLoadingMessages
-    );
-  } else {
-    handleNoCachedData(setIsLoadingMessages, setMessages);
-  }
-
-  // Load fresh data
-  try {
-    const [conversationResult, messagesResult] = await Promise.all([
-      getConversationById(conversationId),
-      getMessages(conversationId),
-    ]);
-
-    const { conversation: loadedConversation, error: convError } = conversationResult;
-    const { messages: conversationMessages, error: msgError } = messagesResult;
-
-    if (convError || !loadedConversation) {
-      console.error("Error loading conversation:", convError);
-      setIsLoadingMessages(false);
-      return;
-    }
-
-    if (msgError) {
-      console.error("Error loading messages:", msgError);
-    }
-
-    handleLoadedConversationData(
-      loadedConversation,
-      conversationMessages,
-      conversationId,
-      userId ?? null,
-      messagesCacheRef,
-      conversationsCacheRef,
-      setSelectedConversation,
-      setMessages,
-      setIsLoadingMessages
-    );
-  } catch (error) {
-    console.error("Error loading conversation/messages:", error);
-    setIsLoadingMessages(false);
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConversation?.id]);
 }

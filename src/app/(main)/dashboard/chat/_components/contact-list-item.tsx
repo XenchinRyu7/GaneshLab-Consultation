@@ -2,6 +2,8 @@
  * Contact list item component
  */
 
+import { useEffect, useState } from "react";
+
 import { formatDistanceToNow } from "date-fns";
 import { MoreVertical, Trash2 } from "lucide-react";
 
@@ -16,6 +18,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn, getInitials } from "@/lib/utils";
+
+// Component untuk timestamp yang aman dari hydration error
+function RelativeTimestamp({ date }: { date: Date | string }) {
+  // Selalu mulai dengan empty string untuk memastikan server dan client render sama
+  const [timestamp, setTimestamp] = useState("");
+
+  useEffect(() => {
+    // Set timestamp setelah mount untuk menghindari hydration mismatch
+    const updateTimestamp = () => {
+      setTimestamp(
+        formatDistanceToNow(new Date(date), {
+          addSuffix: true,
+        })
+      );
+    };
+    updateTimestamp();
+    const interval = setInterval(updateTimestamp, 60000); // Update setiap 1 menit
+    return () => clearInterval(interval);
+  }, [date]);
+
+  // Render placeholder saat belum mount untuk menghindari hydration mismatch
+  // suppressHydrationWarning karena kita sengaja berbeda antara server dan client
+  return (
+    <span className="text-muted-foreground text-xs whitespace-nowrap" suppressHydrationWarning>
+      {timestamp || "--"}
+    </span>
+  );
+}
 
 interface ContactListItemProps {
   contact: Contact;
@@ -64,13 +94,7 @@ export function ContactListItem({
               </Badge>
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-1.5">
-              {contact.lastMessageAt && (
-                <span className="text-muted-foreground text-xs whitespace-nowrap">
-                  {formatDistanceToNow(new Date(contact.lastMessageAt), {
-                    addSuffix: true,
-                  })}
-                </span>
-              )}
+              {contact.lastMessageAt && <RelativeTimestamp date={contact.lastMessageAt} />}
               {hasUnread && (
                 <span className="bg-primary text-primary-foreground flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium">
                   {contact.unreadCount > 99 ? "99+" : contact.unreadCount}

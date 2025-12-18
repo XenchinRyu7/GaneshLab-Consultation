@@ -29,7 +29,12 @@ export function ChatMessageItem({
           <MessageAvatar message={message} showAvatar={showAvatar} />
         </div>
       )}
-      <div className={cn("flex max-w-[70%] flex-col", isOwnMessage ? "items-end" : "items-start")}>
+      <div
+        className={cn(
+          "flex max-w-[85%] flex-col md:max-w-[70%]",
+          isOwnMessage ? "items-end" : "items-start"
+        )}
+      >
         {showAvatar && !isOwnMessage && (
           <p className="text-muted-foreground mb-1 px-2 text-xs">{message.senderName}</p>
         )}

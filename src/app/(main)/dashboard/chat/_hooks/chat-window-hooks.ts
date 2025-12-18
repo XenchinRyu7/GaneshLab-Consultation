@@ -30,7 +30,8 @@ export function useAutoScroll(
       const isNearBottom =
         container.scrollHeight - container.scrollTop - container.clientHeight < 150;
 
-      if (isNearBottom && messagesEndRef.current) {
+      // Always scroll to bottom when new message arrives (for Realtime)
+      if (messagesEndRef.current) {
         messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }

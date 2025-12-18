@@ -66,14 +66,14 @@ CREATE INDEX IF NOT EXISTS "messages_created_at_idx" ON "messages"("created_at")
 -- Create unique constraint for conversations
 -- Note: This allows multiple conversations with the same client-PIC pair if projectId is null
 -- To enforce one conversation per client-PIC pair when projectId is null, you may need a partial unique index
-CREATE UNIQUE INDEX IF NOT EXISTS "conversations_client_id_pic_id_project_id_key" 
-ON "conversations"("client_id", "pic_id", "project_id") 
+CREATE UNIQUE INDEX IF NOT EXISTS "conversations_client_id_pic_id_project_id_key"
+ON "conversations"("client_id", "pic_id", "project_id")
 WHERE "project_id" IS NOT NULL;
 
 -- Create partial unique index for conversations without project
 -- This ensures only one conversation per client-PIC pair when projectId is null
-CREATE UNIQUE INDEX IF NOT EXISTS "conversations_client_id_pic_id_null_project_key" 
-ON "conversations"("client_id", "pic_id") 
+CREATE UNIQUE INDEX IF NOT EXISTS "conversations_client_id_pic_id_null_project_key"
+ON "conversations"("client_id", "pic_id")
 WHERE "project_id" IS NULL;
 
 -- Enable Realtime for Supabase (run this in Supabase SQL Editor)

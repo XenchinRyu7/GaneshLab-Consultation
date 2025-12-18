@@ -19,6 +19,7 @@ interface ChatWindowProps {
   onDeleteMessage: (messageId: string) => Promise<void>;
   onEditMessage: (messageId: string, newContent: string) => Promise<void>;
   currentUserId: string;
+  onBackToContacts?: () => void;
 }
 
 export function ChatWindow({
@@ -29,6 +30,7 @@ export function ChatWindow({
   onDeleteMessage,
   onEditMessage,
   currentUserId,
+  onBackToContacts,
 }: ChatWindowProps) {
   const [messageInput, setMessageInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -76,7 +78,11 @@ export function ChatWindow({
   return (
     <>
       <div className="flex h-full max-h-full flex-col overflow-hidden">
-        <ChatWindowHeader conversation={conversation} currentUserId={currentUserId} />
+        <ChatWindowHeader
+          conversation={conversation}
+          currentUserId={currentUserId}
+          onBackToContacts={onBackToContacts}
+        />
 
         <ChatMessageList
           messages={messages}

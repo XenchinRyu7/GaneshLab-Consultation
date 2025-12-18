@@ -144,11 +144,13 @@ function doTimeRangesOverlap(start1: string, end1: string, start2: string, end2:
  */
 function validateNoOverlaps(slots: unknown[], day: string): NextResponse | null {
   const validSlots = slots.filter(
-    (slot): slot is Record<string, unknown> =>
+    (slot): slot is { startTime: string; endTime: string; date?: string } =>
       typeof slot === "object" &&
       slot !== null &&
-      typeof slot.startTime === "string" &&
-      typeof slot.endTime === "string"
+      "startTime" in slot &&
+      "endTime" in slot &&
+      typeof (slot as { startTime: unknown }).startTime === "string" &&
+      typeof (slot as { endTime: unknown }).endTime === "string"
   );
 
   // Check for overlaps
@@ -158,8 +160,8 @@ function validateNoOverlaps(slots: unknown[], day: string): NextResponse | null 
       const slot2 = validSlots[j];
 
       // Only check overlaps if they have the same date (if date field exists)
-      const slot1Date = slot1.date as string | undefined;
-      const slot2Date = slot2.date as string | undefined;
+      const slot1Date = slot1.date;
+      const slot2Date = slot2.date;
 
       // If both have dates and they're different, skip overlap check
       if (slot1Date && slot2Date && slot1Date !== slot2Date) {
@@ -167,14 +169,7 @@ function validateNoOverlaps(slots: unknown[], day: string): NextResponse | null 
       }
 
       // Check if time ranges overlap
-      if (
-        doTimeRangesOverlap(
-          slot1.startTime as string,
-          slot1.endTime as string,
-          slot2.startTime as string,
-          slot2.endTime as string
-        )
-      ) {
+      if (doTimeRangesOverlap(slot1.startTime, slot1.endTime, slot2.startTime, slot2.endTime)) {
         return NextResponse.json(
           {
             error: `Overlapping time slots detected for ${day}: ${slot1.startTime}-${slot1.endTime} overlaps with ${slot2.startTime}-${slot2.endTime}`,

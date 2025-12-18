@@ -91,10 +91,8 @@ export async function sendMessage(
       return { message: null, error: "Conversation not found" };
     }
 
-    // If conversation was cleared, un-clear it when user sends a message (like WhatsApp)
     const updateData = await buildUnclearUpdateData(user, conversation);
 
-    // Create message first
     const message = await prisma.message.create({
       data: {
         conversationId,

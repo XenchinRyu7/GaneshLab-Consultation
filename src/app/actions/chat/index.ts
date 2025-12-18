@@ -26,17 +26,3 @@ export {
 
 // Projects
 export { getClientProjects } from "./_projects";
-
-// Cache
-export {
-  saveConversationCache,
-  loadConversationsCache,
-  getCachedConversation,
-  clearConversationsCache,
-  saveMessagesCache,
-  loadMessagesCache,
-  getCachedMessages,
-  clearMessagesCache,
-  clearAllChatCache,
-  removeConversationFromCache,
-} from "./_cache";

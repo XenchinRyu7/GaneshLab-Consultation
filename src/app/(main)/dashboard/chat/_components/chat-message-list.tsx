@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 
@@ -24,22 +26,37 @@ export function ChatMessageList({
   messagesEndRef,
   scrollContainerRef,
 }: ChatMessageListProps) {
-  const groupedMessages = messages.reduce(
-    (groups, message) => {
-      const date = format(new Date(message.createdAt), "yyyy-MM-dd");
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(message);
-      return groups;
-    },
-    {} as Record<string, MessageWithSender[]>
-  );
+  const groupedMessages = useMemo(() => {
+    return messages.reduce(
+      (groups, message) => {
+        let createdAt: Date;
+        if (message.createdAt instanceof Date) {
+          createdAt = message.createdAt;
+        } else if (typeof message.createdAt === "string") {
+          createdAt = new Date(message.createdAt);
+        } else {
+          createdAt = new Date(message.createdAt);
+        }
+
+        if (isNaN(createdAt.getTime())) {
+          createdAt = new Date();
+        }
+
+        const date = format(createdAt, "yyyy-MM-dd");
+        if (!(date in groups)) {
+          groups[date] = [];
+        }
+        groups[date].push(message);
+        return groups;
+      },
+      {} as Record<string, MessageWithSender[]>
+    );
+  }, [messages]);
 
   return (
     <div
       ref={scrollContainerRef}
-      className="min-h-0 flex-1 overflow-y-auto p-4"
+      className="min-h-0 flex-1 overflow-y-auto p-3 md:p-4"
       style={{ scrollBehavior: "smooth" }}
     >
       <div className="space-y-4">
