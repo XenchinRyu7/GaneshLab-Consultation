@@ -74,16 +74,18 @@ export default function NotificationsPage() {
   });
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto space-y-4 p-4 md:space-y-6 md:p-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Notifikasi</h1>
-          <p className="text-muted-foreground">Kelola dan lihat semua notifikasi Anda</p>
+          <h1 className="text-2xl font-bold md:text-3xl">Notifikasi</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Kelola dan lihat semua notifikasi Anda
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={fetchNotifications} disabled={isLoading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
+            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""} md:mr-2`} />
+            <span className="hidden md:inline">Refresh</span>
           </Button>
           {unreadCount > 0 && (
             <Button
@@ -94,8 +96,8 @@ export default function NotificationsPage() {
                 toast.success("Semua notifikasi ditandai telah dibaca");
               }}
             >
-              <Check className="mr-2 h-4 w-4" />
-              Tandai Semua Dibaca
+              <Check className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Tandai Semua Dibaca</span>
             </Button>
           )}
         </div>
@@ -103,10 +105,10 @@ export default function NotificationsPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle>Daftar Notifikasi</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg md:text-xl">Daftar Notifikasi</CardTitle>
+              <CardDescription className="text-xs md:text-sm">
                 {unreadCount > 0
                   ? `Anda memiliki ${unreadCount} notifikasi yang belum dibaca`
                   : "Semua notifikasi sudah dibaca"}
@@ -117,9 +119,9 @@ export default function NotificationsPage() {
                 value={typeFilter}
                 onValueChange={value => setTypeFilter(value as NotificationType | "all")}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full md:w-[180px]">
                   <Filter className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Filter Tipe" />
+                  <SelectValue placeholder="Semua Tipe" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Tipe</SelectItem>
@@ -140,13 +142,18 @@ export default function NotificationsPage() {
             value={filter}
             onValueChange={value => setFilter(value as "all" | "unread" | "read")}
           >
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="all">Semua {totalCount > 0 && `(${totalCount})`}</TabsTrigger>
-              <TabsTrigger value="unread">
-                Belum Dibaca {unreadCount > 0 && `(${unreadCount})`}
+            <TabsList className="grid w-full grid-cols-3 gap-1 p-1">
+              <TabsTrigger value="all" className="text-xs md:text-sm">
+                <span className="truncate">Semua</span>
+                {totalCount > 0 && <span className="ml-1 hidden md:inline">({totalCount})</span>}
               </TabsTrigger>
-              <TabsTrigger value="read">
-                Sudah Dibaca {readCount > 0 && `(${readCount})`}
+              <TabsTrigger value="unread" className="text-xs md:text-sm">
+                <span className="truncate">Belum Dibaca</span>
+                {unreadCount > 0 && <span className="ml-1 hidden md:inline">({unreadCount})</span>}
+              </TabsTrigger>
+              <TabsTrigger value="read" className="text-xs md:text-sm">
+                <span className="truncate">Sudah Dibaca</span>
+                {readCount > 0 && <span className="ml-1 hidden md:inline">({readCount})</span>}
               </TabsTrigger>
             </TabsList>
 
@@ -175,29 +182,37 @@ export default function NotificationsPage() {
                       !notification.isRead ? "border-l-primary bg-muted/50 border-l-4" : ""
                     }`}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="mb-2 flex items-center gap-2">
+                    <CardContent className="p-3 md:p-4">
+                      <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
                             <Badge
-                              className={`${notificationTypeColors[notification.type as NotificationType]} text-white`}
+                              className={`${notificationTypeColors[notification.type as NotificationType]} shrink-0 text-white`}
                             >
                               {notificationTypeLabels[notification.type as NotificationType]}
                             </Badge>
-                            {!notification.isRead && <Badge variant="outline">Baru</Badge>}
+                            {!notification.isRead && (
+                              <Badge variant="outline" className="shrink-0">
+                                Baru
+                              </Badge>
+                            )}
                             <span className="text-muted-foreground text-xs">
                               {format(new Date(notification.createdAt), "dd MMM yyyy, HH:mm", {
                                 locale: id,
                               })}
                             </span>
                           </div>
-                          <h4 className="mb-1 font-semibold">{notification.title}</h4>
-                          <p className="text-muted-foreground text-sm">{notification.message}</p>
+                          <h4 className="mb-1 text-sm font-semibold md:text-base">
+                            {notification.title}
+                          </h4>
+                          <p className="text-muted-foreground text-xs md:text-sm">
+                            {notification.message}
+                          </p>
                           {notification.actionUrl && (
                             <Button
                               variant="link"
                               size="sm"
-                              className="mt-2 px-0"
+                              className="mt-2 px-0 text-xs md:text-sm"
                               onClick={() => {
                                 if (!notification.isRead) {
                                   markAsRead(notification.id);
