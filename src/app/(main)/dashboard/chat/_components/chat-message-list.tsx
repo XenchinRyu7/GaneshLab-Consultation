@@ -27,7 +27,16 @@ export function ChatMessageList({
   scrollContainerRef,
 }: ChatMessageListProps) {
   const groupedMessages = useMemo(() => {
-    return messages.reduce(
+    // Sort messages by createdAt first to ensure proper grouping
+    const sortedMessages = [...messages].sort((a, b) => {
+      const aTime =
+        a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+      const bTime =
+        b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+      return aTime - bTime;
+    });
+
+    const result = sortedMessages.reduce(
       (groups, message) => {
         let createdAt: Date;
         if (message.createdAt instanceof Date) {
@@ -51,6 +60,16 @@ export function ChatMessageList({
       },
       {} as Record<string, MessageWithSender[]>
     );
+
+    // Sort date keys to ensure proper display order
+    const sortedResult: Record<string, MessageWithSender[]> = {};
+    Object.keys(result)
+      .sort()
+      .forEach(date => {
+        sortedResult[date] = result[date];
+      });
+
+    return sortedResult;
   }, [messages]);
 
   return (

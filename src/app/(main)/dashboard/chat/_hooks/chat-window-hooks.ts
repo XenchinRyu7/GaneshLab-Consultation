@@ -26,14 +26,12 @@ export function useAutoScroll(
         }
       }, 100);
     } else if (!isInitialLoad.current && messages.length > 0) {
-      const container = scrollContainerRef.current;
-      const isNearBottom =
-        container.scrollHeight - container.scrollTop - container.clientHeight < 150;
-
-      // Always scroll to bottom when new message arrives (for Realtime)
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }
+      // Always scroll to bottom when new message arrives (for Realtime and optimistic updates)
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 50);
     }
   }, [messages, isLoading, conversationId]);
 

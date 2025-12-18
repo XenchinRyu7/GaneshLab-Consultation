@@ -19,11 +19,15 @@ export function MessageTimestamp({ message, isOwnMessage, showTimestamp }: Messa
     return null;
   }
 
+  // Ensure createdAt is properly parsed as Date object
+  const messageDate =
+    message.createdAt instanceof Date ? message.createdAt : new Date(message.createdAt);
+
+  const formattedTime = format(messageDate, "h:mm a");
+
   return (
     <div className="mt-1 flex items-center gap-1 px-2">
-      <p className="text-muted-foreground text-xs">
-        {format(new Date(message.createdAt), "h:mm a")}
-      </p>
+      <p className="text-muted-foreground text-xs">{formattedTime}</p>
       {isOwnMessage && !message.isDeleted && <MessageStatusIcon message={message} />}
     </div>
   );

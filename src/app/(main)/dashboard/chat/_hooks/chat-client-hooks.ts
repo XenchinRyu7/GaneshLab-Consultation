@@ -34,6 +34,34 @@ function transformPayloadToMessage(
   const senderName = isClient ? conversation.clientName : conversation.picName;
   const senderAvatar = isClient ? conversation.clientAvatar : conversation.picAvatar;
 
+  // Parse created_at timestamp - ensure proper timezone handling
+  const createdAtValue = newData.created_at as string | Date | undefined;
+  let createdAtDate: Date;
+  if (typeof createdAtValue === "string") {
+    // Supabase returns timestamp WITHOUT 'Z' suffix, e.g. '2025-12-18T20:17:24.27'
+    // JavaScript interprets this as LOCAL time, causing 7hr offset bug
+    // Fix: Ensure 'Z' suffix for proper UTC parsing
+    let timestampString = createdAtValue;
+    if (
+      !timestampString.endsWith("Z") &&
+      !timestampString.includes("+") &&
+      !timestampString.includes("-", 10)
+    ) {
+      timestampString = timestampString + "Z";
+    }
+    createdAtDate = new Date(timestampString);
+
+    console.log("🔍 [REALTIME] Parsed timestamp:", {
+      original: createdAtValue,
+      fixed: timestampString,
+      result: createdAtDate.toISOString(),
+    });
+  } else if (createdAtValue instanceof Date) {
+    createdAtDate = createdAtValue;
+  } else {
+    createdAtDate = new Date();
+  }
+
   return {
     id: newData.id as string,
     conversationId: newData.conversation_id as string,
@@ -44,7 +72,7 @@ function transformPayloadToMessage(
     isDeleted: (newData.is_deleted as boolean) || false,
     editedAt: newData.edited_at ? new Date(newData.edited_at) : null,
     readAt: newData.read_at ? new Date(newData.read_at) : null,
-    createdAt: new Date((newData.created_at as string) || Date.now()),
+    createdAt: createdAtDate,
   };
 }
 
@@ -130,10 +158,6 @@ export function useMessageSubscription({
             const newSenderId = newMessage.senderId;
 
             setMessages(prev => {
-              if (currentMessagesRef.current.some(msg => msg.id === newMessage.id)) {
-                if (currentMessagesRef.current.some(msg => msg.id === newMessage.id)) return prev;
-              }
-
               const existingIndex = prev.findIndex(
                 msg =>
                   msg.id === newMessage.id ||
@@ -143,31 +167,39 @@ export function useMessageSubscription({
               );
 
               let updatedMessages: MessageWithSender[];
-              if (existingIndex >= 0) {
-                updatedMessages = [...prev];
-                updatedMessages[existingIndex] = { ...newMessage, status: "sent" as const };
-              } else {
-                const newMessageCreatedAt =
-                  newMessage.createdAt instanceof Date
-                    ? newMessage.createdAt
-                    : new Date(newMessage.createdAt);
-                const sortedMessages = [
-                  ...prev,
-                  { ...newMessage, createdAt: newMessageCreatedAt },
-                ].sort((a, b) => {
-                  const aTime =
-                    a.createdAt instanceof Date
-                      ? a.createdAt.getTime()
-                      : new Date(a.createdAt).getTime();
-                  const bTime =
-                    b.createdAt instanceof Date
-                      ? b.createdAt.getTime()
-                      : new Date(b.createdAt).getTime();
-                  return aTime - bTime;
-                });
 
-                updatedMessages = sortedMessages;
+              // Always ensure proper createdAt format
+              const newMessageCreatedAt =
+                newMessage.createdAt instanceof Date
+                  ? newMessage.createdAt
+                  : new Date(newMessage.createdAt);
+
+              if (existingIndex >= 0) {
+                // Update existing message
+                updatedMessages = [...prev];
+                updatedMessages[existingIndex] = {
+                  ...newMessage,
+                  status: "sent" as const,
+                  createdAt: newMessageCreatedAt,
+                };
+              } else {
+                // Add new message
+                updatedMessages = [...prev, { ...newMessage, createdAt: newMessageCreatedAt }];
               }
+
+              // ALWAYS sort messages by time after any update to ensure correct order
+              // Create a completely new array to force React reconciliation
+              updatedMessages = [...updatedMessages].sort((a, b) => {
+                const aTime =
+                  a.createdAt instanceof Date
+                    ? a.createdAt.getTime()
+                    : new Date(a.createdAt).getTime();
+                const bTime =
+                  b.createdAt instanceof Date
+                    ? b.createdAt.getTime()
+                    : new Date(b.createdAt).getTime();
+                return aTime - bTime;
+              });
 
               currentMessagesRef.current = updatedMessages;
 

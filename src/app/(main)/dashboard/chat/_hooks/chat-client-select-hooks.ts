@@ -55,7 +55,18 @@ async function loadConversationFromServer(
     }
 
     setSelectedConversation(loadedConversation);
-    setMessages(conversationMessages);
+
+    // Ensure messages are sorted by createdAt before setting
+    const sortedMessages = [...conversationMessages].sort((a, b) => {
+      const aTime =
+        a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+      const bTime =
+        b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+      return aTime - bTime;
+    });
+
+    // Create a completely new array to force React reconciliation
+    setMessages([...sortedMessages]);
     setIsLoadingMessages(false);
 
     await markMessagesAsRead(conversationId);

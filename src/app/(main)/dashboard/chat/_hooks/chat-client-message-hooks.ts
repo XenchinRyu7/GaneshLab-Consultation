@@ -75,6 +75,17 @@ export function useMessageHandlers({
       userAvatar: string | null | undefined
     ): { message: MessageWithSender; tempId: string } => {
       const tempId = `temp-${Date.now()}-${Math.random()}`;
+      const now = new Date();
+
+      // Debug: Check what time the browser thinks it is
+      console.log("🐛 [OPTIMISTIC] Creating message at:", {
+        now: now.toISOString(),
+        nowLocal: now.toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }),
+        nowTimeString: now.toTimeString(),
+        timestamp: now.getTime(),
+        formatted: `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`,
+      });
+
       const optimisticMessage: MessageWithSender = {
         id: tempId,
         tempId: tempId,
@@ -86,7 +97,7 @@ export function useMessageHandlers({
         isDeleted: false,
         editedAt: null,
         readAt: null,
-        createdAt: new Date(),
+        createdAt: now,
         status: "sending",
       };
       return { message: optimisticMessage, tempId };
@@ -110,7 +121,14 @@ export function useMessageHandlers({
           msg.tempId === tempId ? { ...serverMessage, status: "sent" as const } : msg
         );
 
-        return updatedMessages;
+        // Sort by createdAt to ensure correct order
+        return updatedMessages.sort((a, b) => {
+          const aTime =
+            a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+          const bTime =
+            b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+          return aTime - bTime;
+        });
       });
 
       requestAnimationFrame(() => {
@@ -142,7 +160,18 @@ export function useMessageHandlers({
         user.name,
         user.avatar
       );
-      setMessages(prev => [...prev, optimisticMessage]);
+
+      // Add optimistic message and sort by createdAt to ensure correct order
+      setMessages(prev => {
+        const updated = [...prev, optimisticMessage];
+        return updated.sort((a, b) => {
+          const aTime =
+            a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+          const bTime =
+            b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+          return aTime - bTime;
+        });
+      });
 
       try {
         const { message: serverMessage, error: sendError } = await sendMessageAction(

@@ -19,9 +19,6 @@ export async function getMessages(
       return { messages: [], error: "Unauthorized" };
     }
 
-    // Verify user has access to this conversation
-    // Note: We allow access even if cleared (like WhatsApp - messages still accessible)
-    // Clearing only hides conversation from contact list, not from direct access
     const conversation = await prisma.conversation.findFirst({
       where: {
         id: conversationId,
@@ -33,7 +30,6 @@ export async function getMessages(
       return { messages: [], error: "Conversation not found" };
     }
 
-    // Get all messages (including deleted ones, so we can show "deleted" indicator)
     const messages = await prisma.message.findMany({
       where: { conversationId },
       include: {
@@ -98,6 +94,7 @@ export async function sendMessage(
         conversationId,
         senderId: user.id,
         content: content.trim(),
+        createdAt: new Date(), // Explicitly set timestamp at application level
       },
       include: {
         sender: {
