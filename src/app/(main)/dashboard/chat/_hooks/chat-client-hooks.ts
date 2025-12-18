@@ -50,12 +50,6 @@ function transformPayloadToMessage(
       timestampString = timestampString + "Z";
     }
     createdAtDate = new Date(timestampString);
-
-    console.log("🔍 [REALTIME] Parsed timestamp:", {
-      original: createdAtValue,
-      fixed: timestampString,
-      result: createdAtDate.toISOString(),
-    });
   } else if (createdAtValue instanceof Date) {
     createdAtDate = createdAtValue;
   } else {
@@ -285,7 +279,8 @@ export function useMessageSubscription({
           }
         });
     } catch (error) {
-      console.error("Error setting up real-time subscription:", error);
+      // Supabase might not be configured; silently fallback to polling
+      console.debug("Real-time subscription failed, using polling:", error);
     }
 
     return () => {

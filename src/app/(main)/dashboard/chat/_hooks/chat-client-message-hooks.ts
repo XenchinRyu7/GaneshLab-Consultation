@@ -77,15 +77,6 @@ export function useMessageHandlers({
       const tempId = `temp-${Date.now()}-${Math.random()}`;
       const now = new Date();
 
-      // Debug: Check what time the browser thinks it is
-      console.log("🐛 [OPTIMISTIC] Creating message at:", {
-        now: now.toISOString(),
-        nowLocal: now.toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }),
-        nowTimeString: now.toTimeString(),
-        timestamp: now.getTime(),
-        formatted: `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`,
-      });
-
       const optimisticMessage: MessageWithSender = {
         id: tempId,
         tempId: tempId,
