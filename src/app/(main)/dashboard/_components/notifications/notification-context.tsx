@@ -30,7 +30,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const currentUser = useUserStore(state => state.currentUser);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -102,87 +101,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     fetchNotifications();
-    // Polling fallback: 60s (realtime broadcast handles most updates)
-    const interval = setInterval(fetchNotifications, 60000);
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
-
-  // Realtime updates via Supabase (optional; only if env is configured)
-  useEffect(() => {
-    let channel: any | null = null;
-    let supabaseClient: any | null = null;
-
-    // Require a logged-in user to scope the stream
-    if (!currentUser?.id) return;
-
-    (async () => {
-      try {
-        const mod = await import("@/lib/supabase");
-        supabaseClient = mod.supabase;
-
-        channel = supabaseClient
-          .channel(`notifications-user-${currentUser.id}`)
-          // Broadcast: new
-          .on("broadcast", { event: "notification:new" }, (payload: any) => {
-            const n = payload?.payload;
-            if (!n?.id) return;
-            setNotifications(prev => [
-              {
-                id: n.id,
-                title: n.title,
-                message: n.message,
-                type: n.type,
-                isRead: !!n.isRead,
-                actionUrl: n.actionUrl ?? null,
-                createdAt: n.createdAt ?? new Date().toISOString(),
-              },
-              ...prev,
-            ]);
-            if (!n.isRead) setUnreadCount(prev => prev + 1);
-          })
-          // Broadcast: update
-          .on("broadcast", { event: "notification:update" }, (payload: any) => {
-            const n = payload?.payload;
-            if (!n?.id) return;
-            const wasUnread = notifications.find(x => x.id === n.id && !x.isRead) != null;
-            const isNowRead = !!n.isRead;
-            setNotifications(prev =>
-              prev.map(item => (item.id === n.id ? { ...item, ...n } : item))
-            );
-            if (wasUnread && isNowRead) setUnreadCount(prev => Math.max(0, prev - 1));
-          })
-          // Broadcast: delete
-          .on("broadcast", { event: "notification:delete" }, (payload: any) => {
-            const { id, wasUnread } = payload?.payload ?? {};
-            if (!id) return;
-            setNotifications(prev => prev.filter(n => n.id !== id));
-            if (wasUnread) setUnreadCount(prev => Math.max(0, prev - 1));
-          })
-          .subscribe((status: string) => {
-            if (status === "SUBSCRIBED") {
-              console.debug("Subscribed to notification broadcasts");
-            } else if (status === "CHANNEL_ERROR") {
-              console.debug("Notification realtime unavailable; using polling fallback");
-            }
-          });
-      } catch (e) {
-        // Supabase not configured; silently skip realtime
-        // console.warn("Supabase Realtime not active:", e);
-      }
-    })();
-
-    return () => {
-      try {
-        if (supabaseClient && channel) {
-          supabaseClient.removeChannel(channel);
-        } else if (channel?.unsubscribe) {
-          channel.unsubscribe();
-        }
-      } catch {
-        // noop
-      }
-    };
-  }, [currentUser?.id]);
 
   const value = useMemo(
     () => ({

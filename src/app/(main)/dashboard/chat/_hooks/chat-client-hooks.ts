@@ -279,8 +279,7 @@ export function useMessageSubscription({
           }
         });
     } catch (error) {
-      // Supabase might not be configured; silently fallback to polling
-      console.debug("Real-time subscription failed, using polling:", error);
+      console.error("Error setting up real-time subscription:", error);
     }
 
     return () => {

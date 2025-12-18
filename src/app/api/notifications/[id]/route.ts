@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { publishNotificationDelete } from "@/lib/realtime";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -29,7 +28,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: "Notification not found" }, { status: 404 });
     }
 
-    // Middleware will handle broadcast automatically
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[NOTIFICATION_PATCH]", error);
@@ -50,12 +48,6 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Fetch read state before deletion
-    const exists = await prisma.notification.findFirst({
-      where: { id, userId: session.id },
-      select: { isRead: true },
-    });
-
     const result = await prisma.notification.deleteMany({
       where: {
         id: id,
@@ -65,13 +57,6 @@ export async function DELETE(
 
     if (result.count === 0) {
       return NextResponse.json({ error: "Notification not found" }, { status: 404 });
-    }
-
-    // Broadcast delete (best-effort)
-    try {
-      await publishNotificationDelete(session.id, id, exists ? !exists.isRead : false);
-    } catch (error) {
-      console.error("[NOTIFICATION_DELETE]", error);
     }
 
     return NextResponse.json({ success: true });
