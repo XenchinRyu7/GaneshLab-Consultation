@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Inter } from "next/font/google";
 import LocalFont from "next/font/local";
 
@@ -14,48 +15,50 @@ const calSans = LocalFont({
   variable: "--font-calsans",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "GaneshLab",
-    template: "%s | GaneshLab",
-  },
-  description:
-    "Connect with GaneshLab to discuss your project needs. Schedule a consultation to get started and receive login access to our platform.",
-  openGraph: {
-    title: "GaneshLab",
-    description:
-      "Connect with GaneshLab to discuss your project needs. Schedule a consultation to get started and receive login access to our platform.",
-    url: "https://ganeshlab.com",
-    siteName: "GaneshLab",
-    images: [
-      {
-        url: "https://ganeshlab.com/og.png",
-        width: 1920,
-        height: 1080,
-      },
-    ],
-    locale: "en-US",
-    type: "website",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+
+  return {
+    title: {
+      default: "GaneshLab",
+      template: "%s | GaneshLab",
+    },
+    description: t("homeDescription"),
+    openGraph: {
+      title: "GaneshLab",
+      description: t("homeDescription"),
+      url: "https://ganeshlab.com",
+      siteName: "GaneshLab",
+      images: [
+        {
+          url: "https://ganeshlab.com/og.png",
+          width: 1920,
+          height: 1080,
+        },
+      ],
+      locale: "id_ID",
+      type: "website",
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-  twitter: {
-    title: "GaneshLab",
-    card: "summary_large_image",
-  },
-  icons: {
-    shortcut: "/favicon.ico",
-  },
-};
+    twitter: {
+      title: "GaneshLab",
+      card: "summary_large_image",
+    },
+    icons: {
+      shortcut: "/favicon.ico",
+    },
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -66,7 +66,7 @@ export async function signIn(email: string, password: string, rememberMe: boolea
 
     // Redirect throws a special error in Next.js (NEXT_REDIRECT), which is expected behavior
     // This error should not be caught or logged as it's the normal way Next.js handles redirects
-    redirect("/dashboard");
+    redirect("/id/dashboard");
   } catch (error) {
     // Check if it's a redirect error (Next.js throws this for redirects)
     // Redirect errors have a digest property with "NEXT_REDIRECT" in it
@@ -140,7 +140,7 @@ export async function signOut() {
 
     await logout();
     revalidatePath("/", "layout");
-    redirect("/auth/login");
+    redirect("/id/auth/login");
   } catch (error) {
     // Check if it's a redirect error (Next.js throws this for redirects)
     if (
@@ -159,7 +159,7 @@ export async function signOut() {
     // Still proceed with logout even if logging fails
     await logout();
     revalidatePath("/", "layout");
-    redirect("/auth/login");
+    redirect("/id/auth/login");
   }
 }
 
