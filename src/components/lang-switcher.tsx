@@ -1,5 +1,6 @@
 "use client";
 import { useLocale } from "next-intl";
+
 import { Link, usePathname } from "@/i18n/routing";
 
 const locales = [

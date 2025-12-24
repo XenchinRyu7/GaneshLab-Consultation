@@ -87,25 +87,6 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const anyLoginData = await prisma.auditLog.count({
-      where: {
-        action: "LOGIN",
-        success: true,
-      },
-    });
-    console.log("Total LOGIN audit logs in database:", anyLoginData);
-
-    const allActions = await prisma.auditLog.findMany({
-      select: {
-        action: true,
-        success: true,
-        createdAt: true,
-      },
-      take: 10,
-      orderBy: { createdAt: "desc" },
-    });
-    console.log("Sample audit log actions:", JSON.stringify(allActions, null, 2));
-
     const userActivityData = await prisma.$queryRaw<Array<{ date: Date; active_users: number }>>`
         SELECT
           created_at::date as date,
@@ -118,12 +99,6 @@ export async function GET(request: NextRequest) {
         ORDER BY date DESC
         LIMIT 30
       `;
-
-    console.log("User activity data count:", userActivityData.length);
-    console.log(
-      "User activity data sample:",
-      JSON.stringify(userActivityData.slice(0, 3), null, 2)
-    );
 
     const recentLogins = await prisma.auditLog.findMany({
       where: {
@@ -149,14 +124,11 @@ export async function GET(request: NextRequest) {
       _count: { status: true },
     });
 
-    const totalProjectsCount = await prisma.project.count();
     const activeCompletedCount = await prisma.project.count({
       where: {
         status: { in: ["ACTIVE", "COMPLETED"] },
       },
     });
-    console.log("Total projects in database:", totalProjectsCount);
-    console.log("ACTIVE or COMPLETED projects:", activeCompletedCount);
 
     // If no ACTIVE/COMPLETED, get all projects instead
     const topPicsData = await prisma.project.groupBy({
@@ -177,11 +149,8 @@ export async function GET(request: NextRequest) {
       },
       take: 10,
     });
-    console.log("Top PICs raw data count:", topPicsData.length);
-    console.log("Top PICs raw data:", JSON.stringify(topPicsData, null, 2));
 
     const picIds = topPicsData.map(item => item.picId);
-    console.log("PIC IDs to fetch:", picIds);
     const picProfiles = await prisma.userProfile.findMany({
       where: {
         id: { in: picIds },
@@ -192,7 +161,6 @@ export async function GET(request: NextRequest) {
         email: true,
       },
     });
-    console.log("PIC profiles found:", picProfiles.length);
 
     const topPics = topPicsData.map(item => {
       const profile = picProfiles.find(p => p.id === item.picId);
@@ -205,7 +173,6 @@ export async function GET(request: NextRequest) {
         },
       };
     });
-    console.log("Top PICs final data:", JSON.stringify(topPics, null, 2));
 
     const recentActivities = await prisma.auditLog.findMany({
       take: 10,

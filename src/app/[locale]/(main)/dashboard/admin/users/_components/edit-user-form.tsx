@@ -120,8 +120,6 @@ export function EditUserForm({ userId, initialData, onSuccess, onError }: EditUs
         }),
       });
 
-      console.log("Edit API response status:", response.status);
-
       if (!response.ok) {
         const error = await response.json();
         console.error("Edit API error response:", error, "Status:", response.status);
@@ -135,8 +133,6 @@ export function EditUserForm({ userId, initialData, onSuccess, onError }: EditUs
         return;
       }
 
-      const data = await response.json();
-      console.log("Edit API success:", data);
       toast.success("User updated successfully", {
         description: `${validated.fullname} has been updated.`,
       });

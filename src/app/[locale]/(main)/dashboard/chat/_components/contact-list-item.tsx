@@ -3,10 +3,10 @@
  */
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
 
 import { formatDistanceToNow } from "date-fns";
 import { MoreVertical, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import type { Contact } from "@/app/actions/chat";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

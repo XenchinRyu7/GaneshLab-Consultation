@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 import { Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "@/i18n/routing";
 
 import { ActionButtons } from "./_components/action-buttons";
 import { AlternativeScheduleForm } from "./_components/alternative-schedule-form";
@@ -178,7 +179,7 @@ export default function GuestReschedulePage() {
       setAutoActionProcessed(true);
       handleAction("approve");
       // Remove action from URL
-      router.replace(`/guest/reschedule/${requestId}`, { scroll: false });
+      router.replace(`/guest/reschedule/${requestId}`);
     } else if (
       !loading &&
       data &&

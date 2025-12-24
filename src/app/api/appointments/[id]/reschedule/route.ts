@@ -235,7 +235,6 @@ async function sendRescheduleNotification(
 
     try {
       await transporter.sendMail(mailOptions);
-      console.log("Reschedule request email sent to guest:", appointment.guestEmail);
     } catch (emailError) {
       console.error("Failed to send reschedule email:", emailError);
     }

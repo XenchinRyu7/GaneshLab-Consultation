@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 
-import { useRouter } from "next/navigation";
-
 import { BadgeCheck, LogOut } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { signOut } from "@/app/actions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,6 +15,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "@/i18n/routing";
 import { cn, getInitials } from "@/lib/utils";
 
 export function AccountSwitcher({
@@ -30,6 +30,7 @@ export function AccountSwitcher({
   }>;
 }) {
   const router = useRouter();
+  const t = useTranslations("UserMenu");
   const [activeUser, setActiveUser] = useState(() => users[0] ?? users.find(() => true));
 
   if (!users.length) {
@@ -89,7 +90,7 @@ export function AccountSwitcher({
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => router.push("/dashboard/account")}>
             <BadgeCheck />
-            Account
+            {t("account")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -100,7 +101,7 @@ export function AccountSwitcher({
           className="text-destructive focus:text-destructive cursor-pointer"
         >
           <LogOut />
-          Log out
+          {t("logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -209,10 +209,6 @@ export async function handleReject(
       };
 
       await transporter.sendMail(mailOptions);
-      console.log(
-        "Alternative schedule email sent to guest:",
-        rescheduleRequest.appointment.guestEmail
-      );
     } catch (emailError) {
       console.error("Failed to send alternative schedule email to guest:", emailError);
       // Don't fail the reject process if email fails

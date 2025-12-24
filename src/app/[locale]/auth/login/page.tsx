@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+
 import { useTranslations } from "next-intl";
 
 import { LoginForm } from "../_components/login-form";

@@ -1,7 +1,5 @@
 "use client";
 
-import { Link } from "@/i18n/routing";
-
 import { Command } from "lucide-react";
 
 import {
@@ -14,6 +12,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
+import { Link } from "@/i18n/routing";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { useUserStore } from "@/stores/user/user-provider";
 

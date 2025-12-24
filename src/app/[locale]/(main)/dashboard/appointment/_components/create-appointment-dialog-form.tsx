@@ -3,6 +3,7 @@
  */
 
 import { useTranslations } from "next-intl";
+
 import { Button } from "@/components/ui/button";
 
 import type { MeetingType, PIC, ProjectContext } from "./calendar-config";
@@ -105,7 +106,7 @@ export function CreateAppointmentDialogForm({
       {isClient && (
         <div className="grid gap-2">
           <label htmlFor="project" className="text-sm font-medium">
-            Project <span className="text-destructive">*</span>
+            {t("projectLabel")} <span className="text-destructive">{t("projectRequired")}</span>
           </label>
           <select
             id="project"
@@ -115,7 +116,7 @@ export function CreateAppointmentDialogForm({
             disabled={loadingProjects}
             required
           >
-            <option value="">{loadingProjects ? "Loading projects..." : "Select a project"}</option>
+            <option value="">{loadingProjects ? t("loadingProjects") : t("selectProject")}</option>
             {(projects || []).map(project => (
               <option key={project.id} value={project.id}>
                 {project.name}
@@ -146,7 +147,7 @@ export function CreateAppointmentDialogForm({
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           type="submit"

@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 
+import { LangSwitcher } from "@/components/lang-switcher";
 import Particles from "@/components/particles";
 import {
   Accordion,
@@ -8,8 +9,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-import { LangSwitcher } from "@/components/lang-switcher";
 import { Link } from "@/i18n/routing";
 
 const navigation = [

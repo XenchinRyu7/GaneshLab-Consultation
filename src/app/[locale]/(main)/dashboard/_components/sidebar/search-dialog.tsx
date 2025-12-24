@@ -1,9 +1,8 @@
 "use client";
 import * as React from "react";
 
-import { useRouter } from "next/navigation";
-
 import { Search, type LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,10 +14,12 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { useRouter } from "@/i18n/routing";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { useUserStore } from "@/stores/user/user-provider";
 
 export function SearchDialog() {
+  const t = useTranslations("Search");
   const currentUser = useUserStore(state => state.currentUser);
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
@@ -104,15 +105,15 @@ export function SearchDialog() {
         onClick={() => setOpen(true)}
       >
         <Search className="size-4" />
-        Search
+        {t("search")}
         <kbd className="bg-muted inline-flex h-5 items-center gap-1 rounded border px-1.5 text-[10px] font-medium select-none">
           <span className="text-xs">⌘</span>K
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search dashboards, users, and more…" />
+        <CommandInput placeholder={t("placeholder")} />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>{t("noResults")}</CommandEmpty>
           {[...new Set(searchItems.map(item => item.group))].map((group, i) => (
             <React.Fragment key={group}>
               {i !== 0 && <CommandSeparator />}

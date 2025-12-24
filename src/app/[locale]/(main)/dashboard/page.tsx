@@ -1,3 +1,9 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export default function Page() {
-  return <>Coming Soon</>;
+  const t = useTranslations("Common");
+
+  return <>{t("comingSoon")}</>;
 }

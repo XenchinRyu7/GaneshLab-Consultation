@@ -90,7 +90,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
       try {
         await transporter.sendMail(mailOptions);
-        console.log("Approval email sent to:", appointment.guestEmail);
       } catch (emailError) {
         console.error("Failed to send approval email:", emailError);
         // Don't fail the approval if email fails

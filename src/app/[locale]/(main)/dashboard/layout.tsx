@@ -2,8 +2,8 @@ import { ReactNode } from "react";
 
 import { cookies } from "next/headers";
 
-import { AppSidebar } from "./_components/sidebar/app-sidebar";
 import { getCurrentUser } from "@/app/actions/auth";
+import { LangSwitcher } from "@/components/lang-switcher";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -20,11 +20,10 @@ import {
   type NavbarStyle,
 } from "@/types/preferences/layout";
 
-import { LangSwitcher } from "@/components/lang-switcher";
-
 import { NotificationProvider } from "./_components/notifications/notification-context";
 import { NotificationDropdown } from "./_components/notifications/notification-dropdown";
 import { AccountSwitcher } from "./_components/sidebar/account-switcher";
+import { AppSidebar } from "./_components/sidebar/app-sidebar";
 import { LayoutControls } from "./_components/sidebar/layout-controls";
 import { SearchDialog } from "./_components/sidebar/search-dialog";
 import { ThemeSwitcher } from "./_components/sidebar/theme-switcher";

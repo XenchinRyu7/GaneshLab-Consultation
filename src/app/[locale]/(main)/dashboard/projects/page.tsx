@@ -2,10 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-
 import { Plus, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -19,6 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "@/i18n/routing";
 import { useProjectStore } from "@/stores/project/project-provider";
 import type { Project } from "@/stores/project/project-store";
 import { useUserStore } from "@/stores/user/user-provider";

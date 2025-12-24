@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Download } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewTab, AuditLogsTab, AnalyticsTab, useAnalytics, useAuditLogs } from "./_components";
 
 export default function AdminDashboard() {
+  const t = useTranslations("Admin");
   const { analytics, loading } = useAnalytics();
   const { auditLogs, loading: auditLoading, filters, setFilters } = useAuditLogs();
   const [exporting, setExporting] = useState(false);
@@ -28,20 +30,27 @@ export default function AdminDashboard() {
         exportAnalyticsToCSV(analytics);
       }
 
-      toast.success("Report exported successfully");
+      toast.success(t("reportExportedSuccess"));
     } catch (error) {
       console.error("Export error:", error);
-      toast.error("Failed to export report");
+      toast.error(t("reportExportFailed"));
     } finally {
       setExporting(false);
     }
   };
 
   const exportAuditLogsToCSV = (logs: typeof auditLogs) => {
-    const headers = ["Date", "User", "Action", "Entity Type", "Status", "Details"];
+    const headers = [
+      t("csvHeaders.date"),
+      t("csvHeaders.user"),
+      t("csvHeaders.action"),
+      t("csvHeaders.entityType"),
+      t("csvHeaders.status"),
+      t("csvHeaders.details"),
+    ];
     const rows = logs.map(log => [
       new Date(log.createdAt).toLocaleString(),
-      log.user?.fullname ?? "System",
+      log.user?.fullname ?? t("system"),
       log.action,
       log.entityType,
       log.success ? "Success" : "Failed",
@@ -104,12 +113,12 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Monitor system activity and analytics</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button variant="outline" size="sm" onClick={handleExportReport} disabled={exporting}>
           <Download className="mr-2 h-4 w-4" />
-          {exporting ? "Exporting..." : "Export Report"}
+          {exporting ? t("exporting") : t("exportReport")}
         </Button>
       </div>
 
@@ -120,9 +129,9 @@ export default function AdminDashboard() {
         onValueChange={setActiveTab}
       >
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="audit-logs">Audit Logs</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
+          <TabsTrigger value="audit-logs">{t("auditLogs")}</TabsTrigger>
+          <TabsTrigger value="analytics">{t("analytics")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

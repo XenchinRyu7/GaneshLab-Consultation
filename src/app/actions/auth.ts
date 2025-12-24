@@ -41,8 +41,6 @@ export async function signIn(email: string, password: string, rememberMe: boolea
       return { error: result.error };
     }
 
-    console.log("[signIn] Login successful for user:", result.user.email);
-
     try {
       await prisma.auditLog.create({
         data: {
@@ -56,7 +54,6 @@ export async function signIn(email: string, password: string, rememberMe: boolea
           success: true,
         },
       });
-      console.log("[signIn] Audit log created successfully for user:", result.user.id);
     } catch (logError) {
       console.error("[signIn] Failed to log successful login:", logError);
       // Continue even if audit log fails

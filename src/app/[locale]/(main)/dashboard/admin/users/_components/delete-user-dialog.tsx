@@ -48,8 +48,6 @@ export function DeleteUserDialog({
         method: "DELETE",
       });
 
-      console.log("Delete API response status:", response.status);
-
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Delete API error response:", errorData, "Status:", response.status);
@@ -63,8 +61,6 @@ export function DeleteUserDialog({
         return;
       }
 
-      const data = await response.json();
-      console.log("Delete API success:", data);
       toast.success("User deleted successfully", {
         description: `${userName ?? userEmail} has been removed from the system.`,
       });

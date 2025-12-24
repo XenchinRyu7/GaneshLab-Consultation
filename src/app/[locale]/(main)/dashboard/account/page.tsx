@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserStore } from "@/stores/user/user-provider";
 
@@ -8,23 +10,24 @@ import { CompanyProfile } from "./_components/company-profile";
 import { GaneshlabInfo } from "./_components/ganeshlab-info";
 
 export default function AccountPage() {
+  const t = useTranslations("Account");
   const currentUser = useUserStore(state => state.currentUser);
   const isClient = currentUser?.role === "client";
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Account Settings</h1>
-        <p className="text-muted-foreground">Manage your account and company information</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       <Tabs defaultValue="account" className="w-full">
         <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="account">{t("accountTab")}</TabsTrigger>
           {isClient ? (
-            <TabsTrigger value="company">Company Profile</TabsTrigger>
+            <TabsTrigger value="company">{t("companyProfileTab")}</TabsTrigger>
           ) : (
-            <TabsTrigger value="company">Company Information</TabsTrigger>
+            <TabsTrigger value="company">{t("companyInformationTab")}</TabsTrigger>
           )}
         </TabsList>
 

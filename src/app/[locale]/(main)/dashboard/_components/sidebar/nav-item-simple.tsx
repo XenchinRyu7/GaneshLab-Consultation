@@ -1,8 +1,8 @@
 "use client";
-import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { Link } from "@/i18n/routing";
 import type { NavMainItem } from "@/navigation/sidebar/sidebar-items";
 
 interface NavItemSimpleProps {

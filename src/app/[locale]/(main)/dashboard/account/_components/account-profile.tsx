@@ -107,10 +107,6 @@ export function AccountProfile() {
 
     try {
       setFetching(true);
-      console.log("[AccountProfile] Fetching user profile for user:", {
-        id: currentUser.id,
-        email: currentUser.email,
-      });
 
       const response = await fetch("/api/users/profile");
       if (response.ok) {
@@ -149,11 +145,6 @@ export function AccountProfile() {
 
     try {
       setLoading(true);
-      console.log("[AccountProfile] Updating user profile:", {
-        id: currentUser.id,
-        fullname: data.fullname,
-        phone: data.phone,
-      });
 
       const response = await fetch("/api/users/profile", {
         method: "PUT",

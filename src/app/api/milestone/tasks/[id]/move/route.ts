@@ -35,15 +35,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const body = await req.json();
     const { newBoardId, newPosition } = body;
 
-    // Debug logging
-    console.log("Move task request:", { id, newBoardId, newPosition, body });
-
     if (!newBoardId || typeof newPosition !== "number" || newPosition < 0) {
-      console.log("Validation failed:", {
-        newBoardId: !!newBoardId,
-        newPositionType: typeof newPosition,
-        newPositionValue: newPosition,
-      });
       return NextResponse.json({ error: "newBoardId and newPosition required" }, { status: 400 });
     }
 

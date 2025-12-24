@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 import { Inter } from "next/font/google";
 import LocalFont from "next/font/local";
+
+import { getTranslations } from "next-intl/server";
 
 import "./globals.css";
 

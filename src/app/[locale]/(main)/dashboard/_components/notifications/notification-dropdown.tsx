@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { Bell, CheckCheck, Settings } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -17,12 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useRouter } from "@/i18n/routing";
 
 import { useNotifications } from "./notification-context";
 import { NotificationItem } from "./notification-item";
 
 export function NotificationDropdown() {
   const router = useRouter();
+  const t = useTranslations("Notifications");
   const { notifications, unreadCount, isLoading, markAllAsRead } = useNotifications();
 
   return (
@@ -42,7 +43,7 @@ export function NotificationDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80" align="end" sideOffset={8}>
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Notifications</span>
+          <span>{t("dropdownTitle")}</span>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -50,11 +51,11 @@ export function NotificationDropdown() {
               className="h-7 text-xs"
               onClick={() => {
                 markAllAsRead();
-                toast.success("All notifications marked as read");
+                toast.success(t("allMarkedAsReadToast"));
               }}
             >
               <CheckCheck className="mr-1 size-4" />
-              Mark all read
+              {t("markAllRead")}
             </Button>
           )}
         </DropdownMenuLabel>
@@ -62,13 +63,13 @@ export function NotificationDropdown() {
 
         {isLoading ? (
           <div className="text-muted-foreground p-4 text-center text-sm">
-            Loading notifications...
+            {t("loadingNotifications")}
           </div>
         ) : notifications.length === 0 ? (
           <div className="p-8 text-center">
             <Bell className="text-muted-foreground/50 mx-auto mb-2 size-12" />
-            <p className="text-sm font-medium">No notifications</p>
-            <p className="text-muted-foreground mt-1 text-xs">You&#39;re all caught up!</p>
+            <p className="text-sm font-medium">{t("noNotificationsDropdown")}</p>
+            <p className="text-muted-foreground mt-1 text-xs">{t("allCaughtUp")}</p>
           </div>
         ) : (
           <ScrollArea className="h-[400px]">
@@ -84,7 +85,7 @@ export function NotificationDropdown() {
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => router.push("/dashboard/notifications")}>
             <Settings className="mr-2 size-4" />
-            View all notifications
+            {t("viewAllNotifications")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

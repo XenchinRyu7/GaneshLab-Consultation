@@ -1,6 +1,8 @@
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
-export default function Home() {
-  redirect("/id/dashboard/overview");
-  return <>Coming Soon</>;
+import { redirect } from "@/i18n/routing";
+
+export default async function Home() {
+  const locale = await getLocale();
+  redirect({ href: "/dashboard/overview", locale });
 }

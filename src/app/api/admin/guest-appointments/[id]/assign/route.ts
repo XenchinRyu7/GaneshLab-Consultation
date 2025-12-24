@@ -115,7 +115,6 @@ async function sendAssignmentEmailToPIC(
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Assignment email sent to PIC:", pic.email);
   } catch (emailError) {
     console.error("Failed to send assignment email:", emailError);
     // Don't fail the assignment if email fails
@@ -132,8 +131,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    console.log("[assign-pic] User role:", session.role);
 
     if (session.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

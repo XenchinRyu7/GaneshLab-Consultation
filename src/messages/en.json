@@ -23,7 +23,9 @@
     "password": "Password",
     "confirmPassword": "Confirm Password",
     "required": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "comingSoon": "Coming Soon",
+    "pageNotFound": "Page not found."
   },
   "Nav": {
     "getStarted": "Get Started",
@@ -81,7 +83,9 @@
     "loginSuccessDescription": "You will stay logged in for 30 days",
     "loginSuccessDescriptionShort": "Welcome back!",
     "loginFailed": "Login failed",
-    "unexpectedError": "An error occurred"
+    "unexpectedError": "An error occurred",
+    "emailValidationError": "Please enter a valid email address",
+    "passwordValidationError": "Password must be at least 6 characters"
   },
   "Dashboard": {
     "welcome": "Welcome back",
@@ -123,6 +127,14 @@
     "companyRegistrationsAndProjectStatistics": "Company registrations and project statistics",
     "completedThisMonth": "Completed This Month",
     "pendingApprovals": "Pending Approvals"
+  },
+  "MilestonePage": {
+    "title": "Milestone Board",
+    "descriptionWithProject": "Manage and track tasks for {projectName}",
+    "descriptionWithoutProject": "Manage and track your tasks with a visual board. Select a project to filter tasks.",
+    "noProjectSelected": "No active project selected. Please select a project from the Projects page to view its Milestone board.",
+    "projectNotApproved": "Project Not Approved",
+    "projectNotApprovedDescription": "Milestone board is only available for approved or active projects. Current status: {status}"
   },
   "Metadata": {
     "homeTitle": "GaneshLab - Consultation & Project Management",
@@ -170,30 +182,7 @@
     "deleteProject": "Delete Project",
     "deleteProjectConfirmation": "Are you sure you want to delete this project? This action cannot be undone.",
     "cancel": "Cancel",
-    "delete": "Delete",
-    "projectDeletedSuccessfully": "Project deleted successfully",
-    "failedToDeleteProject": "Failed to delete project",
-    "failedToFetchProjects": "Failed to fetch projects",
-    "checking": "Checking...",
-    "createProject": "Create Project",
-    "manageDescription": "Manage your projects and collaborations",
-    "loadingProjects": "Loading projects...",
-    "onlyClientsCanCreate": "Only clients can create projects",
-    "failedToVerifyCompanyProfile": "Failed to verify company profile",
-    "completeCompanyProfileFirst": "Please complete your company profile first",
-    "missingFields": "Missing fields",
-    "goToProfile": "Go to Profile",
-    "failedToVerifyCompanyProfileRetry": "Failed to verify company profile. Please try again.",
-    "onlyClientsCanEdit": "Only clients can edit projects",
-    "projectCreatedSuccessfully": "Project created successfully",
-    "failedToCreateProject": "Failed to create project",
-    "companyProfileIncomplete": "Company profile is incomplete. Please complete your company profile first.",
-    "projectUpdatedSuccessfully": "Project updated successfully",
-    "failedToUpdateProject": "Failed to update project",
-    "deleteProject": "Delete Project",
-    "deleteProjectConfirmation": "Are you sure you want to delete this project? This action cannot be undone.",
-    "cancel": "Cancel",
-    "delete": "Delete",
+    "confirmDelete": "Delete",
     "projectDeletedSuccessfully": "Project deleted successfully",
     "failedToDeleteProject": "Failed to delete project",
     "failedToFetchProjects": "Failed to fetch projects",
@@ -217,8 +206,8 @@
     "description": "Description",
     "enterProjectDescription": "Enter project description (optional)",
     "picPersonInCharge": "PIC (Person In Charge)",
-    "selectPic": "Select a PIC",
-    "picCannotBeChanged": "PIC cannot be changed once the project is approved",
+    "selectPic": "Select PIC",
+    "picCannotBeChanged": "PIC cannot be changed after project is approved",
     "selectPicDescription": "Select the PIC who will manage this project",
     "saveChanges": "Save Changes"
   },
@@ -230,6 +219,11 @@
     "networkError": "Network error",
     "tryAgain": "Please try again",
     "contactSupport": "Contact support if the problem persists"
+  },
+  "NotFound": {
+    "title": "Page not found.",
+    "description": "The page you are looking for could not be found.",
+    "backButton": "Go back home"
   },
   "GuestAppointment": {
     "title": "Book an Appointment",
@@ -332,7 +326,12 @@
     "cancelAppointment": "Cancel Appointment",
     "cancelAppointmentConfirm": "Are you sure you want to cancel this appointment? This action cannot be undone.",
     "keepAppointment": "Keep Appointment",
-    "cancelAppointmentAction": "Cancel Appointment"
+    "cancelAppointmentAction": "Cancel Appointment",
+    "projectLabel": "Project",
+    "projectRequired": "*",
+    "selectProject": "Select a project",
+    "loadingProjects": "Loading projects...",
+    "cancel": "Cancel"
   },
   "Chat": {
     "contactsTitle": "Chat Contacts",
@@ -378,5 +377,151 @@
       "title": "6. Contact Information",
       "content": "For questions about these Terms of Service, please contact us at support@ganeshlab-consultation.com."
     }
+  },
+  "ComingSoon": {
+    "title": "Page not found.",
+    "description": "This page is under development and will be available in future updates."
+  },
+  "Unauthorized": {
+    "title": "Unauthorized Access",
+    "description": "You do not have permission to view the requested content. Please contact the site administrator if you believe this is an error.",
+    "goToHomepage": "Go to Homepage"
+  },
+  "GetStarted": {
+    "alreadyHaveAccount": "Already have an account? Login Now",
+    "title": "Schedule a Consultation",
+    "description": "Connect with our team to discuss your project needs. We'll send you login information to access our platform after reviewing your request.",
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "Your full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your.email@example.com",
+    "typeLabel": "Type",
+    "personalType": "Personal",
+    "companyType": "Company",
+    "companyNameLabel": "Company Name",
+    "companyNamePlaceholder": "Your company name",
+    "messageLabel": "What will you discuss with our team",
+    "messagePlaceholder": "Describe what you need from GaneshLab...",
+    "successMessage": "Thank you! We've received your request and will review it shortly. You'll receive login information via email to access our platform.",
+    "errorMessage": "Something went wrong. Please try again or contact us directly.",
+    "submitting": "Submitting...",
+    "submitButton": "Submit Request"
+  },
+  "Admin": {
+    "title": "Admin Dashboard",
+    "description": "Monitor system activity and analytics",
+    "exportReport": "Export Report",
+    "exporting": "Exporting...",
+    "reportExportedSuccess": "Report exported successfully",
+    "reportExportFailed": "Failed to export report",
+    "overview": "Overview",
+    "auditLogs": "Audit Logs",
+    "analytics": "Analytics",
+    "csvHeaders": {
+      "date": "Date",
+      "user": "User",
+      "action": "Action",
+      "entityType": "Entity Type",
+      "status": "Status",
+      "details": "Details"
+    },
+    "system": "System"
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "description": "Manage and view all your notifications",
+    "refresh": "Refresh",
+    "markAllAsRead": "Mark All as Read",
+    "allMarkedAsRead": "All notifications marked as read",
+    "listTitle": "Notification List",
+    "unreadCount": "You have {{count}} unread notifications",
+    "allRead": "All notifications are read",
+    "filterAllTypes": "All Types",
+    "filterInfo": "Info",
+    "filterSuccess": "Success",
+    "filterWarning": "Warning",
+    "filterError": "Error",
+    "filterAppointment": "Appointment",
+    "filterMessage": "Message",
+    "filterSystem": "System",
+    "tabAll": "All",
+    "tabUnread": "Unread",
+    "tabRead": "Read",
+    "noNotifications": "No notifications",
+    "allReadMessage": "All notifications are read",
+    "noTypeNotifications": "No notifications of type {{type}}",
+    "noNotificationsAtAll": "You have no notifications",
+    "new": "New",
+    "viewDetails": "View Details →",
+    "markAsRead": "Mark as read",
+    "deleteNotification": "Delete notification",
+    "dropdownTitle": "Notifications",
+    "markAllRead": "Mark all read",
+    "allMarkedAsReadToast": "All notifications marked as read",
+    "loadingNotifications": "Loading notifications...",
+    "noNotificationsDropdown": "No notifications",
+    "allCaughtUp": "You're all caught up!",
+    "viewAllNotifications": "View all notifications"
+  },
+  "UserMenu": {
+    "account": "Account",
+    "logout": "Log out"
+  },
+  "ProjectSelector": {
+    "loading": "Loading projects...",
+    "noProjectsAvailable": "No projects available",
+    "noProjects": "No projects",
+    "selectProject": "Select project",
+    "activeProject": "Active Project"
+  },
+  "Account": {
+    "title": "Account Settings",
+    "description": "Manage your account and company information",
+    "accountTab": "Account",
+    "companyProfileTab": "Company Profile",
+    "companyInformationTab": "Company Information"
+  },
+  "QuickActions": {
+    "title": "Quick Actions",
+    "description": "Common tasks you can perform",
+    "scheduleMeeting": "Schedule Meeting",
+    "contactPIC": "Contact PIC",
+    "viewProjects": "View Projects",
+    "viewCalendar": "View Calendar"
+  },
+  "Search": {
+    "search": "Search",
+    "placeholder": "Search dashboards, users, and more…",
+    "noResults": "No results found."
+  },
+  "CreateProject": {
+    "button": "Create Project",
+    "tooltip": "Create Project",
+    "onlyClientsCanCreate": "Only clients can create projects",
+    "failedToCreate": "Failed to create project",
+    "failedToVerifyProfile": "Failed to verify company profile. Please try again.",
+    "completeProfileFirst": "Please complete your company profile first",
+    "missingFields": "Missing fields",
+    "goToProfileDescription": "Go to Account > Company Profile to complete your profile",
+    "profileIncomplete": "Company profile is incomplete. Please complete your company profile first.",
+    "projectCreated": "Project created successfully"
+  },
+  "PICOverview": {
+    "activeProjects": "Active Projects",
+    "managingProjects": "Projects you're managing",
+    "currentlyActive": "Currently active projects"
+  },
+  "ClientProjects": {
+    "title": "My Projects",
+    "description": "Current projects and their status",
+    "noProjects": "No projects found"
+  },
+  "ProjectStatuses": {
+    "COMPLETED": "Completed",
+    "ACTIVE": "Active",
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "CANCELLED": "Cancelled"
   }
 }

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
 
 import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
 import { Send, Smile, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

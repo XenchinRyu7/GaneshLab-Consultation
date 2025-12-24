@@ -109,7 +109,6 @@ async function verifyUserCredentials(email: string, password: string) {
   });
 
   if (!user) {
-    console.log("[login] User not found for email:", email);
     return null;
   }
 
@@ -117,7 +116,6 @@ async function verifyUserCredentials(email: string, password: string) {
   const isValidPassword = await verifyPassword(password, userWithPassword.password);
 
   if (!isValidPassword) {
-    console.log("[login] Invalid password for email:", email);
     return null;
   }
 
@@ -130,8 +128,6 @@ export async function login(
   rememberMe: boolean = false
 ): Promise<{ user: User } | { error: string }> {
   try {
-    console.log("[login] Attempting login for email:", email);
-
     const userWithPassword = await verifyUserCredentials(email, password);
     if (!userWithPassword) {
       return { error: "Invalid email or password" };

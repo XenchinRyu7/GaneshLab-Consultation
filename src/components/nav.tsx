@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
-import { Link } from "@/i18n/routing";
-
 import { ArrowLeft } from "lucide-react";
+
+import { Link } from "@/i18n/routing";
 
 export const Navigation: React.FC = () => {
   const ref = useRef<HTMLElement>(null);

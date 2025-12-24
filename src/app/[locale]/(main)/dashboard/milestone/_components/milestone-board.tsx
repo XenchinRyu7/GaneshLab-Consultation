@@ -12,7 +12,7 @@ import { EditCardDialog } from "./edit-card-dialog";
 import { usemilestoneActions } from "./hooks/use-milestone-actions";
 import { useMilestoneData } from "./hooks/use-milestone-data";
 import { MilestoneBoardContent } from "./milestone-board-content";
-import type { milestoneTask, TaskStatus } from "./milestone-config";
+import type { milestoneTask } from "./milestone-config";
 
 interface MilestoneBoardProps {
   projectId: string;
@@ -78,7 +78,6 @@ export function MilestoneBoard({ projectId }: MilestoneBoardProps) {
   }
 
   const existingIds = columns.map(col => col.id);
-  const availableStatuses: TaskStatus[] = columns.map(col => col.id);
 
   if (isLoading) {
     return (

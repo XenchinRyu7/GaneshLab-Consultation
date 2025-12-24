@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 
-import { Link } from "@/i18n/routing";
-
 import { Mail, Building2, User, MessageSquare, LogIn, ArrowLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Card } from "@/components/card";
+import { Link } from "@/i18n/routing";
 
 export default function WaitlistPage() {
+  const t = useTranslations("GetStarted");
+
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
@@ -76,18 +78,15 @@ export default function WaitlistPage() {
                   className="inline-flex items-center gap-2 text-sm text-zinc-400 transition-colors duration-200 hover:text-zinc-100"
                 >
                   <LogIn size={16} />
-                  Already have an account? Login Now
+                  {t("alreadyHaveAccount")}
                 </Link>
               </div>
 
               <div className="mb-8 text-center">
                 <h1 className="font-display text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">
-                  Schedule a Consultation
+                  {t("title")}
                 </h1>
-                <p className="mt-4 text-lg text-zinc-400">
-                  Connect with our team to discuss your project needs. We&apos;ll send you login
-                  information to access our platform after reviewing your request.
-                </p>
+                <p className="mt-4 text-lg text-zinc-400">{t("description")}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,7 +96,7 @@ export default function WaitlistPage() {
                     className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
                   >
                     <User size={16} />
-                    Full Name
+                    {t("fullNameLabel")}
                   </label>
                   <input
                     type="text"
@@ -106,7 +105,7 @@ export default function WaitlistPage() {
                     value={formData.fullname}
                     onChange={e => setFormData({ ...formData, fullname: e.target.value })}
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
-                    placeholder="Your full name"
+                    placeholder={t("fullNamePlaceholder")}
                   />
                 </div>
 
@@ -116,7 +115,7 @@ export default function WaitlistPage() {
                     className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
                   >
                     <Mail size={16} />
-                    Email
+                    {t("emailLabel")}
                   </label>
                   <input
                     type="email"
@@ -125,14 +124,14 @@ export default function WaitlistPage() {
                     value={formData.email}
                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
-                    placeholder="your.email@example.com"
+                    placeholder={t("emailPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label className="mb-3 flex items-center gap-2 text-sm font-medium text-zinc-300">
                     <Building2 size={16} />
-                    Type
+                    {t("typeLabel")}
                   </label>
                   <div className="flex gap-4">
                     <label className="flex cursor-pointer items-center gap-2">
@@ -146,7 +145,7 @@ export default function WaitlistPage() {
                         }
                         className="h-4 w-4 border-zinc-700 bg-zinc-800 text-zinc-500 focus:ring-zinc-500"
                       />
-                      <span className="text-zinc-300">Personal</span>
+                      <span className="text-zinc-300">{t("personalType")}</span>
                     </label>
                     <label className="flex cursor-pointer items-center gap-2">
                       <input
@@ -157,7 +156,7 @@ export default function WaitlistPage() {
                         onChange={e => setFormData({ ...formData, type: e.target.value })}
                         className="h-4 w-4 border-zinc-700 bg-zinc-800 text-zinc-500 focus:ring-zinc-500"
                       />
-                      <span className="text-zinc-300">Company</span>
+                      <span className="text-zinc-300">{t("companyType")}</span>
                     </label>
                   </div>
                 </div>
@@ -169,7 +168,7 @@ export default function WaitlistPage() {
                       className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
                     >
                       <Building2 size={16} />
-                      Company Name
+                      {t("companyNameLabel")}
                     </label>
                     <input
                       type="text"
@@ -178,7 +177,7 @@ export default function WaitlistPage() {
                       value={formData.company}
                       onChange={e => setFormData({ ...formData, company: e.target.value })}
                       className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
-                      placeholder="Your company name"
+                      placeholder={t("companyNamePlaceholder")}
                     />
                   </div>
                 )}
@@ -189,7 +188,7 @@ export default function WaitlistPage() {
                     className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-300"
                   >
                     <MessageSquare size={16} />
-                    What will you discuss with our team
+                    {t("messageLabel")}
                   </label>
                   <textarea
                     id="message"
@@ -198,20 +197,19 @@ export default function WaitlistPage() {
                     value={formData.message}
                     onChange={e => setFormData({ ...formData, message: e.target.value })}
                     className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500 focus:outline-none"
-                    placeholder="Describe what you need from GaneshLab..."
+                    placeholder={t("messagePlaceholder")}
                   />
                 </div>
 
                 {submitStatus === "success" && (
                   <div className="rounded-lg border border-green-800 bg-green-900/20 p-4 text-green-400">
-                    Thank you! We&apos;ve received your request and will review it shortly.
-                    You&apos;ll receive login information via email to access our platform.
+                    {t("successMessage")}
                   </div>
                 )}
 
                 {submitStatus === "error" && (
                   <div className="rounded-lg border border-red-800 bg-red-900/20 p-4 text-red-400">
-                    Something went wrong. Please try again or contact us directly.
+                    {t("errorMessage")}
                   </div>
                 )}
 
@@ -220,7 +218,7 @@ export default function WaitlistPage() {
                   disabled={isSubmitting}
                   className="w-full rounded-lg bg-zinc-100 px-6 py-3 font-medium text-zinc-900 transition-colors duration-200 hover:bg-zinc-200 focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit Request"}
+                  {isSubmitting ? t("submitting") : t("submitButton")}
                 </button>
               </form>
             </div>

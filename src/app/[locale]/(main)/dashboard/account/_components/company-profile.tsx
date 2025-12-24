@@ -160,13 +160,6 @@ export function CompanyProfile() {
       setLoading(true);
       const userId = currentUser.id;
 
-      console.log("[CompanyProfile] Saving company profile for user:", {
-        id: userId,
-        email: currentUser.email,
-        role: currentUser.role,
-        companyName: data.name,
-      });
-
       const response = await fetch("/api/companies", {
         method: "POST",
         headers: {

@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-import { useRouter } from "next/navigation";
-
 import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import {
@@ -19,6 +17,7 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useRouter } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
 import { useNotifications } from "./notification-context";

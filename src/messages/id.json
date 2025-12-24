@@ -23,7 +23,9 @@
     "password": "Kata Sandi",
     "confirmPassword": "Konfirmasi Kata Sandi",
     "required": "Wajib",
-    "optional": "Opsional"
+    "optional": "Opsional",
+    "comingSoon": "Segera Hadir",
+    "pageNotFound": "Halaman tidak ditemukan."
   },
   "Nav": {
     "getStarted": "Mulai",
@@ -81,7 +83,9 @@
     "loginSuccessDescription": "Anda akan tetap masuk selama 30 hari",
     "loginSuccessDescriptionShort": "Selamat datang kembali!",
     "loginFailed": "Login gagal",
-    "unexpectedError": "Terjadi kesalahan"
+    "unexpectedError": "Terjadi kesalahan",
+    "emailValidationError": "Masukkan alamat email yang valid",
+    "passwordValidationError": "Kata sandi minimal 6 karakter"
   },
   "Dashboard": {
     "welcome": "Selamat datang kembali",
@@ -123,6 +127,14 @@
     "companyRegistrationsAndProjectStatistics": "Pendaftaran perusahaan dan statistik proyek",
     "completedThisMonth": "Selesai Bulan Ini",
     "pendingApprovals": "Menunggu Persetujuan"
+  },
+  "MilestonePage": {
+    "title": "Papan Pencapaian",
+    "descriptionWithProject": "Kelola dan lacak tugas untuk {projectName}",
+    "descriptionWithoutProject": "Kelola dan lacak tugas Anda dengan papan visual. Pilih proyek untuk memfilter tugas.",
+    "noProjectSelected": "Tidak ada proyek aktif yang dipilih. Silakan pilih proyek dari halaman Proyek untuk melihat Papan Pencapaiannya.",
+    "projectNotApproved": "Proyek Tidak Disetujui",
+    "projectNotApprovedDescription": "Papan pencapaian hanya tersedia untuk proyek yang disetujui atau aktif. Status saat ini: {status}"
   },
   "Metadata": {
     "homeTitle": "GaneshLab - Konsultasi & Manajemen Proyek",
@@ -170,7 +182,7 @@
     "deleteProject": "Hapus Proyek",
     "deleteProjectConfirmation": "Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.",
     "cancel": "Batal",
-    "delete": "Hapus",
+    "confirmDelete": "Hapus",
     "projectDeletedSuccessfully": "Proyek berhasil dihapus",
     "failedToDeleteProject": "Gagal menghapus proyek",
     "failedToFetchProjects": "Gagal mengambil proyek",
@@ -207,6 +219,11 @@
     "networkError": "Kesalahan jaringan",
     "tryAgain": "Silakan coba lagi",
     "contactSupport": "Hubungi dukungan jika masalah berlanjut"
+  },
+  "NotFound": {
+    "title": "Halaman tidak ditemukan.",
+    "description": "Halaman yang Anda cari tidak dapat ditemukan.",
+    "backButton": "Kembali ke beranda"
   },
   "GuestAppointment": {
     "title": "Buat Janji Temu",
@@ -309,7 +326,12 @@
     "cancelAppointment": "Batalkan Janji Temu",
     "cancelAppointmentConfirm": "Apakah Anda yakin ingin membatalkan janji temu ini? Tindakan ini tidak dapat dibatalkan.",
     "keepAppointment": "Pertahankan Janji Temu",
-    "cancelAppointmentAction": "Batalkan Janji Temu"
+    "cancelAppointmentAction": "Batalkan Janji Temu",
+    "projectLabel": "Proyek",
+    "projectRequired": "*",
+    "selectProject": "Pilih proyek",
+    "loadingProjects": "Memuat proyek...",
+    "cancel": "Batal"
   },
   "Chat": {
     "contactsTitle": "Kontak Obrolan",
@@ -355,5 +377,143 @@
       "title": "6. Informasi Kontak",
       "content": "Untuk pertanyaan tentang Syarat dan Ketentuan ini, silakan hubungi kami di support@ganeshlab-consultation.com."
     }
+  },
+  "ComingSoon": {
+    "title": "Halaman tidak ditemukan.",
+    "description": "Halaman ini sedang dalam pengembangan dan akan tersedia dalam pembaruan mendatang."
+  },
+  "Unauthorized": {
+    "title": "Akses Tidak Sah",
+    "description": "Anda tidak memiliki izin untuk melihat konten yang diminta. Silakan hubungi administrator situs jika Anda yakin ini adalah kesalahan.",
+    "goToHomepage": "Ke Beranda"
+  },
+  "GetStarted": {
+    "alreadyHaveAccount": "Sudah punya akun? Masuk Sekarang",
+    "title": "Jadwalkan Konsultasi",
+    "description": "Terhubung dengan tim kami untuk membahas kebutuhan proyek Anda. Kami akan mengirimkan informasi login untuk mengakses platform kami setelah meninjau permintaan Anda.",
+    "fullNameLabel": "Nama Lengkap",
+    "fullNamePlaceholder": "Nama lengkap Anda",
+    "emailLabel": "Email",
+    "emailPlaceholder": "email.anda@contoh.com",
+    "typeLabel": "Tipe",
+    "personalType": "Pribadi",
+    "companyType": "Perusahaan",
+    "companyNameLabel": "Nama Perusahaan",
+    "companyNamePlaceholder": "Nama perusahaan Anda",
+    "messageLabel": "Apa yang akan Anda bahas dengan tim kami",
+    "messagePlaceholder": "Jelaskan apa yang Anda butuhkan dari GaneshLab...",
+    "successMessage": "Terima kasih! Kami telah menerima permintaan Anda dan akan meninjaunya segera. Anda akan menerima informasi login melalui email untuk mengakses platform kami.",
+    "errorMessage": "Terjadi kesalahan. Silakan coba lagi atau hubungi kami langsung.",
+    "submitting": "Mengirim...",
+    "submitButton": "Kirim Permintaan"
+  },
+  "Admin": {
+    "title": "Dashboard Admin",
+    "description": "Pantau aktivitas sistem dan analitik",
+    "exportReport": "Ekspor Laporan",
+    "exporting": "Mengekspor...",
+    "reportExportedSuccess": "Laporan berhasil diekspor",
+    "reportExportFailed": "Gagal mengekspor laporan",
+    "overview": "Ringkasan",
+    "auditLogs": "Log Audit",
+    "analytics": "Analitik",
+    "csvHeaders": {
+      "date": "Tanggal",
+      "user": "Pengguna",
+      "action": "Aksi",
+      "entityType": "Tipe Entitas",
+      "status": "Status",
+      "details": "Detail"
+    },
+    "system": "Sistem"
+  },
+  "Notifications": {
+    "title": "Notifikasi",
+    "description": "Kelola dan lihat semua notifikasi Anda",
+    "refresh": "Refresh",
+    "markAllAsRead": "Tandai Semua Dibaca",
+    "allMarkedAsRead": "Semua notifikasi ditandai telah dibaca",
+    "listTitle": "Daftar Notifikasi",
+    "unreadCount": "Anda memiliki {{count}} notifikasi yang belum dibaca",
+    "allRead": "Semua notifikasi sudah dibaca",
+    "filterAllTypes": "Semua Tipe",
+    "filterInfo": "Info",
+    "filterSuccess": "Sukses",
+    "filterWarning": "Peringatan",
+    "filterError": "Error",
+    "filterAppointment": "Janji Temu",
+    "filterMessage": "Pesan",
+    "filterSystem": "Sistem",
+    "tabAll": "Semua",
+    "tabUnread": "Belum Dibaca",
+    "tabRead": "Sudah Dibaca",
+    "noNotifications": "Tidak ada notifikasi",
+    "allReadMessage": "Semua notifikasi sudah dibaca",
+    "noTypeNotifications": "Tidak ada notifikasi tipe {{type}}",
+    "noNotificationsAtAll": "Anda tidak memiliki notifikasi",
+    "new": "Baru",
+    "viewDetails": "Lihat Detail →",
+    "markAsRead": "Tandai sudah dibaca",
+    "deleteNotification": "Hapus notifikasi",
+    "dropdownTitle": "Notifikasi",
+    "markAllRead": "Tandai semua dibaca",
+    "allMarkedAsReadToast": "Semua notifikasi ditandai telah dibaca",
+    "loadingNotifications": "Memuat notifikasi...",
+    "noNotificationsDropdown": "Tidak ada notifikasi",
+    "allCaughtUp": "Anda sudah update!",
+    "viewAllNotifications": "Lihat semua notifikasi"
+  },
+  "UserMenu": {
+    "account": "Akun",
+    "logout": "Keluar"
+  },
+  "ProjectSelector": {
+    "loading": "Memuat proyek...",
+    "noProjectsAvailable": "Tidak ada proyek tersedia",
+    "noProjects": "Tidak ada proyek",
+    "selectProject": "Pilih proyek",
+    "activeProject": "Proyek Aktif"
+  },
+  "Account": {
+    "title": "Pengaturan Akun",
+    "description": "Kelola akun dan informasi perusahaan Anda",
+    "accountTab": "Akun",
+    "companyProfileTab": "Profil Perusahaan",
+    "companyInformationTab": "Informasi Perusahaan"
+  },
+  "QuickActions": {
+    "title": "Aksi Cepat",
+    "description": "Tugas umum yang dapat Anda lakukan",
+    "scheduleMeeting": "Jadwalkan Pertemuan",
+    "contactPIC": "Hubungi PIC",
+    "viewProjects": "Lihat Proyek",
+    "viewCalendar": "Lihat Kalender"
+  },
+  "Search": {
+    "search": "Cari",
+    "placeholder": "Cari dashboard, pengguna, dan lainnya…",
+    "noResults": "Tidak ada hasil ditemukan."
+  },
+  "CreateProject": {
+    "button": "Buat Proyek",
+    "tooltip": "Buat Proyek",
+    "onlyClientsCanCreate": "Hanya klien yang dapat membuat proyek",
+    "failedToCreate": "Gagal membuat proyek",
+    "failedToVerifyProfile": "Gagal memverifikasi profil perusahaan. Silakan coba lagi.",
+    "completeProfileFirst": "Harap lengkapi profil perusahaan Anda terlebih dahulu",
+    "missingFields": "Bidang yang hilang",
+    "goToProfileDescription": "Ke Akun > Profil Perusahaan untuk melengkapi profil Anda",
+    "profileIncomplete": "Profil perusahaan tidak lengkap. Harap lengkapi profil perusahaan Anda terlebih dahulu.",
+    "projectCreated": "Proyek berhasil dibuat"
+  },
+  "PICOverview": {
+    "activeProjects": "Proyek Aktif",
+    "managingProjects": "Proyek yang Anda kelola",
+    "currentlyActive": "Proyek yang sedang aktif"
+  },
+  "ClientProjects": {
+    "title": "Proyek Saya",
+    "description": "Proyek saat ini dan statusnya",
+    "noProjects": "Tidak ada proyek ditemukan"
   }
 }

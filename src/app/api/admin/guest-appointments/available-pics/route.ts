@@ -27,14 +27,6 @@ export async function GET(req: NextRequest) {
     const [year, month, day] = dateStr.split("-").map(Number);
     const appointmentDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
 
-    console.log("[available-pics] Checking availability for:", {
-      receivedDate: date,
-      parsedDateStr: dateStr,
-      appointmentDate: appointmentDate.toISOString(),
-      startTime,
-      endTime,
-    });
-
     // Get all PICs
     const allPics = await prisma.userProfile.findMany({
       where: { role: "pic" },
@@ -57,14 +49,10 @@ export async function GET(req: NextRequest) {
         dateStr
       );
 
-      console.log(`[available-pics] PIC ${pic.fullname}:`, checkResult);
-
       if (checkResult.isAvailable) {
         availablePics.push(pic);
       }
     }
-
-    console.log(`[available-pics] Found ${availablePics.length} available PICs`);
 
     return NextResponse.json({ pics: availablePics });
   } catch (error) {

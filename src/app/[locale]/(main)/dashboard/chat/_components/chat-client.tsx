@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useTranslations } from "next-intl";
 
 import { Menu, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   type Contact,

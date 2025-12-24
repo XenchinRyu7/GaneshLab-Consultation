@@ -4,10 +4,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { useRouter } from "next/navigation";
-
 import { toast } from "sonner";
 
+import { useRouter } from "@/i18n/routing";
 import { useUserStore } from "@/stores/user/user-provider";
 
 import {

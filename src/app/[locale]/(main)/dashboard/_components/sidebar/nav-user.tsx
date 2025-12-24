@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { EllipsisVertical, CircleUser, LogOut } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { signOut } from "@/app/actions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +20,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useRouter } from "@/i18n/routing";
 import { getInitials } from "@/lib/utils";
 
 export function NavUser({
@@ -34,6 +34,7 @@ export function NavUser({
 }) {
   const router = useRouter();
   const { isMobile } = useSidebar();
+  const t = useTranslations("UserMenu");
 
   return (
     <SidebarMenu>
@@ -87,7 +88,7 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => router.push("/dashboard/account")}>
                 <CircleUser />
-                Account
+                {t("account")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -98,7 +99,7 @@ export function NavUser({
               className="text-destructive focus:text-destructive cursor-pointer"
             >
               <LogOut />
-              Log out
+              {t("logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

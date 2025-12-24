@@ -1,8 +1,6 @@
 "use client";
-import { Link } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
-
 import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   DropdownMenu,
@@ -11,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenuButton, SidebarMenuItem, SidebarMenuSubButton } from "@/components/ui/sidebar";
+import { Link } from "@/i18n/routing";
 import type { NavMainItem } from "@/navigation/sidebar/sidebar-items";
 
 const IsComingSoon = () => (

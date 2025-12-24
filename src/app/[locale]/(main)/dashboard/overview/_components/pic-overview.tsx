@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { Link } from "@/i18n/routing";
-
 import { Calendar, Clock, AlertCircle, MessageCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Link } from "@/i18n/routing";
 
 interface PicStats {
   totalAppointments: number;
@@ -50,6 +50,7 @@ interface PicStats {
 }
 
 export function PicOverview() {
+  const t = useTranslations("PICOverview");
   const [stats, setStats] = useState<PicStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -104,14 +105,14 @@ export function PicOverview() {
 
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>Active Projects</CardDescription>
+            <CardDescription>{t("activeProjects")}</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               {stats.activeProjects}
             </CardTitle>
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
-            <div className="line-clamp-1 flex gap-2 font-medium">Projects you&apos;re managing</div>
-            <div className="text-muted-foreground">Currently active projects</div>
+            <div className="line-clamp-1 flex gap-2 font-medium">{t("managingProjects")}</div>
+            <div className="text-muted-foreground">{t("currentlyActive")}</div>
           </CardFooter>
         </Card>
 

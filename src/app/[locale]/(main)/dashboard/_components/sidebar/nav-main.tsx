@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import {
@@ -10,6 +9,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { usePathname } from "@/i18n/routing";
 import { type NavGroup, type NavMainItem } from "@/navigation/sidebar/sidebar-items";
 import { useUserStore } from "@/stores/user/user-provider";
 

@@ -10,8 +10,6 @@ export async function GET() {
   try {
     const session = await auth();
 
-    console.log("[guest-appointments] Session:", session);
-
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -19,9 +17,6 @@ export async function GET() {
     const userProfile = await prisma.userProfile.findUnique({
       where: { id: session.id },
     });
-
-    console.log("[guest-appointments] UserProfile:", userProfile);
-    console.log("[guest-appointments] User role:", userProfile?.role);
 
     if (userProfile?.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

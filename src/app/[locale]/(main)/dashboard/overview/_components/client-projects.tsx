@@ -1,6 +1,7 @@
 "use client";
 
 import { FolderKanban } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,14 +19,16 @@ interface ClientProjectsProps {
 }
 
 export function ClientProjects({ projects }: ClientProjectsProps) {
+  const t = useTranslations("ClientProjects");
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FolderKanban className="size-5" />
-          My Projects
+          {t("title")}
         </CardTitle>
-        <CardDescription>Current projects and their status</CardDescription>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardFooter>
         <div className="w-full space-y-3">
@@ -61,7 +64,7 @@ export function ClientProjects({ projects }: ClientProjectsProps) {
               </div>
             ))
           ) : (
-            <div className="text-muted-foreground py-4 text-center">No projects found</div>
+            <div className="text-muted-foreground py-4 text-center">{t("noProjects")}</div>
           )}
         </div>
       </CardFooter>

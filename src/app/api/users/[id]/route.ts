@@ -26,16 +26,8 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const session = await getSession();
     const headersList = await headers();
     const { ipAddress, userAgent } = getRequestInfo(headersList);
-    console.log("PATCH /api/users/[id] - Session:", session);
-
     // Only admin can edit users
     if (!session || session.role !== "admin") {
-      console.log(
-        "PATCH /api/users/[id] - Unauthorized. Session exists:",
-        !!session,
-        "Role:",
-        session?.role
-      );
       await logAudit({
         userId: session?.id,
         action: "UPDATE_USER",
@@ -50,14 +42,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     const { id: userId } = await params;
-    console.log("PATCH /api/users/[id] - userId:", userId);
 
     const body = await request.json();
-    console.log("PATCH /api/users/[id] - body:", body);
 
     // Validate request body
     const validated = updateUserSchema.parse(body);
-    console.log("PATCH /api/users/[id] - validated:", validated);
 
     // Check if user exists
     const existingUser = await prisma.userProfile.findUnique({
@@ -80,8 +69,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       updateData.password = await hashPassword(validated.password);
     }
 
-    console.log("PATCH /api/users/[id] - updateData:", updateData);
-
     // Update user
     const updatedUser = await prisma.userProfile.update({
       where: { id: userId },
@@ -98,8 +85,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         updatedAt: true,
       },
     });
-
-    console.log("PATCH /api/users/[id] - updatedUser:", updatedUser);
 
     // Log successful user update
     await logAudit({
@@ -147,16 +132,9 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     const session = await getSession();
     const headersList = await headers();
     const { ipAddress, userAgent } = getRequestInfo(headersList);
-    console.log("DELETE /api/users/[id] - Session:", session);
 
     // Only admin can delete users
     if (!session || session.role !== "admin") {
-      console.log(
-        "DELETE /api/users/[id] - Unauthorized. Session exists:",
-        !!session,
-        "Role:",
-        session?.role
-      );
       await logAudit({
         userId: session?.id,
         action: "DELETE_USER",
@@ -171,7 +149,6 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     }
 
     const { id: userId } = await params;
-    console.log("DELETE /api/users/[id] - userId:", userId);
 
     // Check if user exists
     const existingUser = await prisma.userProfile.findUnique({
@@ -186,8 +163,6 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     if (existingUser.id === session.id) {
       return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
     }
-
-    console.log("DELETE /api/users/[id] - Deleting user:", userId);
 
     // Delete user (hard delete)
     await prisma.userProfile.delete({
@@ -210,7 +185,6 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       success: true,
     });
 
-    console.log("DELETE /api/users/[id] - User deleted successfully");
     return NextResponse.json({ success: true, message: "User deleted successfully" });
   } catch (error) {
     console.error("Error deleting user:", error);

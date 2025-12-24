@@ -71,7 +71,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
             <h3>Appointment Details:</h3>
             <p><strong>Title:</strong> ${appointment.title}</p>
-            <p><strong>Date:</strong> ${appointment.date?.toLocaleDateString()}</p>
+            <p><strong>Date:</strong> ${appointment.date.toLocaleDateString()}</p>
             <p><strong>Time:</strong> ${appointment.startTime} - ${appointment.endTime}</p>
             ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ""}
           </div>
@@ -91,7 +91,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
       try {
         await transporter.sendMail(mailOptions);
-        console.log("Rejection email sent to:", appointment.guestEmail);
       } catch (emailError) {
         console.error("Failed to send rejection email:", emailError);
         // Don't fail the rejection if email fails

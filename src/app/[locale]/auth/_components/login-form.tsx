@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -24,17 +24,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const FormSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  remember: z.boolean().optional(),
-});
-
 export function LoginForm() {
   const router = useRouter();
   const t = useTranslations("Auth");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const FormSchema = z.object({
+    email: z.string().email({ message: t("emailValidationError") }),
+    password: z.string().min(6, { message: t("passwordValidationError") }),
+    remember: z.boolean().optional(),
+  });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -47,12 +47,9 @@ export function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     setIsLoading(true);
-    console.log("[LoginForm] Starting login for:", data.email);
 
     try {
       const result = await signIn(data.email, data.password, data.remember ?? false);
-
-      console.log("[LoginForm] SignIn result:", result);
 
       if (result.error) {
         console.error("[LoginForm] Login error:", result.error);
@@ -62,7 +59,6 @@ export function LoginForm() {
         });
         setIsLoading(false);
       } else {
-        console.log("[LoginForm] Login successful, redirecting...");
         toast.success(t("loginSuccessMessage"), {
           description: data.remember
             ? t("loginSuccessDescription")
@@ -74,7 +70,6 @@ export function LoginForm() {
       console.error("[LoginForm] Unexpected error:", error);
 
       if (error && typeof error === "object" && "digest" in error) {
-        console.log("[LoginForm] Redirect error (expected):", error);
         return;
       }
 

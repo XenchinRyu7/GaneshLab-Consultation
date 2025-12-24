@@ -46,13 +46,6 @@ export function useMilestoneDrag({ columns, tasks, setTasks, onMoveTask }: UseMi
         const tasksInNewBoard = tasks.filter(t => t.status === overColumn.id);
         const newPosition = tasksInNewBoard.length; // Add to end
 
-        console.log("Drag: Moving to column", {
-          activeId,
-          overColumnId: overColumn.id,
-          newPosition,
-          tasksInNewBoard: tasksInNewBoard.length,
-        });
-
         // Optimistic update: move task to new board at the end
         setTasks(prevTasks => {
           const filtered = prevTasks.filter(t => t.id !== activeId);
@@ -73,15 +66,6 @@ export function useMilestoneDrag({ columns, tasks, setTasks, onMoveTask }: UseMi
       const tasksInBoard = tasks.filter(t => t.status === newBoardId);
       const overIndex = tasksInBoard.findIndex(t => t.id === overId);
       const newPosition = overIndex; // Insert at overTask's position
-
-      console.log("Drag: Moving to task", {
-        activeId,
-        overId,
-        newBoardId,
-        overIndex,
-        newPosition,
-        tasksInBoard: tasksInBoard.length,
-      });
 
       if (activeTask.status === overTask.status) {
         // Same column, reorder locally first

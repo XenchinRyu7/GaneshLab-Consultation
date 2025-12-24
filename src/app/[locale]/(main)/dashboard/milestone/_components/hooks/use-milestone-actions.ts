@@ -203,16 +203,12 @@ export function usemilestoneActions({
 
   async function handleMoveTask(taskId: string, newBoardId: string, newPosition: number) {
     try {
-      console.log("Frontend: Moving task", { taskId, newBoardId, newPosition });
-
       // Check if newBoardId refers to a default column that needs to be created
       const column = columns.find(col => col.id === newBoardId);
       let actualBoardId = newBoardId;
 
       // If board is default (not in DB), create it first
       if (column?.isDefault) {
-        console.log("Creating board for default column:", column.title);
-
         const createBoardResponse = await fetch("/api/milestone/boards", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -229,8 +225,6 @@ export function usemilestoneActions({
 
         const boardData = await createBoardResponse.json();
         actualBoardId = boardData.board.id;
-
-        console.log("Created board with ID:", actualBoardId);
 
         // Update column to non-default
         setColumns(prev =>
@@ -249,8 +243,6 @@ export function usemilestoneActions({
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.log("API Error:", errorData);
         throw new Error("Failed to move task");
       }
 

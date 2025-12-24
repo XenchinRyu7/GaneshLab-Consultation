@@ -86,12 +86,6 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    console.log("[PUT /api/users/profile] User profile updated:", {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      fullname: updatedUser.fullname,
-    });
-
     return NextResponse.json({ user: updatedUser }, { status: 200 });
   } catch (error: unknown) {
     console.error("[PUT /api/users/profile] Error updating user profile:", error);

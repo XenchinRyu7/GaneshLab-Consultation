@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+
 import { getTranslations } from "next-intl/server";
 
 import { Toaster } from "@/components/ui/sonner";

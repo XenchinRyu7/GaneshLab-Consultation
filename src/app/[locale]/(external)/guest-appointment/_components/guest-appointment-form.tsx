@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { useRouter } from "@/i18n/routing";
 
 import { AppointmentDetailsSection } from "./appointment-details-section";
 import { FormValues, formSchema } from "./form-schema";

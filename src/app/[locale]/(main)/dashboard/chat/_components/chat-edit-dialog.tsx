@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
 
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import type { MessageWithSender } from "@/app/actions/chat";
 import { Button } from "@/components/ui/button";

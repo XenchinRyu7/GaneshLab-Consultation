@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 
 import { Check, ChevronsUpDown, FolderKanban, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,6 +22,7 @@ import { useUserStore } from "@/stores/user/user-provider";
 export function ProjectSelector() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const t = useTranslations("ProjectSelector");
 
   const currentUser = useUserStore(state => state.currentUser);
   const activeProject = useProjectStore(state => state.activeProject);
@@ -41,10 +43,16 @@ export function ProjectSelector() {
       const response = await fetch(url);
 
       if (response.ok) {
-        const data = await response.json();
-        setProjects(data.projects ?? []);
+        const contentType = response.headers.get("content-type");
+        if (contentType?.includes("application/json")) {
+          const data = await response.json();
+          setProjects(data.projects ?? []);
+        } else {
+          console.error("API returned non-JSON response");
+          setProjects([]);
+        }
       } else {
-        console.error("Failed to fetch projects");
+        console.error(`Failed to fetch projects: ${response.status}`);
         setProjects([]);
       }
     } catch (error) {
@@ -111,7 +119,7 @@ export function ProjectSelector() {
         <SidebarMenuItem>
           <SidebarMenuButton disabled>
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Loading projects...</span>
+            <span>{t("loading")}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
@@ -123,9 +131,9 @@ export function ProjectSelector() {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton disabled tooltip="No projects available">
+          <SidebarMenuButton disabled tooltip={t("noProjectsAvailable")}>
             <FolderKanban className="h-4 w-4" />
-            <span className="text-muted-foreground">No projects</span>
+            <span className="text-muted-foreground">{t("noProjects")}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
@@ -138,11 +146,11 @@ export function ProjectSelector() {
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              tooltip={activeProject?.name ?? "Select project"}
+              tooltip={activeProject?.name ?? t("selectProject")}
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <FolderKanban className="h-4 w-4" />
-              <span className="truncate">{activeProject?.name ?? "Select Project"}</span>
+              <span className="truncate">{activeProject?.name ?? t("selectProject")}</span>
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -152,7 +160,7 @@ export function ProjectSelector() {
             side="bottom"
             sideOffset={4}
           >
-            <DropdownMenuLabel>Active Project</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("activeProject")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {projects.map(project => (
               <DropdownMenuItem

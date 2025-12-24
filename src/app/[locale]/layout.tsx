@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+
 import { NextIntlClientProvider } from "next-intl";
 
 interface LocaleLayoutProps {
