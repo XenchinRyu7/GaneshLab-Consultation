@@ -4,7 +4,7 @@ import createMiddleware from "next-intl/middleware";
 
 import { locales, defaultLocale, localePrefix } from "./i18n.edge";
 
-export const runtime = "edge";
+export const runtime = "nodejs"; // 🧪 TEST: Temporary untuk diagnose Edge issue
 
 const handleI18nRouting = createMiddleware({
   locales,
