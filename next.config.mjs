@@ -6,6 +6,11 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      "/": ["./node_modules/next-intl/**/*"],
+    },
+  },
   async redirects() {
     return [
       {

@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 import type { NextRequest } from "next/server";
 
 import createMiddleware from "next-intl/middleware";
@@ -11,10 +13,10 @@ const handleI18nRouting = createMiddleware({
   localeDetection: false,
 });
 
-export default async function middleware(req: NextRequest) {
+export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Early return for API routes and static files
+  // Skip API & static files
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
@@ -27,5 +29,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
