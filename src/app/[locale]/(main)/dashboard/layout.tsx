@@ -103,7 +103,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
                   />
                   <SearchDialog />
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 lg:gap-2">
                   <LayoutControls {...layoutPreferences} />
                   <NotificationDropdown />
                   <LangSwitcher />

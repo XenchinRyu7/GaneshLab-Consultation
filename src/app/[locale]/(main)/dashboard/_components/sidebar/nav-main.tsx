@@ -44,11 +44,14 @@ export function NavMain({ items }: NavMainProps) {
   return (
     <>
       <NavCreateProjectButton />
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <ProjectSelector />
-        </SidebarGroupContent>
-      </SidebarGroup>
+      {/* Only show ProjectSelector for CLIENT role */}
+      {currentUser?.role === "client" && (
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <ProjectSelector />
+          </SidebarGroupContent>
+        </SidebarGroup>
+      )}
       {items
         .filter(group => {
           if (group.roles && currentUser) {

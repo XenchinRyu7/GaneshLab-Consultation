@@ -13,16 +13,22 @@ export function LangSwitcher() {
   const pathname = usePathname();
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       {locales.map(l => {
         return (
           <Link
             key={l.code}
             href={pathname}
             locale={l.code}
-            className={`rounded px-2 py-1 text-xs ${active === l.code ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-zinc-200"}`}
+            className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+              active === l.code
+                ? "bg-zinc-700 text-white"
+                : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+            }`}
           >
-            {l.label}
+            {/* Short version for mobile, full label for desktop */}
+            <span className="md:hidden">{l.code.toUpperCase()}</span>
+            <span className="hidden md:inline">{l.label}</span>
           </Link>
         );
       })}

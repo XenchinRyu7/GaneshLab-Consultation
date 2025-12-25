@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -17,6 +17,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "@/i18n/routing";
 import { useProjectStore } from "@/stores/project/project-provider";
 import type { Project } from "@/stores/project/project-store";
@@ -26,10 +33,16 @@ import { CreateProjectDialog } from "./_components/create-project-dialog";
 import { EditProjectDialog } from "./_components/edit-project-dialog";
 import { ProjectList } from "./_components/project-list";
 import {
-  createProjectViaAPI,
-  fetchCompanyIdForProject,
-  verifyCompanyProfileForProject,
-} from "./_helpers/projects-page-helpers";
+  filterProjectsByClient,
+  getClientProjectCount,
+  getUniqueClients,
+} from "./_helpers/projects-page-client-filter";
+import {
+  validateUserForProjectCreation,
+  validateUserForProjectEdit,
+} from "./_helpers/projects-page-validation";
+import { useCompanyProfileCheck } from "./_hooks/use-company-profile-check";
+import { useProjectCRUD } from "./_hooks/use-project-crud";
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -39,21 +52,22 @@ export default function ProjectsPage() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isCheckingCompanyProfile, setIsCheckingCompanyProfile] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string>("all");
 
   const projects = useProjectStore(state => state.projects);
+  const uniqueClients = getUniqueClients(projects);
+  const filteredProjects = filterProjectsByClient(projects, selectedClientId);
+
   const setProjects = useProjectStore(state => state.setProjects);
   const addProject = useProjectStore(state => state.addProject);
   const updateProject = useProjectStore(state => state.updateProject);
   const removeProject = useProjectStore(state => state.removeProject);
 
+  // Fetch projects callback
   const fetchProjects = useCallback(async () => {
-    if (!currentUser) {
-      console.error("No user found");
-      return;
-    }
+    if (!currentUser) return;
 
     try {
       setLoading(true);
@@ -61,12 +75,9 @@ export default function ProjectsPage() {
         userId: currentUser.id,
         role: currentUser.role,
       });
-      const url = `/api/projects?${params.toString()}`;
-      const response = await fetch(url);
+      const response = await fetch(`/api/projects?${params.toString()}`);
       if (!response.ok) {
-        const error = await response.json();
-        console.error("Error fetching projects:", error);
-        throw new Error(error.error ?? "Failed to fetch projects");
+        throw new Error("Failed to fetch projects");
       }
 
       const data = await response.json();
@@ -77,7 +88,27 @@ export default function ProjectsPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser, setProjects]);
+  }, [currentUser, setProjects, t]);
+
+  // Company profile check hook
+  const {
+    isCheckingCompanyProfile,
+    setIsCheckingCompanyProfile,
+    checkCompanyProfile,
+    handleCompanyProfileError,
+  } = useCompanyProfileCheck(t, router);
+
+  // Project CRUD hook
+  const { handleCreateProject, handleUpdateProject, confirmDeleteProject } = useProjectCRUD({
+    currentUser,
+    t,
+    addProject,
+    updateProject,
+    removeProject,
+    fetchProjects,
+    setIsCreateDialogOpen,
+    setIsEditDialogOpen,
+  });
 
   // Fetch projects on mount
   useEffect(() => {
@@ -86,63 +117,23 @@ export default function ProjectsPage() {
     }
   }, [currentUser, fetchProjects]);
 
-  // Reset loading state when dialog opens/closes
+  // Reset checking state when dialog opens/closes
   useEffect(() => {
     if (isCreateDialogOpen) {
       setIsCheckingCompanyProfile(false);
     }
-  }, [isCreateDialogOpen]);
+  }, [isCreateDialogOpen, setIsCheckingCompanyProfile]);
 
-  function validateUserForProjectCreation() {
-    if (!currentUser || currentUser.role !== "client") {
-      toast.error(t("onlyClientsCanCreate"));
-      return false;
-    }
-    return true;
-  }
-
-  async function checkCompanyProfile() {
-    const checkResponse = await fetch("/api/companies/check");
-    if (!checkResponse.ok) {
-      console.error("Error checking company profile:", await checkResponse.text());
-      toast.error(t("failedToVerifyCompanyProfile"));
-      return null;
-    }
-
-    const checkData = await checkResponse.json();
-
-    if (!checkData.isComplete) {
-      toast.error(checkData.message ?? t("completeCompanyProfileFirst"), {
-        description: checkData.missingFields
-          ? `${t("missingFields")}: ${checkData.missingFields.join(", ")}`
-          : t("goToProfile"),
-        action: {
-          label: t("goToProfile"),
-          onClick: () => router.push("/dashboard/account"),
-        },
-      });
-      return null;
-    }
-
-    return checkData;
-  }
-
-  function handleCompanyProfileError(error: unknown) {
-    console.error("Error checking company profile:", error);
-    toast.error(error instanceof Error ? error.message : t("failedToVerifyCompanyProfileRetry"));
-  }
-
+  // Handle create project click - check profile first
   async function handleCreateProjectClick() {
-    if (!validateUserForProjectCreation()) return;
-    if (isCheckingCompanyProfile) return; // Prevent multiple clicks
+    if (!validateUserForProjectCreation(currentUser, t)) return;
+    if (isCheckingCompanyProfile) return;
 
     try {
       setIsCheckingCompanyProfile(true);
-
       const checkResult = await checkCompanyProfile();
-      if (!checkResult) return; // Profile check failed
+      if (!checkResult) return;
 
-      // Company profile is complete, open dialog
       if (!isCreateDialogOpen) {
         setIsCreateDialogOpen(true);
       }
@@ -153,97 +144,22 @@ export default function ProjectsPage() {
     }
   }
 
-  async function handleCreateProject(projectData: Record<string, unknown>) {
-    if (!currentUser || currentUser.role !== "client") {
-      console.error("Only clients can create projects");
-      toast.error(t("onlyClientsCanCreate"));
-      return;
-    }
-
-    try {
-      const clientId = currentUser.id;
-      const companyId = await fetchCompanyIdForProject(clientId);
-
-      const { shouldRedirect } = await verifyCompanyProfileForProject();
-      if (shouldRedirect) {
-        toast.error(t("companyProfileIncomplete"));
-        setIsCreateDialogOpen(false);
-        router.push("/dashboard/account");
-        return;
-      }
-
-      const data = await createProjectViaAPI(projectData, clientId, companyId);
-      addProject(data.project);
-      setIsCreateDialogOpen(false);
-      toast.success(t("projectCreatedSuccessfully"));
-      fetchProjects(); // Refresh projects list
-    } catch (error: unknown) {
-      console.error("Error creating project:", error);
-      toast.error(error instanceof Error ? error.message : t("failedToCreateProject"));
-    }
-  }
-
-  async function handleUpdateProject(projectId: string, updates: Record<string, unknown>) {
-    try {
-      const response = await fetch(`/api/projects/${projectId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updates),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Error updating project:", error);
-        throw new Error(error.error ?? "Failed to update project");
-      }
-
-      const data = await response.json();
-      updateProject(projectId, data.project);
-      setIsEditDialogOpen(false);
-      setEditingProject(null);
-      toast.success(t("projectUpdatedSuccessfully"));
-      fetchProjects(); // Refresh projects list
-    } catch (error: unknown) {
-      console.error("Error updating project:", error);
-      toast.error(error instanceof Error ? error.message : t("failedToUpdateProject"));
-    }
-  }
-
+  // Handle delete project click
   function handleDeleteProject(projectId: string) {
     setProjectToDelete(projectId);
     setDeleteDialogOpen(true);
   }
 
-  async function confirmDeleteProject() {
-    if (!projectToDelete) return;
-
-    try {
-      const response = await fetch(`/api/projects/${projectToDelete}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Error deleting project:", error);
-        throw new Error(error.error ?? "Failed to delete project");
-      }
-
-      removeProject(projectToDelete);
-      setDeleteDialogOpen(false);
-      setProjectToDelete(null);
-      toast.success(t("projectDeletedSuccessfully"));
-      fetchProjects(); // Refresh projects list
-    } catch (error: unknown) {
-      console.error("Error deleting project:", error);
-      toast.error(error instanceof Error ? error.message : t("failedToDeleteProject"));
-    }
+  // Confirm delete
+  async function onConfirmDelete() {
+    await confirmDeleteProject(projectToDelete);
+    setDeleteDialogOpen(false);
+    setProjectToDelete(null);
   }
 
+  // Handle edit click
   function handleEditClick(project: Project) {
-    if (!currentUser || currentUser.role !== "client") {
-      toast.error(t("onlyClientsCanEdit"));
+    if (!validateUserForProjectEdit(currentUser, t)) {
       return;
     }
     setEditingProject(project);
@@ -273,23 +189,49 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground">{t("manageDescription")}</p>
         </div>
-        <Button onClick={handleCreateProjectClick} disabled={isCheckingCompanyProfile}>
-          {isCheckingCompanyProfile ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("checking")}
-            </>
-          ) : (
-            <>
-              <Plus className="mr-2 h-4 w-4" />
-              {t("createProject")}
-            </>
-          )}
-        </Button>
+        {currentUser?.role === "client" && (
+          <Button onClick={handleCreateProjectClick} disabled={isCheckingCompanyProfile}>
+            {isCheckingCompanyProfile ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("checking")}
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                {t("createProject")}
+              </>
+            )}
+          </Button>
+        )}
       </div>
 
+      {/* Client Filter for ADMIN/PIC */}
+      {(currentUser?.role === "admin" || currentUser?.role === "pic") &&
+        uniqueClients.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Users className="text-muted-foreground h-4 w-4" />
+            <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Select client" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Clients ({projects.length} projects)</SelectItem>
+                {uniqueClients.map(client => {
+                  const clientProjectCount = getClientProjectCount(projects, client.id);
+                  return (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.fullname} ({clientProjectCount})
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
       <ProjectList
-        projects={projects}
+        projects={filteredProjects}
         onEdit={handleEditClick}
         onDelete={handleDeleteProject}
         onCreateNew={handleCreateProjectClick}
@@ -298,25 +240,19 @@ export default function ProjectsPage() {
 
       <CreateProjectDialog
         open={isCreateDialogOpen}
-        onOpenChange={open => {
-          setIsCreateDialogOpen(open);
-          if (!open) {
-            setIsCheckingCompanyProfile(false);
-          }
-        }}
+        onOpenChange={setIsCreateDialogOpen}
         onSubmit={handleCreateProject}
       />
 
       {editingProject && (
         <EditProjectDialog
-          project={editingProject}
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
-          onSubmit={updates => handleUpdateProject(editingProject.id, updates)}
+          project={editingProject}
+          onSubmit={data => handleUpdateProject(editingProject.id, data)}
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -325,12 +261,7 @@ export default function ProjectsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteProject}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {t("delete")}
-            </AlertDialogAction>
+            <AlertDialogAction onClick={onConfirmDelete}>{t("confirmDelete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

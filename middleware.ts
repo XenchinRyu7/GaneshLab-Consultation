@@ -3,8 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 
 import { locales, defaultLocale, localePrefix } from "./i18n.edge";
+import { proxy } from "./src/proxy";
 
-export const runtime = "nodejs"; // 🧪 TEST: Temporary untuk diagnose Edge issue
+export const runtime = "nodejs";
 
 const handleI18nRouting = createMiddleware({
   locales,
@@ -13,7 +14,7 @@ const handleI18nRouting = createMiddleware({
   localeDetection: false,
 });
 
-export default function middleware(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (
@@ -21,9 +22,17 @@ export default function middleware(req: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.includes("favicon.ico")
   ) {
-    return NextResponse.next(); // ✅ WAJIB
+    return NextResponse.next();
   }
 
+  // 1. First, check authentication via proxy
+  const authResponse = await proxy(req);
+  if (authResponse.status === 307 || authResponse.status === 308) {
+    // Redirect response from proxy (auth check)
+    return authResponse;
+  }
+
+  // 2. Then, handle i18n routing
   return handleI18nRouting(req);
 }
 

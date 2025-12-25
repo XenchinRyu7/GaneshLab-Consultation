@@ -70,6 +70,22 @@ export async function approveProject(projectId: string, approvalNote?: string) {
       console.error("[approveProject] Failed to log approval:", logError);
     }
 
+    // Create notification for client about project approval
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: updatedProject.clientId,
+          title: "Project Approved",
+          message: `Your project "${updatedProject.name}" has been approved by ${updatedProject.pic.fullname}${approvalNote ? `: ${approvalNote}` : ""}`,
+          type: "SUCCESS",
+          actionUrl: `/dashboard/projects`,
+        },
+      });
+    } catch (notifError) {
+      console.error("[approveProject] Failed to create notification:", notifError);
+      // Don't fail the main operation if notification fails
+    }
+
     revalidatePath("/projects");
     revalidatePath("/dashboard");
 

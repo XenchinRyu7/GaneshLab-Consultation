@@ -37,7 +37,13 @@ export async function proxy(request: NextRequest) {
     "/guest-appointment",
     "/guest/reschedule",
   ];
-  const isPublicRoute = pathname === "/" || publicRoutes.some(route => pathname.startsWith(route));
+
+  // Remove locale prefix (en/id) from pathname for accurate route checking
+  const pathnameWithoutLocale = pathname.replace(/^\/(en|id)/, "") || "/";
+
+  const isPublicRoute =
+    pathnameWithoutLocale === "/" ||
+    publicRoutes.some(route => pathnameWithoutLocale.startsWith(route));
 
   // API routes are public but we don't redirect them
   const isApiRoute = pathname.startsWith("/api");
@@ -46,16 +52,25 @@ export async function proxy(request: NextRequest) {
   // Skip API routes from authentication checks
   if (!isPublicRoute && !isApiRoute && !session) {
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
+    // Preserve locale in redirect
+    const locale = pathname.split("/")[1];
+    const validLocale = locale === "en" || locale === "id" ? locale : "id";
+    url.pathname = `/${validLocale}/auth/login`;
     return NextResponse.redirect(url);
   }
 
   // If accessing login/register with valid session, redirect to dashboard
-  if ((pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register")) && session) {
+  if (
+    (pathnameWithoutLocale.startsWith("/auth/login") ||
+      pathnameWithoutLocale.startsWith("/auth/register")) &&
+    session
+  ) {
     const user = await verifySession(session);
     if (user) {
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      const locale = pathname.split("/")[1];
+      const validLocale = locale === "en" || locale === "id" ? locale : "id";
+      url.pathname = `/${validLocale}/dashboard`;
       return NextResponse.redirect(url);
     }
   }

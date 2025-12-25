@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
+import { supabase } from "@/lib/supabase";
 import { useUserStore } from "@/stores/user/user-provider";
 
 interface Notification {
@@ -99,11 +100,89 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     [notifications]
   );
 
+  const currentUser = useUserStore(state => state.currentUser);
+
+  // Initial fetch
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
   }, [fetchNotifications]);
+
+  // Supabase realtime subscription for new notifications
+  useEffect(() => {
+    if (!currentUser?.id) return;
+
+    const channel = supabase
+      .channel(`notifications:${currentUser.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Notification",
+          filter: `userId=eq.${currentUser.id}`,
+        },
+        (payload: { new: Record<string, unknown> }) => {
+          console.log("📨 New notification received:", payload);
+
+          // Add new notification to the list
+          if (payload.new) {
+            const newNotification = payload.new as unknown as Notification;
+            setNotifications(prev => [newNotification, ...prev]);
+            setUnreadCount(prev => prev + 1);
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "Notification",
+          filter: `userId=eq.${currentUser.id}`,
+        },
+        (payload: { new: Record<string, unknown> }) => {
+          console.log("📝 Notification updated:", payload);
+
+          // Update notification in the list
+          if (payload.new) {
+            const updatedNotification = payload.new as unknown as Notification;
+            setNotifications(prev =>
+              prev.map(n => (n.id === updatedNotification.id ? updatedNotification : n))
+            );
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "Notification",
+          filter: `userId=eq.${currentUser.id}`,
+        },
+        (payload: { old: Record<string, unknown> }) => {
+          console.log("🗑️ Notification deleted:", payload);
+
+          // Remove notification from the list
+          if (payload.old) {
+            const deletedId = (payload.old as { id: string }).id;
+            setNotifications(prev => prev.filter(n => n.id !== deletedId));
+            setUnreadCount(prev => Math.max(0, prev - 1));
+          }
+        }
+      )
+      .subscribe((status: string) => {
+        if (status === "SUBSCRIBED") {
+          console.log("✅ Realtime notifications subscribed");
+        } else if (status === "CHANNEL_ERROR") {
+          console.error("❌ Realtime notifications error");
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUser?.id]);
 
   const value = useMemo(
     () => ({

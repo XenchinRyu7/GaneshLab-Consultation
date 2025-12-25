@@ -159,5 +159,21 @@ export async function createProject(data: CreateProjectBody, finalCompanyId: str
     console.error("[createProject] Failed to log project creation:", logError);
   }
 
+  // Create notification for PIC about new project assignment
+  try {
+    await prisma.notification.create({
+      data: {
+        userId: project.picId,
+        title: "New Project Assignment",
+        message: `You have been assigned as PIC for new project "${project.name}" by ${project.client.fullname}`,
+        type: "INFO",
+        actionUrl: `/dashboard/projects/approvals`,
+      },
+    });
+  } catch (notifError) {
+    console.error("[createProject] Failed to create notification:", notifError);
+    // Don't fail the main operation if notification fails
+  }
+
   return formatProject(project);
 }

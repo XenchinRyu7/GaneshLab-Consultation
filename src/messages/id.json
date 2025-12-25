@@ -434,7 +434,7 @@
     "markAllAsRead": "Tandai Semua Dibaca",
     "allMarkedAsRead": "Semua notifikasi ditandai telah dibaca",
     "listTitle": "Daftar Notifikasi",
-    "unreadCount": "Anda memiliki {{count}} notifikasi yang belum dibaca",
+    "unreadCount": "Anda memiliki {count} notifikasi yang belum dibaca",
     "allRead": "Semua notifikasi sudah dibaca",
     "filterAllTypes": "Semua Tipe",
     "filterInfo": "Info",
