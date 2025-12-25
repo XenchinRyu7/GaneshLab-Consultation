@@ -105,7 +105,7 @@ export function getGuestAppointmentColumns(
       cell: ({ row }) => {
         const appointment = row.original;
         const canAssign = !appointment.picId && appointment.status === "pending";
-        const canApprove = appointment.status === "pending";
+        const canApprove = appointment.picId && appointment.status === "pending";
         const canReject = appointment.status === "pending";
 
         return (

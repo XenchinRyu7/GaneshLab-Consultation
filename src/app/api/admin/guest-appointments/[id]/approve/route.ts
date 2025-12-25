@@ -43,6 +43,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Appointment is not in pending status" }, { status: 400 });
     }
 
+    // Ensure PIC is assigned before approval
+    if (!appointment.picId) {
+      return NextResponse.json(
+        {
+          error: "Cannot approve appointment without assigned PIC. Please assign a PIC first.",
+        },
+        { status: 400 }
+      );
+    }
+
     // Update appointment status to confirmed
     const updatedAppointment = await prisma.appointment.update({
       where: { id },
