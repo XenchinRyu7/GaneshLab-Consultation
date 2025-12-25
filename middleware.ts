@@ -1,10 +1,10 @@
-export const runtime = "edge";
-
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 import createMiddleware from "next-intl/middleware";
 
-import { locales, defaultLocale, localePrefix } from "./i18n";
+import { locales, defaultLocale, localePrefix } from "./i18n.edge";
+
+export const runtime = "edge";
 
 const handleI18nRouting = createMiddleware({
   locales,
@@ -16,13 +16,12 @@ const handleI18nRouting = createMiddleware({
 export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Skip API & static files
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
-    pathname.includes("/favicon.ico")
+    pathname.includes("favicon.ico")
   ) {
-    return;
+    return NextResponse.next(); // ✅ WAJIB
   }
 
   return handleI18nRouting(req);
