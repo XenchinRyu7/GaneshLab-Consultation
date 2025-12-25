@@ -1,38 +1,31 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 import createMiddleware from "next-intl/middleware";
 
 import { locales, defaultLocale, localePrefix } from "./i18n";
 
-const intlMiddleware = createMiddleware({
+const handleI18nRouting = createMiddleware({
   locales,
   defaultLocale,
   localePrefix,
   localeDetection: false,
 });
 
-export default function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export default async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-  // Skip middleware for:
-  // - /api/* (direct API routes)
-  // - /:locale/api/* (localized paths to API - shouldn't happen but just in case)
-  // - /_next/* (Next.js internals)
-  // - Static files (contains dot)
-  const shouldSkip =
+  // Early return for API routes and static files
+  if (
     pathname.startsWith("/api") ||
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    pathname.match(/^\/[^/]+\/api/) || // matches /id/api, /en/api, etc
     pathname.startsWith("/_next") ||
-    pathname.includes(".");
-
-  if (shouldSkip) {
+    pathname.includes("/favicon.ico")
+  ) {
     return;
   }
 
-  return intlMiddleware(request);
+  return handleI18nRouting(req);
 }
 
 export const config = {
-  matcher: ["/((?!_next|api).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
