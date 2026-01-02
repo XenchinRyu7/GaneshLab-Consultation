@@ -15,8 +15,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     params: {
       eventsPerSecond: 10,
     },
-    // Enable logging untuk debugging
-    log_level: "info" as const,
+    // Disable logging to prevent console errors
+    log_level: "error" as const,
   },
   // Global options
   db: {

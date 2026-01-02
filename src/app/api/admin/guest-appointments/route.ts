@@ -25,7 +25,7 @@ export async function GET() {
     const appointments = await prisma.appointment.findMany({
       where: {
         isGuestAppointment: true,
-      } as never,
+      },
       include: {
         pic: {
           select: {
@@ -40,7 +40,26 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ appointments });
+    // Transform data to match frontend expectations
+    const transformedAppointments = appointments.map(appointment => ({
+      id: appointment.id,
+      title: appointment.title,
+      guestName: appointment.guestName ?? "",
+      guestEmail: appointment.guestEmail ?? "",
+      guestPhone: appointment.guestPhone ?? "",
+      guestOrganization: appointment.guestOrganization ?? "",
+      guestPurpose: appointment.guestPurpose ?? "",
+      date: appointment.date.toISOString().split("T")[0], // YYYY-MM-DD format
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      type: appointment.type,
+      status: appointment.status,
+      picId: appointment.picId,
+      pic: appointment.pic,
+      createdAt: appointment.createdAt.toISOString(),
+    }));
+
+    return NextResponse.json({ appointments: transformedAppointments });
   } catch (error) {
     console.error("Error fetching guest appointments:", error);
     return NextResponse.json({ error: "Failed to fetch guest appointments" }, { status: 500 });

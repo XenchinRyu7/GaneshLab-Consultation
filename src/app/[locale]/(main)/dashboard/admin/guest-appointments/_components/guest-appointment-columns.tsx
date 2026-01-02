@@ -36,7 +36,6 @@ type GuestAppointment = {
 
 export function getGuestAppointmentColumns(
   onAssign: (appointment: GuestAppointment) => void,
-  onApprove: (appointment: GuestAppointment) => void,
   onReject: (appointment: GuestAppointment) => void,
   onDelete: (appointment: GuestAppointment) => void
 ): ColumnDef<GuestAppointment>[] {
@@ -83,12 +82,23 @@ export function getGuestAppointmentColumns(
       header: "Status",
       cell: ({ row }) => {
         const status: string = row.getValue("status");
+        let variant: "default" | "secondary" | "destructive" | "outline";
+        let className = "";
+
+        if (status === "confirmed") {
+          variant = "default";
+          className = "bg-green-500 hover:bg-green-600 text-white";
+        } else if (status === "cancelled") {
+          variant = "destructive";
+        } else if (status === "pending") {
+          variant = "secondary";
+          className = "bg-white text-gray-900 border border-gray-300";
+        } else {
+          variant = "outline";
+        }
+
         return (
-          <Badge
-            variant={
-              status === "approved" ? "default" : status === "pending" ? "secondary" : "destructive"
-            }
-          >
+          <Badge variant={variant} className={className}>
             {status}
           </Badge>
         );
@@ -104,8 +114,7 @@ export function getGuestAppointmentColumns(
       header: "Actions",
       cell: ({ row }) => {
         const appointment = row.original;
-        const canAssign = !appointment.picId && appointment.status === "pending";
-        const canApprove = appointment.picId && appointment.status === "pending";
+        const canAssignAndApprove = !appointment.picId && appointment.status === "pending";
         const canReject = appointment.status === "pending";
 
         return (
@@ -119,16 +128,10 @@ export function getGuestAppointmentColumns(
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {canAssign && (
+              {canAssignAndApprove && (
                 <DropdownMenuItem onClick={() => onAssign(appointment)}>
                   <UserCheck className="mr-2 h-4 w-4" />
-                  Assign PIC
-                </DropdownMenuItem>
-              )}
-              {canApprove && (
-                <DropdownMenuItem onClick={() => onApprove(appointment)}>
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Approve
+                  Assign & Approve
                 </DropdownMenuItem>
               )}
               {canReject && (

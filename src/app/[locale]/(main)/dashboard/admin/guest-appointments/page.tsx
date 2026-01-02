@@ -33,7 +33,8 @@ type GuestAppointment = {
 };
 
 export default function GuestAppointmentsPage() {
-  const { appointments, pics, fetchGuestAppointments, fetchAvailablePICs } = useGuestAppointments();
+  const { appointments, pics, loading, fetchGuestAppointments, fetchAvailablePICs } =
+    useGuestAppointments();
 
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -44,7 +45,6 @@ export default function GuestAppointmentsPage() {
     isAssigning,
     isProcessing,
     handleAssignPIC,
-    handleApproveAppointment,
     handleRejectAppointment,
     handleDeleteAppointment,
   } = useGuestAppointmentActions(selectedAppointment, () => {
@@ -57,11 +57,6 @@ export default function GuestAppointmentsPage() {
     setAssignDialogOpen(true);
   };
 
-  const handleApprove = (appointment: GuestAppointment) => {
-    setSelectedAppointment(appointment);
-    handleApproveAppointment();
-  };
-
   const handleReject = (appointment: GuestAppointment) => {
     setSelectedAppointment(appointment);
     setRejectDialogOpen(true);
@@ -72,12 +67,7 @@ export default function GuestAppointmentsPage() {
     setDeleteDialogOpen(true);
   };
 
-  const columns = getGuestAppointmentColumns(
-    handleAssign,
-    handleApprove,
-    handleReject,
-    handleDelete
-  );
+  const columns = getGuestAppointmentColumns(handleAssign, handleReject, handleDelete);
 
   const table = useDataTableInstance({
     data: appointments,
@@ -91,7 +81,16 @@ export default function GuestAppointmentsPage() {
         <p className="text-muted-foreground">Manage guest appointment requests and assignments.</p>
       </div>
 
-      <DataTable table={table} columns={columns} />
+      {loading ? (
+        <div className="flex h-64 items-center justify-center">
+          <div className="text-center">
+            <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+            <p>Loading guest appointments...</p>
+          </div>
+        </div>
+      ) : (
+        <DataTable table={table} columns={columns} />
+      )}
 
       <AssignPICDialog
         open={assignDialogOpen}

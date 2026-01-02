@@ -121,6 +121,62 @@ async function sendAssignmentEmailToPIC(
   }
 }
 
+async function sendApprovalEmailToGuest(
+  appointment: {
+    title: string;
+    guestName: string | null;
+    guestEmail: string | null;
+    guestPhone: string | null;
+    guestPurpose: string | null;
+    date: Date;
+    startTime: string;
+    endTime: string;
+    type: string;
+    meetingLink: string | null;
+  },
+  pic: { fullname: string }
+): Promise<void> {
+  if (!appointment.guestEmail) {
+    return;
+  }
+
+  const approvalEmailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #16a34a;">Appointment Approved</h2>
+      <p>Dear ${appointment.guestName},</p>
+      <p>Great news! Your guest appointment request has been <strong>approved</strong>.</p>
+
+      <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #16a34a;">
+        <h3>Appointment Details:</h3>
+        <p><strong>Title:</strong> ${appointment.title}</p>
+        <p><strong>PIC Assigned:</strong> ${pic.fullname}</p>
+        <p><strong>Date:</strong> ${appointment.date.toLocaleDateString()}</p>
+        <p><strong>Time:</strong> ${appointment.startTime} - ${appointment.endTime}</p>
+        <p><strong>Type:</strong> ${appointment.type}</p>
+        ${appointment.meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${appointment.meetingLink}" style="color: #16a34a;">${appointment.meetingLink}</a></p>` : ""}
+      </div>
+
+      <p>Please arrive on time and bring any necessary documents. If you have any questions, feel free to contact us.</p>
+
+      <p>Best regards,<br>GaneshLab Consultation Team</p>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: `"GaneshLab Consultation" <${process.env.SMTP_USER}>`,
+    to: appointment.guestEmail,
+    subject: "Appointment Approved - GaneshLab Consultation",
+    html: approvalEmailHtml,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (emailError) {
+    console.error("Failed to send approval email:", emailError);
+    // Don't fail the assignment if email fails
+  }
+}
+
 /**
  * POST /api/admin/guest-appointments/[id]/assign - Assign PIC to guest appointment
  */
@@ -193,6 +249,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Send assignment email to PIC
     await sendAssignmentEmailToPIC(pic, appointment);
+
+    // Send approval email to guest
+    await sendApprovalEmailToGuest(updatedAppointment, pic);
+
+    // Create notification for PIC
+    await prisma.notification.create({
+      data: {
+        userId: pic.id,
+        title: "New Guest Appointment Assigned",
+        message: `You have been assigned to handle guest appointment "${appointment.title}" with ${appointment.guestName}`,
+        type: "INFO",
+        actionUrl: `/dashboard/appointment`,
+      },
+    });
 
     // Log audit
     const requestInfo = getRequestInfo(req.headers);

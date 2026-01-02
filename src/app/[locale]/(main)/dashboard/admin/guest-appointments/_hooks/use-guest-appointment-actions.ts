@@ -47,7 +47,7 @@ export function useGuestAppointmentActions(
 
       if (!response.ok) throw new Error("Failed to assign PIC");
 
-      toast.success("PIC berhasil ditugaskan");
+      toast.success("PIC assigned and appointment approved");
       onSuccess();
     } catch {
       toast.error("Gagal menugaskan PIC");

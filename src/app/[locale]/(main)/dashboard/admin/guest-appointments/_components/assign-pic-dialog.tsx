@@ -90,8 +90,11 @@ export function AssignPICDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign PIC</DialogTitle>
-          <DialogDescription>Assign a PIC to handle this guest appointment.</DialogDescription>
+          <DialogTitle>Assign & Approve Appointment</DialogTitle>
+          <DialogDescription>
+            Assign a PIC to handle this guest appointment. The appointment will be automatically
+            approved.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -124,7 +127,7 @@ export function AssignPICDialog({
             Cancel
           </Button>
           <Button onClick={handleAssign} disabled={!selectedPicId || isAssigning}>
-            {isAssigning ? "Assigning..." : "Assign PIC"}
+            {isAssigning ? "Assigning & Approving..." : "Assign & Approve"}
           </Button>
         </DialogFooter>
       </DialogContent>
