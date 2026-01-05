@@ -48,20 +48,70 @@ export function validateDuration(duration: unknown): NextResponse | null {
  * Algorithm: Allen's Interval Algebra (1983)
  * Reference: Allen, J. F. "Maintaining knowledge about temporal intervals"
  *
- * Detects if two time intervals overlap using the formula:
- * Overlap(A, B) = (A.start < B.end) ∧ (A.end > B.start)
+ * ============================================================================
+ * 13 RELASI TEMPORAL ALLEN (LENGKAP)
+ * ============================================================================
  *
- * This checks 5 of Allen's 13 temporal relations:
- * 1. Overlaps: New starts during existing
- * 2. Overlapped-by: New ends during existing
- * 3. During: New is contained within existing
- * 4. Contains: New completely contains existing
- * 5. Starts/Finishes: New shares boundary with existing
+ * Notasi: I = Interval Baru, J = Interval Existing
+ *         I_- = I_start, I_+ = I_end, J_- = J_start, J_+ = J_end
+ *
+ * NO. | RELASI         | SIMBOL | KONDISI FORMAL             | KONFLIK?
+ * ----|----------------|--------|----------------------------|----------
+ * 1.  | Before         | I < J  | I_+ < J_-                  | TIDAK ✓
+ * 2.  | After          | I > J  | I_- > J_+                  | TIDAK ✓
+ * 3.  | Meets          | I m J  | I_+ = J_-                  | TIDAK ✓
+ * 4.  | Met-by         | I M J  | I_- = J_+                  | TIDAK ✓
+ * 5.  | Overlaps       | I o J  | I_- < J_- < I_+ < J_+      | KONFLIK ✓
+ * 6.  | Overlapped-by  | I O J  | J_- < I_- < J_+ < I_+      | KONFLIK ✓
+ * 7.  | Starts         | I s J  | I_- = J_- ∧ I_+ < J_+      | KONFLIK ✓
+ * 8.  | Started-by     | I S J  | I_- = J_- ∧ I_+ > J_+      | KONFLIK ✓
+ * 9.  | Finishes       | I f J  | I_- > J_- ∧ I_+ = J_+      | KONFLIK ✓
+ * 10. | Finished-by    | I F J  | I_- < J_- ∧ I_+ = J_+      | KONFLIK ✓
+ * 11. | During         | I d J  | J_- < I_- ∧ I_+ < J_+      | KONFLIK ✓
+ * 12. | Contains       | I D J  | I_- < J_- ∧ J_+ < I_+      | KONFLIK ✓
+ * 13. | Equals         | I = J  | I_- = J_- ∧ I_+ = J_+      | KONFLIK ✓
+ *
+ * ============================================================================
+ * METODE DETEKSI KONFLIK (OPTIMASI)
+ * ============================================================================
+ *
+ * Daripada memeriksa 13 kondisi secara individual, sistem menggunakan
+ * formula tunggal yang mendeteksi SEMUA relasi konflik (5-13) sekaligus:
+ *
+ *   Overlap(I, J) = (I_start < J_end) ∧ (I_end > J_start)
+ *
+ * Formula ini mendeteksi tumpang tindih waktu dengan memeriksa:
+ * 1. Apakah interval baru MULAI sebelum interval existing SELESAI?
+ * 2. Apakah interval baru SELESAI setelah interval existing MULAI?
+ *
+ * Jika KEDUA kondisi terpenuhi, maka terdapat konflik jadwal.
+ *
+ * ============================================================================
+ * CONTOH PERHITUNGAN
+ * ============================================================================
+ *
+ * Contoh 1 - ADA KONFLIK (Relasi: Overlaps):
+ * - Existing (J): 10:00 - 11:00
+ * - New (I):      10:30 - 11:30
+ *
+ * Perhitungan:
+ *   I_start < J_end  →  10:30 < 11:00  →  TRUE
+ *   I_end > J_start  →  11:30 > 10:00  →  TRUE
+ *   TRUE ∧ TRUE = TRUE → KONFLIK TERDETEKSI ✓
+ *
+ * Contoh 2 - TIDAK KONFLIK (Relasi: Meets):
+ * - Existing (J): 10:00 - 11:00
+ * - New (I):      11:00 - 12:00
+ *
+ * Perhitungan:
+ *   I_start < J_end  →  11:00 < 11:00  →  FALSE
+ *   I_end > J_start  →  12:00 > 10:00  →  TRUE
+ *   FALSE ∧ TRUE = FALSE → TIDAK ADA KONFLIK ✓
  *
  * @param picId - PIC user ID
  * @param date - Appointment date (YYYY-MM-DD)
- * @param startTime - Start time (HH:mm format)
- * @param endTime - End time (HH:mm format)
+ * @param startTime - Start time (HH:mm format, I_start)
+ * @param endTime - End time (HH:mm format, I_end)
  * @returns NextResponse with error if conflict found, null otherwise
  */
 export async function checkAppointmentConflictForCreate(
@@ -94,12 +144,16 @@ export async function checkAppointmentConflictForCreate(
 
   // Apply Allen's Interval Algebra overlap detection
   for (const existing of existingAppointments) {
-    const newStart = startTime;
-    const newEnd = endTime;
-    const existingStart = existing.startTime;
-    const existingEnd = existing.endTime;
+    // Interval I (appointment baru yang diajukan)
+    const newStart = startTime; // I_start
+    const newEnd = endTime; // I_end
 
-    // Check overlap using Allen's formula: (A.start < B.end) ∧ (A.end > B.start)
+    // Interval J (appointment yang sudah ada)
+    const existingStart = existing.startTime; // J_start
+    const existingEnd = existing.endTime; // J_end
+
+    // Formula deteksi konflik Allen's Interval Algebra:
+    // Overlap(I, J) = (I_start < J_end) ∧ (I_end > J_start)
     const hasOverlap = newStart < existingEnd && newEnd > existingStart;
 
     if (hasOverlap) {
