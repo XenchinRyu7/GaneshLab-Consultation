@@ -163,7 +163,7 @@ export function LoginForm() {
           )}
         />
 
-        <Button className="w-full" type="submit" disabled={isLoading}>
+        <Button className="w-full bg-blue-500 hover:bg-blue-400" type="submit" disabled={isLoading}>
           {isLoading ? t("loggingIn") : t("loginButton")}
         </Button>
       </form>

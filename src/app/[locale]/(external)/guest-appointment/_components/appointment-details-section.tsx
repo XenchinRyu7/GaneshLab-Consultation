@@ -29,7 +29,7 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
 
   return (
     <div className="space-y-4">
-      <h3 className="flex items-center gap-2 text-lg font-semibold text-zinc-200">
+      <h3 className="flex items-center gap-2 text-lg font-semibold">
         <FileText size={18} />
         {t("formTitle")}
       </h3>
@@ -39,11 +39,11 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-300">{t("meetingTitleLabel")} *</FormLabel>
+            <FormLabel className="text-black">{t("meetingTitleLabel")} *</FormLabel>
             <FormControl>
               <Input
                 placeholder={t("meetingTitlePlaceholder")}
-                className="border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 {...field}
               />
             </FormControl>
@@ -57,11 +57,11 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
         name="guestPurpose"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-300">{t("purposeLabel")} *</FormLabel>
+            <FormLabel className="text-black">{t("purposeLabel")} *</FormLabel>
             <FormControl>
               <Textarea
                 placeholder={t("purposePlaceholder")}
-                className="min-h-[100px] resize-none border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500"
+                className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-black placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 {...field}
               />
             </FormControl>
@@ -75,24 +75,18 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
         name="type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-300">{t("meetingTypeLabel")} *</FormLabel>
+            <FormLabel className="text-black">{t("meetingTypeLabel")} *</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
-                <SelectTrigger className="border-zinc-700 bg-zinc-800/50 text-zinc-100">
+                <SelectTrigger className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none">
                   <SelectValue placeholder={t("meetingTypePlaceholder")} />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent className="border-zinc-700 bg-zinc-900">
-                <SelectItem
-                  value="online"
-                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
-                >
+              <SelectContent className="border-gray-300 bg-white">
+                <SelectItem value="online" className="focus:bg-blue-500 focus:text-white">
                   {t("onlineMeeting")}
                 </SelectItem>
-                <SelectItem
-                  value="offline"
-                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
-                >
+                <SelectItem value="offline" className="focus:bg-blue-500 focus:text-white">
                   {t("offlineMeeting")}
                 </SelectItem>
               </SelectContent>
@@ -107,7 +101,7 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
         name="date"
         render={({ field }) => (
           <FormItem className="flex flex-col">
-            <FormLabel className="flex items-center gap-2 text-zinc-300">
+            <FormLabel className="flex items-center gap-2 text-black">
               <CalendarIcon size={14} />
               {t("dateLabel")} *
             </FormLabel>
@@ -117,8 +111,8 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full border-zinc-700 bg-zinc-800/50 pl-3 text-left font-normal text-zinc-100 hover:bg-zinc-800 hover:text-zinc-100",
-                      !field.value && "text-zinc-500"
+                      "w-full border-gray-300 bg-white pl-3 text-left font-normal text-black",
+                      !field.value && "text-gray-500"
                     )}
                   >
                     {field.value ? format(field.value, "PPP") : <span>{t("selectDate")}</span>}
@@ -126,14 +120,14 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-auto border-zinc-700 bg-zinc-900 p-0" align="start">
+              <PopoverContent className="w-auto border-gray-300 bg-white p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={field.value}
                   onSelect={field.onChange}
                   disabled={date => date < new Date() || date < new Date("1900-01-01")}
                   initialFocus
-                  className="border-zinc-700 bg-zinc-900 text-zinc-100"
+                  className="border-gray-300 bg-white text-black"
                 />
               </PopoverContent>
             </Popover>
@@ -147,8 +141,8 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
         name="preferredTime"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-2 text-zinc-300">
-              <Clock size={14} className="text-zinc-300" />
+            <FormLabel className="flex items-center gap-2 text-black">
+              <Clock size={14} />
               {t("timeLabel")} *
             </FormLabel>
             <FormControl>
@@ -156,7 +150,7 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
                 type="text"
                 placeholder={t("timePlaceholder")}
                 maxLength={5}
-                className="border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder-zinc-500 focus:border-transparent focus:ring-2 focus:ring-zinc-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 {...field}
                 onChange={e => {
                   let value = e.target.value;
@@ -173,7 +167,7 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
                 }}
               />
             </FormControl>
-            <FormDescription className="text-zinc-500">{t("timeDescription")}</FormDescription>
+            <FormDescription className="text-zinc-400">{t("timeDescription")}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -184,36 +178,24 @@ export function AppointmentDetailsSection({ control }: { control: any }) {
         name="duration"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-zinc-300">{t("durationLabel")} *</FormLabel>
+            <FormLabel className="text-black">{t("durationLabel")} *</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
-                <SelectTrigger className="border-zinc-700 bg-zinc-800/50 text-zinc-100">
+                <SelectTrigger className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none">
                   <SelectValue placeholder={t("durationPlaceholder")} />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent className="border-zinc-700 bg-zinc-900">
-                <SelectItem
-                  value="30"
-                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
-                >
+              <SelectContent className="border-gray-300 bg-white">
+                <SelectItem value="30" className="focus:bg-blue-500 focus:text-white">
                   {t("30minutes")}
                 </SelectItem>
-                <SelectItem
-                  value="60"
-                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
-                >
+                <SelectItem value="60" className="focus:bg-blue-500 focus:text-white">
                   {t("1hour")}
                 </SelectItem>
-                <SelectItem
-                  value="90"
-                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
-                >
+                <SelectItem value="90" className="focus:bg-blue-500 focus:text-white">
                   {t("1_5hours")}
                 </SelectItem>
-                <SelectItem
-                  value="120"
-                  className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-100"
-                >
+                <SelectItem value="120" className="focus:bg-blue-500 focus:text-white">
                   {t("2hours")}
                 </SelectItem>
               </SelectContent>

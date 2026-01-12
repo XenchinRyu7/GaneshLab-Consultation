@@ -69,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body
-        className={`bg-black ${process.env.NODE_ENV === "development" ? "debug-screens" : undefined}`}
+        className={`bg-white ${process.env.NODE_ENV === "development" ? "debug-screens" : undefined}`}
         suppressHydrationWarning
       >
         {children}

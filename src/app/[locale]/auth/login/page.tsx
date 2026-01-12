@@ -2,7 +2,10 @@
 
 import Image from "next/image";
 
+import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { Link } from "@/i18n/routing";
 
 import { LoginForm } from "../_components/login-form";
 
@@ -11,8 +14,11 @@ export default function LoginPage() {
 
   return (
     <div className="bg-background text-foreground flex min-h-screen w-full">
-      <div className="bg-primary hidden lg:block lg:w-1/3">
-        <div className="flex h-full min-h-screen flex-col items-center justify-center p-12 text-center">
+      <div className="bg-primary relative hidden lg:block lg:w-1/3">
+        <Link href="/" className="absolute top-6 left-6 z-10 text-white">
+          <ArrowLeft className="h-6 w-6" />
+        </Link>
+        <div className="flex min-h-screen flex-col items-center justify-center text-center">
           <div className="space-y-6">
             <div className="flex items-center justify-center">
               <Image

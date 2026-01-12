@@ -22,8 +22,8 @@ export function LangSwitcher() {
             locale={l.code}
             className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
               active === l.code
-                ? "bg-zinc-700 text-white"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                ? "bg-blue-500 text-white"
+                : "text-black hover:bg-blue-100 hover:text-blue-500"
             }`}
           >
             {/* Short version for mobile, full label for desktop */}
