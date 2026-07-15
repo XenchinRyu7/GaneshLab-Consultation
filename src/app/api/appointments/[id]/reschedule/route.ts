@@ -117,7 +117,7 @@ async function sendRescheduleNotification(
       return;
     }
 
-    // Use getBaseUrl() which uses NEXT_PUBLIC_BASE_URL from .env
+    // Use getBaseUrl() so the app can derive the deployment URL without extra env vars.
     const baseUrl = getBaseUrl();
     const approveUrl = `${baseUrl}/guest/reschedule/${rescheduleRequestId}?action=approve`;
     const rejectUrl = `${baseUrl}/guest/reschedule/${rescheduleRequestId}?action=reject`;

@@ -50,27 +50,19 @@ export function formatCurrency(
 /**
  * Get the base URL dynamically based on the environment
  * In production (Vercel), it uses NEXT_PUBLIC_VERCEL_URL
- * In development, it uses NEXT_PUBLIC_BASE_URL
+ * In development, it falls back to localhost
  */
 export function getBaseUrl(): string {
-  // Production: use Vercel URL if available
   if (process.env.NEXT_PUBLIC_VERCEL_URL) {
     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
   }
 
-  // Fallback to NEXT_PUBLIC_BASE_URL
-  return process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  return "http://localhost:3000";
 }
 
 /**
  * Get the login URL dynamically based on the environment
  */
 export function getLoginUrl(): string {
-  // If explicitly set, use it
-  if (process.env.NEXT_PUBLIC_LOGIN_URL) {
-    return process.env.NEXT_PUBLIC_LOGIN_URL;
-  }
-
-  // Otherwise, construct it from base URL
   return `${getBaseUrl()}/auth/login`;
 }

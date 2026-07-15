@@ -42,3 +42,4 @@ next-env.d.ts
 .cursorignore
 /src/generated/prisma
 .github
+.env*
