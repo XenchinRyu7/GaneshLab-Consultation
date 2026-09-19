@@ -2,6 +2,12 @@
   "buildCommand": "next build",
   "framework": "nextjs",
   "installCommand": "npm install",
+  "crons": [
+    {
+      "path": "/api/cron/keep-alive",
+      "schedule": "0 0 * * 0"
+    }
+  ],
   "env": {
     "VERCEL_FORCE_NO_BUILD_CACHE": "1"
   }
